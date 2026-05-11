@@ -61,6 +61,25 @@ export const initialPolls = [
   { id: 3, q: 'Favourite Kiss Spot?', opts: [{ l: 'Amphitheater', v: 312 }, { l: 'SAT', v: 201 }, { l: 'Queen Esther', v: 178 }, { l: 'Busa Hut', v: 145 }], voted: null },
 ];
 
+export const initialChats = [
+  { id: 1, nm: 'CS Dept Group', ico: '🖥️', grad: 'linear-gradient(135deg,#4f7fff,#34d399)', t: '2 min ago', preview: 'Seun: Did anyone get the assignment?', msgs: [
+    { senderId: 2, senderName: 'Seun', txt: 'Did anyone get the assignment?', t: '2:30 PM', own: false },
+    { senderId: 3, senderName: 'Dapo', txt: 'Yeah check the portal', t: '2:31 PM', own: false },
+    { senderId: 0, senderName: 'You', txt: 'Thanks!', t: '2:32 PM', own: true },
+  ], online: '12 online' },
+  { id: 2, nm: 'winslow Hall', ico: '🏠', grad: 'linear-gradient(135deg,#f87171,#fbbf24)', t: '1 hr ago', preview: 'Chiemela: Power is back in Block C!', msgs: [
+    { senderId: 4, senderName: 'Chiemela', txt: 'Power is back in Block C!', t: '1:00 PM', own: false },
+    { senderId: 3, senderName: 'Dapo', txt: 'Finally 😭', t: '1:05 PM', own: false },
+  ], online: '5 online' },
+  { id: 3, nm: 'BUCC Tech', ico: '⚡', grad: 'linear-gradient(135deg,#a78bfa,#22d3ee)', t: '3 hrs ago', preview: 'You: When\'s the next hackathon?', msgs: [
+    { senderId: 0, senderName: 'You', txt: 'When\'s the next hackathon?', t: '11:00 AM', own: true },
+    { senderId: 5, senderName: 'Excel', txt: 'Next Saturday at Tech Hub', t: '11:30 AM', own: false },
+  ], online: '3 online' },
+  { id: 4, nm: '400L Study Room', ico: '📚', grad: 'linear-gradient(135deg,#34d399,#4f7fff)', t: '1 day ago', preview: 'Favour: Who has the project slides?', msgs: [
+    { senderId: 6, senderName: 'Favour', txt: 'Who has the project slides?', t: 'Yesterday', own: false },
+  ], online: '7 online' },
+];
+
 export const trending = [
   { tag: '#BUSA Elections 🗳️', cnt: '1.2K posts' }, { tag: '#UZOMA4SPORTS ⚽', cnt: '847 posts' },
   { tag: '#UCL Final 🏆', cnt: '634 posts' }, { tag: '#RIGGED 🚨', cnt: '521 posts' },

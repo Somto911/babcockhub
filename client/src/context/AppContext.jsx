@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { api } from '../utils/helpers';
-import { initialPosts, initialGroups, initialEvents, initialConfs, initialMemes, initialPolls, initialStories, trending, suggs, modItems } from '../data/initialData';
+import { initialPosts, initialGroups, initialEvents, initialConfs, initialMemes, initialPolls, initialStories, initialChats, trending, suggs, modItems } from '../data/initialData';
 
 const AppContext = createContext();
 
@@ -21,7 +21,7 @@ export function AppProvider({ children }) {
   const [stories, setStories] = useState(initialStories);
   const [modQueue, setModQueue] = useState(modItems);
 
-  const [chatList, setChatList] = useState([]);
+  const [chatList, setChatList] = useState(initialChats);
   const [activeChat, setActiveChat] = useState(null);
   const activeChatRef = useRef(null);
 
@@ -114,8 +114,8 @@ export function AppProvider({ children }) {
   }, [chatList, activeChat, socket]);
 
   const sendMessage = useCallback((txt) => {
-    if (!txt || !activeChat || !socket) return;
-    socket.emit('chat:message', { chatId: activeChat.id, msg: { txt } });
+    if (!txt || !activeChat) return;
+    if (socket) socket.emit('chat:message', { chatId: activeChat.id, msg: { txt } });
     const optimistic = {
       senderId: user?.id || 0,
       senderName: user?.name || 'You',
@@ -127,6 +127,11 @@ export function AppProvider({ children }) {
       ...prev,
       msgs: [...(prev.msgs || []), optimistic],
     }));
+    setChatList((prev) => prev.map((c) =>
+      c.id === activeChat.id
+        ? { ...c, msgs: [...(c.msgs || []), optimistic], preview: `You: ${txt.slice(0, 28)}${txt.length > 28 ? '…' : ''}`, t: 'Just now' }
+        : c
+    ));
   }, [activeChat, socket, user]);
 
   const likePost = useCallback((id) => {
