@@ -1,8 +1,10 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const crypto = require('crypto');
 const { Server } = require('socket.io');
-const { initDatabase, getUser, findUserByEmail, createUser, getChats, addMessage, sanitizeUser } = require('./database');
+const nodemailer = require('nodemailer');
+const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, sanitizeUser } = require('./database');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +14,41 @@ app.use(cors());
 const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
+
+// Email transporter (configure via env vars or use Gmail app password)
+const transporter = nodemailer.createTransport({
+  service: process.env.EMAIL_SERVICE || 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'babcockhub.verify@gmail.com',
+    pass: process.env.EMAIL_PASS || '',
+  },
+});
+
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+
+function sendVerificationEmail(email, name, token) {
+  const link = `${BASE_URL}/api/verify?token=${token}`;
+  const mailOptions = {
+    from: `"BuSocial" <${process.env.EMAIL_USER || 'noreply@babcockhub.com'}>`,
+    to: email,
+    subject: 'Verify your BuSocial account',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0f1629;color:#d4dae8;border-radius:12px;padding:32px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="width:48px;height:48px;background:linear-gradient(135deg,#4f7fff,#818cf8);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff">Bu</div>
+          <h1 style="color:#eef0f8;font-size:20px;margin:12px 0 0">Welcome to BuSocial, ${name}!</h1>
+        </div>
+        <p style="color:#d4dae8;font-size:14px;line-height:1.6">You're one step away from joining the Babcock campus community. Click below to verify your email:</p>
+        <div style="text-align:center;margin:24px 0">
+          <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4f7fff,#818cf8);color:#fff;text-decoration:none;padding:12px 32px;border-radius:10px;font-weight:700;font-size:15px">Verify Email →</a>
+        </div>
+        <p style="color:#7d88a8;font-size:12px">Or copy this link into your browser:<br><span style="color:#4f7fff">${link}</span></p>
+        <p style="color:#7d88a8;font-size:12px;margin-top:20px;border-top:1px solid rgba(100,130,200,.1);padding-top:12px">This link expires in 24 hours. If you didn't create this account, ignore this email.</p>
+      </div>
+    `,
+  };
+  return transporter.sendMail(mailOptions);
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
@@ -62,6 +99,10 @@ app.post('/api/login', (req, res) => {
         console.log('[LOGIN] No user found for:', normalized);
         return res.status(401).json({ message: 'Invalid credentials. Register first or check your password.' });
       }
+      if (!user.verified) {
+        console.log('[LOGIN] Unverified user:', normalized);
+        return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox.', needsVerification: true });
+      }
       console.log('[LOGIN] Success:', user.name);
       return res.json({ user: sanitizeUser(user) });
     });
@@ -100,8 +141,15 @@ app.post('/api/register', (req, res) => {
           console.error('[REGISTER] Failed to create user:', err);
           return res.status(500).json({ message: 'Failed to create user: ' + err.message });
         }
-        console.log('[REGISTER] Success:', newUser.name);
-        return res.status(201).json({ user: sanitizeUser(newUser) });
+        console.log('[REGISTER] Success:', newUser.name, '- sending verification email');
+        // Send verification email (don't block on failure)
+        sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
+          console.log('[REGISTER] Verification email sent to:', normalized);
+        }).catch((emailErr) => {
+          console.log('[REGISTER] Email not sent (config later):', emailErr.message);
+        });
+        console.log('[VERIFY] Link for', normalized, ':', `${BASE_URL}/api/verify?token=${newUser.verificationToken}`);
+        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true });
       });
     });
   } catch (error) {
@@ -109,6 +157,43 @@ app.post('/api/register', (req, res) => {
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
 });
+
+app.get('/api/verify', (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).send(verificationPage('Missing verification token.', false));
+  findUserByToken(token, (err, user) => {
+    if (err || !user) return res.status(400).send(verificationPage('Invalid or expired verification link.', false));
+    verifyUser(user.email, (err, success) => {
+      if (err || !success) return res.status(500).send(verificationPage('Verification failed. Try again.', false));
+      console.log('[VERIFY] User verified:', user.email);
+      res.send(verificationPage('Email verified successfully! You can now log in.', true));
+    });
+  });
+});
+
+app.post('/api/resend-verification', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required.' });
+  const normalized = email.trim().toLowerCase();
+  findUserByEmail(normalized, (err, user) => {
+    if (err || !user) return res.status(404).json({ message: 'No account found with that email.' });
+    if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
+    const token = user.verificationToken;
+    if (!token) return res.status(500).json({ message: 'No verification token found. Re-register.' });
+    sendVerificationEmail(normalized, user.name, token).then(() => {
+      console.log('[RESEND] Verification email sent to:', normalized);
+      res.json({ message: 'Verification email resent!' });
+    }).catch((emailErr) => {
+      console.log('[RESEND] Email send failed:', emailErr.message);
+      console.log('[VERIFY] Link for', normalized, ':', `${BASE_URL}/api/verify?token=${token}`);
+      res.json({ message: `Dev mode: ${BASE_URL}/api/verify?token=${token}` });
+    });
+  });
+});
+
+function verificationPage(message, success) {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BuSocial - Email Verification</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;background:#0a0e1a;color:#d4dae8;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}.card{background:rgba(25,32,64,.92);backdrop-filter:blur(20px);border:1px solid rgba(100,130,200,.12);border-radius:20px;padding:40px;max-width:420px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.7)}.icon{width:56px;height:56px;border-radius:14px;background:${success ? 'linear-gradient(135deg,#34d399,#4f7fff)' : 'linear-gradient(135deg,#f87171,#fbbf24)'};display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px}h1{font-size:20px;color:#eef0f8;margin:0 0 8px}p{font-size:14px;color:#7d88a8;line-height:1.6;margin:0}.btn{display:inline-block;margin-top:20px;background:linear-gradient(135deg,#4f7fff,#818cf8);color:#fff;text-decoration:none;padding:10px 24px;border-radius:10px;font-weight:700;font-size:14px}</style></head><body><div class="card"><div class="icon">${success ? '✅' : '❌'}</div><h1>${success ? 'Verified!' : 'Verification Failed'}</h1><p>${message}</p>${success ? '<a href="/" class="btn">Go to Login →</a>' : ''}</div></body></html>`;
+}
 
 app.get('/api/chats', (req, res) => {
   try {

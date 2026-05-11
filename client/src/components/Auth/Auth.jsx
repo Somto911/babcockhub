@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { taglines } from '../../utils/helpers';
+import { taglines, api } from '../../utils/helpers';
 
 export default function Auth() {
   const { login, register, showToast } = useApp();
@@ -9,6 +9,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [gender, setGender] = useState('');
   const [error, setError] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resending, setResending] = useState(false);
 
   const hostelMap = {
     Male: ['Winslow', 'Neal Wilson', 'Samuel Akande', 'Gideon Troopers', 'Bethel Splendor', 'Nelson Mandela'],
@@ -36,7 +38,12 @@ export default function Auth() {
       await login(email, password);
       showToast('🎉 Welcome back!');
     } catch (err) {
-      setError(`❌ ${err.message}`);
+      if (err.needsVerification) {
+        setRegisteredEmail(email);
+        setError('❌ Please verify your email before logging in.');
+      } else {
+        setError(`❌ ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -57,11 +64,25 @@ export default function Auth() {
     setLoading(true);
     try {
       await register({ name, email, dept, lvl, hostel, password });
-      showToast('🎉 Account created!');
+      setRegisteredEmail(email);
+      showToast('📧 Check your email to verify!');
     } catch (err) {
       setError(`❌ ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!registeredEmail) return;
+    setResending(true);
+    try {
+      const res = await api('/api/resend-verification', { method: 'POST', body: JSON.stringify({ email: registeredEmail }) });
+      showToast(`📧 ${res.message}`);
+    } catch (err) {
+      setError(`❌ ${err.message}`);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -85,7 +106,20 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="tab-row">
+        {registeredEmail ? (
+          <div className="verify-prompt">
+            <div className="verify-icon">📧</div>
+            <div className="verify-title">Verify your email</div>
+            <div className="verify-desc">We sent a verification link to<br /><b>{registeredEmail}</b></div>
+            <div className="verify-desc2">Click the link in the email to activate your account, then sign in.</div>
+            <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
+              <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Email'}</span>
+              <span className="btn-arrow">→</span>
+            </button>
+            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>← Back to Sign In</div>
+            {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
+          </div>
+        ) : (<><div className="tab-row">
           <div className={`tab${tab === 'login' ? ' on' : ''}`} onClick={() => setTab('login')}>
             <span className="tab-ico">👋</span><span>Sign In</span>
           </div>
@@ -161,7 +195,7 @@ export default function Auth() {
             {error && <div className="auth-error">{error}</div>}
             <div className="auth-note">Only <b>@student.babcock.edu.ng</b> emails accepted</div>
           </form>
-        )}
+        )}</>)}
       </div>
     </div>
   );

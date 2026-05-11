@@ -52,6 +52,10 @@ function initDatabase() {
       if (err) console.error('Error creating chat_participants table:', err);
     });
 
+    // Add verification columns to existing users table (safe to run if already added)
+    db.run('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0', () => {});
+    db.run('ALTER TABLE users ADD COLUMN verificationToken TEXT', () => {});
+
     // Messages table
     db.run(`
       CREATE TABLE IF NOT EXISTS messages (
@@ -85,15 +89,15 @@ function seedDatabase() {
     db.serialize(() => {
       // Insert demo users
       db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
         ['Adeyinka Bello', 'adeyinka@student.babcock.edu.ng', 'Computer Science', '300', 'Goodluck Hall', 'babcock123']
       );
       db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
         ['Chidera Okonkwo', 'chidera@student.babcock.edu.ng', 'Law', '400', 'Samuel Akande', 'law2026']
       );
       db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
         ['Emmanuel Nwachukwu', 'emmanuel@student.babcock.edu.ng', 'Economics', '200', 'Winslow', 'econ2026'],
         function(err) {
           if (err) {
@@ -173,17 +177,28 @@ function findUserByEmail(email, callback) {
 }
 
 function createUser(name, email, dept, lvl, hostel, password, callback) {
+  const token = require('crypto').randomBytes(32).toString('hex');
   db.run(
-    'INSERT INTO users (name, email, dept, lvl, hostel, password) VALUES (?, ?, ?, ?, ?, ?)',
-    [name, email.toLowerCase(), dept, lvl, hostel, password],
+    'INSERT INTO users (name, email, dept, lvl, hostel, password, verified, verificationToken) VALUES (?, ?, ?, ?, ?, ?, 0, ?)',
+    [name, email.toLowerCase(), dept, lvl, hostel, password, token],
     function(err) {
       if (err) {
         callback(err, null);
       } else {
-        callback(null, { id: this.lastID, name, email: email.toLowerCase(), dept, lvl, hostel });
+        callback(null, { id: this.lastID, name, email: email.toLowerCase(), dept, lvl, hostel, verificationToken: token });
       }
     }
   );
+}
+
+function findUserByToken(token, callback) {
+  db.get('SELECT * FROM users WHERE verificationToken = ?', [token], callback);
+}
+
+function verifyUser(email, callback) {
+  db.run('UPDATE users SET verified = 1, verificationToken = NULL WHERE email = ?', [email.toLowerCase()], function(err) {
+    callback(err, this.changes > 0);
+  });
 }
 
 function getChats(callback) {
@@ -260,6 +275,8 @@ module.exports = {
   initDatabase,
   getUser,
   findUserByEmail,
+  findUserByToken,
+  verifyUser,
   createUser,
   getChats,
   addMessage,

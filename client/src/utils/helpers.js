@@ -27,7 +27,11 @@ export const api = async (path, opts = {}) => {
     ...opts,
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message || res.statusText || 'Request failed');
+  if (!res.ok) {
+    const err = new Error(data?.message || res.statusText || 'Request failed');
+    if (data?.needsVerification) err.needsVerification = true;
+    throw err;
+  }
   return data;
 };
 

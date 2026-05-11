@@ -84,8 +84,7 @@ export function AppProvider({ children }) {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    setUser(result.user);
-    return result.user;
+    return result;
   }, []);
 
   const logout = useCallback(() => {
