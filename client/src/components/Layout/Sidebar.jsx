@@ -1,8 +1,10 @@
 import { useApp } from '../../context/AppContext';
 import { ini } from '../../utils/helpers';
 
-export default function Sidebar() {
+export default function Sidebar({ showNav, onClose }) {
   const { user, setActivePage, activePage, logout, showToast } = useApp();
+
+  const go = (page) => { setActivePage(page); onClose && onClose(); };
 
   const items = [
     { id: 'feed', label: 'Home Feed', icon: '🏠' },
@@ -20,8 +22,8 @@ export default function Sidebar() {
 
   return (
     <>
-      <nav className="sidebar">
-        <div className="sidebar-me" onClick={() => { setActivePage('profile'); }}>
+      <nav className={`sidebar${showNav ? ' show' : ''}`}>
+        <div className="sidebar-me" onClick={() => go('profile')}>
           <div className="sm-av">{user ? ini(user.name) : '?'}</div>
           <div>
             <div className="sm-name">{user?.name || 'User'}</div>
@@ -34,7 +36,7 @@ export default function Sidebar() {
           <div
             key={i.id}
             className={`nav${activePage === i.id ? ' on' : ''}`}
-            onClick={() => setActivePage(i.id)}
+            onClick={() => go(i.id)}
           >
             <span className="nav-ico">{i.icon}</span>
             {i.label}
@@ -47,7 +49,7 @@ export default function Sidebar() {
           <div
             key={i.id}
             className={`nav${activePage === i.id ? ' on' : ''}`}
-            onClick={() => setActivePage(i.id)}
+            onClick={() => go(i.id)}
           >
             <span className="nav-ico">{i.icon}</span>
             {i.label}
@@ -55,7 +57,7 @@ export default function Sidebar() {
         ))}
 
         {user?.email === 'admin.babcock.edu.ng' && (
-          <div className={`nav${activePage === 'admin' ? ' on' : ''}`} onClick={() => setActivePage('admin')}>
+          <div className={`nav${activePage === 'admin' ? ' on' : ''}`} onClick={() => go('admin')}>
             <span className="nav-ico">🛡️</span>Admin Panel
           </div>
         )}

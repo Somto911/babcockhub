@@ -11,16 +11,19 @@ import Admin from '../Admin/Admin';
 import Groups from '../Groups/Groups';
 import Events from '../Events/Events';
 import Toast from '../Common/Toast';
+import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function Layout() {
   const { activePage } = useApp();
+  const [showNav, setShowNav] = useState(false);
 
   return (
     <div id="app">
-      <Topbar />
+      <Topbar onMenu={() => setShowNav(true)} />
       <div className="layout">
-        <Sidebar />
+        <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
+        <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
         <main className="main">
           {activePage === 'feed' && <Feed />}
           {activePage === 'chat' && <Chat />}

@@ -1,11 +1,12 @@
 import { useApp } from '../../context/AppContext';
 import { ini } from '../../utils/helpers';
 
-export default function Topbar() {
+export default function Topbar({ onMenu }) {
   const { user, setActivePage, showToast } = useApp();
 
   return (
     <div className="topbar">
+      <div className="tb-mobile-menu" onClick={onMenu}>☰</div>
       <div className="tb-logo" onClick={() => setActivePage('feed')}>
         <div className="tb-icon">
           <svg viewBox="0 0 24 24" width="24" height="24">
