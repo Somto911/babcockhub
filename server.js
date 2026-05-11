@@ -16,17 +16,21 @@ const io = new Server(server, {
 });
 
 // Email transporter (SendGrid or Gmail app password)
-const transporter = nodemailer.createTransport(
-  process.env.EMAIL_SERVICE === 'sendgrid'
-    ? { host: 'smtp.sendgrid.net', port: 587, auth: { user: 'apikey', pass: process.env.EMAIL_PASS || '' } }
-    : { service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } }
-);
+const transporter = process.env.SENDGRID_API_KEY
+  ? nodemailer.createTransport({ host: 'smtp.sendgrid.net', port: 587, auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY } })
+  : process.env.EMAIL_USER && process.env.EMAIL_PASS
+    ? nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } })
+    : null;
 
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 function sendVerificationEmail(email, name, token) {
+  if (!transporter) {
+    console.log('[EMAIL] No email transporter configured. Set SENDGRID_API_KEY or EMAIL_USER/EMAIL_PASS.');
+    return Promise.reject(new Error('Email not configured'));
+  }
   const link = `${BASE_URL}/api/verify?token=${token}`;
-  const fromEmail = process.env.EMAIL_USER || (process.env.EMAIL_SERVICE === 'sendgrid' ? 'noreply@babcockhub.com' : 'noreply@gmail.com');
+  const fromEmail = process.env.FROM_EMAIL || process.env.EMAIL_USER || 'noreply@babcockhub.com';
   const mailOptions = {
     from: `"BuSocial" <${fromEmail}>`,
     to: email,
@@ -143,12 +147,14 @@ app.post('/api/register', (req, res) => {
         console.log('[REGISTER] Success:', newUser.name, '- sending verification email');
         // Send verification email (don't block on failure)
         sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
-          console.log('[REGISTER] Verification email sent to:', normalized);
+          console.log('[REGISTER] ✓ Verification email sent to:', normalized);
         }).catch((emailErr) => {
-          console.log('[REGISTER] Email not sent (config later):', emailErr.message);
+          console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
+          console.log('[REGISTER]   To fix: set SENDGRID_API_KEY on Render (or FROM_EMAIL + EMAIL_USER + EMAIL_PASS for Gmail)');
         });
-        console.log('[VERIFY] Link for', normalized, ':', `${BASE_URL}/api/verify?token=${newUser.verificationToken}`);
-        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true });
+        const vLink = `${BASE_URL}/api/verify?token=${newUser.verificationToken}`;
+        console.log('[VERIFY] Link for', normalized, ':', vLink);
+        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true, verifyLink: vLink });
       });
     });
   } catch (error) {
@@ -179,13 +185,14 @@ app.post('/api/resend-verification', (req, res) => {
     if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
     const token = user.verificationToken;
     if (!token) return res.status(500).json({ message: 'No verification token found. Re-register.' });
+    const vLink = `${BASE_URL}/api/verify?token=${token}`;
     sendVerificationEmail(normalized, user.name, token).then(() => {
-      console.log('[RESEND] Verification email sent to:', normalized);
-      res.json({ message: 'Verification email resent!' });
+      console.log('[RESEND] ✓ Verification email sent to:', normalized);
+      res.json({ message: 'Verification email resent!', verifyLink: vLink });
     }).catch((emailErr) => {
-      console.log('[RESEND] Email send failed:', emailErr.message);
-      console.log('[VERIFY] Link for', normalized, ':', `${BASE_URL}/api/verify?token=${token}`);
-      res.json({ message: `Dev mode: ${BASE_URL}/api/verify?token=${token}` });
+      console.log('[RESEND] ✗ Email send failed:', emailErr.message);
+      console.log('[RESEND]   Link for', normalized, ':', vLink);
+      res.json({ message: 'Click the link below to verify.', verifyLink: vLink });
     });
   });
 });
