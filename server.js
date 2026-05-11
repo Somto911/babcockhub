@@ -15,12 +15,14 @@ const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-// Email transporter (SendGrid or Gmail app password)
-const transporter = process.env.SENDGRID_API_KEY
-  ? nodemailer.createTransport({ host: 'smtp.sendgrid.net', port: 587, auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY } })
-  : process.env.EMAIL_USER && process.env.EMAIL_PASS
-    ? nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } })
-    : null;
+// Email transporter (Gmail app password or SendGrid)
+const transporter = process.env.EMAIL_USER && process.env.EMAIL_PASS
+  ? nodemailer.createTransport({
+      host: 'smtp.gmail.com', port: 587, secure: false,
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      connectionTimeout: 10000,
+    })
+  : null;
 
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
@@ -154,7 +156,7 @@ app.post('/api/register', (req, res) => {
         });
         const vLink = `${BASE_URL}/api/verify?token=${newUser.verificationToken}`;
         console.log('[VERIFY] Link for', normalized, ':', vLink);
-        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true, verifyLink: vLink });
+        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true });
       });
     });
   } catch (error) {

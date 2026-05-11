@@ -49,12 +49,9 @@ export default function Auth() {
     }
   };
 
-  const [verifyLink, setVerifyLink] = useState('');
-
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
-    setVerifyLink('');
     const fd = new FormData(e.target);
     const name = fd.get('name')?.trim();
     const email = fd.get('email')?.trim();
@@ -66,9 +63,8 @@ export default function Auth() {
     if (!email.endsWith('@student.babcock.edu.ng')) { setError('❌ Only @student.babcock.edu.ng emails allowed'); return; }
     setLoading(true);
     try {
-      const res = await register({ name, email, dept, lvl, hostel, password });
+      await register({ name, email, dept, lvl, hostel, password });
       setRegisteredEmail(email);
-      if (res.verifyLink) setVerifyLink(res.verifyLink);
       showToast('📧 Check your email to verify!');
     } catch (err) {
       setError(`❌ ${err.message}`);
@@ -82,7 +78,6 @@ export default function Auth() {
     setResending(true);
     try {
       const res = await api('/api/resend-verification', { method: 'POST', body: JSON.stringify({ email: registeredEmail }) });
-      if (res.verifyLink) setVerifyLink(res.verifyLink);
       showToast(`📧 ${res.message}`);
     } catch (err) {
       setError(`❌ ${err.message}`);
@@ -117,17 +112,11 @@ export default function Auth() {
             <div className="verify-title">Verify your email</div>
             <div className="verify-desc">We sent a verification link to<br /><b>{registeredEmail}</b></div>
             <div className="verify-desc2">Click the link in the email to activate your account, then sign in.</div>
-            {verifyLink && (
-              <div className="verify-link-wrap">
-                <div className="verify-desc2" style={{ marginTop: 12 }}>Can't find the email? Click here:</div>
-                <a href={verifyLink} className="verify-link-btn" target="_blank" rel="noopener noreferrer">Verify Account →</a>
-              </div>
-            )}
             <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
               <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Email'}</span>
               <span className="btn-arrow">→</span>
             </button>
-            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); setVerifyLink(''); }}>← Back to Sign In</div>
+            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>← Back to Sign In</div>
             {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
           </div>
         ) : (<><div className="tab-row">
