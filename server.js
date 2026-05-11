@@ -15,12 +15,12 @@ const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-// Email transporter (Gmail app password or SendGrid)
+// Email transporter (Gmail app password)
 const transporter = process.env.EMAIL_USER && process.env.EMAIL_PASS
   ? nodemailer.createTransport({
-      host: 'smtp.gmail.com', port: 587, secure: false,
+      host: 'smtp.gmail.com', port: 465, secure: true,
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-      connectionTimeout: 10000,
+      connectionTimeout: 15000,
     })
   : null;
 
