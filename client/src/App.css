@@ -92,10 +92,11 @@ select.inp{cursor:pointer;-webkit-appearance:none;background-image:url("data:ima
 @keyframes appAmbient{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.02)}100%{opacity:.7;transform:scale(1)}}
 .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar);background:rgba(10,14,26,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(100,130,200,0.08);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:200}
 .tb-logo{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
-.tb-icon{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4f7fff,#818cf8);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;font-family:var(--head);position:relative;transition:transform .3s ease}
-.tb-icon::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(26,86,255,.2);animation:ringPulse 3s ease-in-out infinite}
-.tb-logo:hover .tb-icon{transform:scale(1.08) rotate(-3deg)}
-.tb-name{font-family:var(--head);font-size:15px;color:var(--white)}
+.tb-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4f7fff,#818cf8);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;font-family:var(--head);position:relative;transition:all .3s cubic-bezier(.22,.61,.36,1);box-shadow:0 2px 8px rgba(79,127,255,.3)}
+.tb-icon::after{content:'';position:absolute;inset:-3px;border-radius:11px;border:2px solid rgba(79,127,255,.2);animation:ringPulse 3s ease-in-out infinite}
+.tb-logo:hover .tb-icon{transform:scale(1.08) rotate(-5deg);box-shadow:0 4px 16px rgba(79,127,255,.4)}
+.tb-logo:hover .tb-name{background-size:200% auto}
+.tb-name{font-family:var(--head);font-size:16px;background:linear-gradient(135deg,var(--white),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all .3s ease}
 .tb-search{flex:1;max-width:320px;margin:0 auto;position:relative}
 .tb-search input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:7px 14px 7px 34px;color:var(--text);font-size:13px;outline:none;transition:all .25s cubic-bezier(.22,.61,.36,1)}
 .tb-search input:hover{border-color:var(--border2)}

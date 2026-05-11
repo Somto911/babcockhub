@@ -102,7 +102,7 @@ export default function Auth() {
             <label className="lbl">Password</label>
             <input className="inp" type="password" name="password" placeholder="Enter your password" />
             <button className="btn-main" type="submit" disabled={loading}>
-              <span className="btn-text">{loading ? 'Signing in...' : 'Sign In to BabcockHub'}</span>
+              <span className="btn-text">{loading ? 'Signing in...' : 'Sign In to BuSocial'}</span>
               <span className="btn-arrow">→</span>
             </button>
             {error && <div className="auth-error">{error}</div>}
