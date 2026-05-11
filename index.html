@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BabcockHub — Campus Social Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="auth">
+  <div class="auth-noise"></div>
+  <div class="auth-grid"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="brand-icon">
+        <span class="brand-icon-inner">Bu</span>
+        <div class="brand-ring"></div>
+      </div>
+      <h1>BuSocial</h1>
+      <p class="auth-tagline"><span id="tagline-text">Your campus. Your community.</span><span class="tagline-cursor">|</span></p>
+      <div class="auth-vibe">
+        <span class="vibe-dot"></span>
+        <span class="vibe-dot"></span>
+        <span class="vibe-dot"></span>
+      </div>
+    </div>
+
+    <div class="tab-row">
+      <div class="tab on" id="t-login" onclick="switchTab('login')">
+        <span class="tab-ico">👋</span>
+        <span>Sign In</span>
+      </div>
+      <div class="tab" id="t-reg" onclick="switchTab('reg')">
+        <span class="tab-ico">🚀</span>
+        <span>Create Account</span>
+      </div>
+    </div>
+
+    <div id="f-login">
+      <div class="auth-welcome">Welcome back!</div>
+      <label class="lbl">University Email</label>
+      <input class="inp" type="email" id="l-email" placeholder="yourname@student.babcock.edu.ng">
+      <label class="lbl">Password</label>
+      <input class="inp" type="password" id="l-pass" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn-main" onclick="doLogin()">
+        <span class="btn-text">Sign In to BabcockHub</span>
+        <span class="btn-arrow">→</span>
+      </button>
+      <div class="auth-note">Secured · University-verified · <b>Babcock only</b></div>
+    </div>
+
+    <div id="f-reg" style="display:none">
+      <div class="auth-welcome">Join the squad!</div>
+      <div class="row2">
+        <div><label class="lbl">Full Name</label><input class="inp" type="text" id="r-name" placeholder="Your full name"></div>
+        <div><label class="lbl">Username</label><input class="inp" type="text" id="r-user" placeholder="@handle"></div>
+      </div>
+      <label class="lbl">University Email</label>
+      <input class="inp" type="email" id="r-email" placeholder="yourname@student.babcock.edu.ng">
+      <div class="row2">
+        <div><label class="lbl">Department</label><select class="inp" id="r-dept">
+          <option value="">Select...</option>
+          <option>Computer Science</option><option>Mass Communication</option>
+          <option>Business Administration</option><option>Medicine & Surgery</option>
+          <option>Law</option><option>Accounting</option><option>Engineering</option>
+          <option>Nursing Science</option><option>Psychology</option><option>Economics</option>
+        </select></div>
+        <div><label class="lbl">Gender</label><select class="inp" id="r-gender" onchange="updateHallOptions()">
+          <option value="">Select...</option>
+          <option>Male</option><option>Female</option>
+        </select></div>
+      </div>
+      <div class="row2">
+        <div><label class="lbl">Level</label><select class="inp" id="r-lvl">
+          <option value="">Level</option>
+          <option>100</option><option>200</option><option>300</option><option>400</option><option>500</option>
+        </select></div>
+        <div><label class="lbl">Hostel</label><select class="inp" id="r-hostel">
+          <option value="">Select...</option>
+        </select></div>
+      </div>
+      <label class="lbl">Password</label>
+      <input class="inp" type="password" id="r-pass" placeholder="Create a strong password" style="margin-bottom:10px">
+      <button class="btn-main" onclick="doRegister()">
+        <span class="btn-text">Create My Account</span>
+        <span class="btn-arrow">→</span>
+      </button>
+      <div class="auth-note">Only <b>@student.babcock.edu.ng</b> emails accepted</div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+
+  <div class="topbar">
+    <div class="tb-logo" onclick="go('feed')">
+      <div class="tb-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif" fill="currentColor">Bu</text></svg></div>
+      <span class="tb-name">BuSocial</span>
+    </div>
+    <div class="tb-search">
+      <span class="tb-search-ico">🔍</span>
+      <input type="text" placeholder="Search students, groups, events…" oninput="handleSearch(this.value)">
+    </div>
+    <div class="tb-right">
+      <div class="tb-btn" onclick="go('chat')" title="Messages">💬</div>
+      <div class="tb-btn" onclick="toast('🔔 3 new notifications')" title="Notifications">🔔<div class="notif-dot"></div></div>
+      <div class="tb-av" id="tb-av" onclick="openMyProfile()">AB</div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <nav class="sidebar">
+      <div class="sidebar-me" onclick="openMyProfile()">
+        <div class="sm-av" id="sm-av">AB</div>
+        <div>
+          <div class="sm-name" id="sm-name">Adeyinka Bello</div>
+          <div class="sm-dept" id="sm-dept">CSC · 300L</div>
+        </div>
+      </div>
+
+      <div class="sid-lbl">Main</div>
+      <div class="nav on" id="n-feed" onclick="go('feed')">Home Feed</div>
+      <div class="nav" id="n-groups" onclick="go('groups')">Groups<span class="nbadge blue">5</span></div>
+      <div class="nav" id="n-events" onclick="go('events')">Events</div>
+      <div class="nav" id="n-chat" onclick="go('chat')">Messages</div>
+      <div class="nav" id="n-profile" onclick="openMyProfile()">My Profile</div>
+
+      <div class="sid-lbl" style="margin-top:6px">Campus</div>
+      <div class="nav" id="n-conf" onclick="go('conf')">Confession Wall</div>
+      <div class="nav" id="n-memes" onclick="go('memes')">Meme Hub</div>
+      <div class="nav" id="n-polls" onclick="go('polls')">Polls & Trends</div>
+      <div class="nav" id="n-admin" onclick="go('admin')" style="display:none">Admin Panel</div>
+
+      <div class="sid-lbl" style="margin-top:6px">Account</div>
+      <div class="nav" onclick="doLogout()" style="color:var(--text2)"><span class="nav-ico">↗</span>Sign Out</div>
+    </nav>
+
+    <main class="main">
+
+      <div class="pg on" id="pg-feed">
+        <div class="stories" id="story-row"></div>
+
+        <div class="greeting-bar" id="greeting-bar"></div>
+
+        <div class="composer">
+          <div class="comp-top">
+            <div class="comp-av" id="comp-av">AB</div>
+            <textarea class="comp-ta" id="post-ta" placeholder="What's happening on campus? 🔥" rows="2"></textarea>
+          </div>
+          <div class="comp-bar">
+            <div class="comp-act" onclick="toast('📷 Image upload — Phase 2!')">📷 Photo</div>
+            <div class="comp-act" onclick="toast('🎥 Video — Phase 3!')">🎬 Video</div>
+            <select class="comp-sel" id="post-cat">
+              <option value="general">General</option>
+              <option value="academics">Academics</option>
+              <option value="hostel">Hostel Life</option>
+              <option value="gist">Gist</option>
+              <option value="events">Events</option>
+            </select>
+            <button class="comp-sub" onclick="submitPost()">Post →</button>
+          </div>
+        </div>
+
+        <div class="chips" id="feed-chips">
+          <div class="chip on" onclick="filterPosts(this,'all')">✨ All</div>
+          <div class="chip" onclick="filterPosts(this,'academics')">📚 Academics</div>
+          <div class="chip" onclick="filterPosts(this,'hostel')">🏠 Hostel</div>
+          <div class="chip" onclick="filterPosts(this,'gist')">☕ Gist</div>
+          <div class="chip" onclick="filterPosts(this,'events')">📅 Events</div>
+          <div class="chip" onclick="filterPosts(this,'sports')">⚽ Sports</div>
+        </div>
+
+        <div id="feed-posts"></div>
+      </div>
+
+      <div class="pg" id="pg-groups">
+        <div class="pg-hd">
+          <div class="pg-title">👥 Groups</div>
+          <button class="btn-out" onclick="openModal('m-grp')">+ Create Group</button>
+        </div>
+        <div class="chips">
+          <div class="chip on">All Groups</div>
+          <div class="chip" onclick="toast('🔍 Filter coming!')">Departments</div>
+          <div class="chip" onclick="toast('🏠 Hostel groups!')">Hostels</div>
+          <div class="chip" onclick="toast('⚡ Club groups!')">Clubs</div>
+          <div class="chip" onclick="toast('📖 Course groups!')">Courses</div>
+        </div>
+        <div id="grp-list"></div>
+      </div>
+
+      <div class="pg" id="pg-events">
+        <div class="pg-hd">
+          <div class="pg-title">📅 Campus Events</div>
+          <button class="btn-out" onclick="openModal('m-ev')">+ Create Event</button>
+        </div>
+        <div class="chips">
+          <div class="chip on">Upcoming</div>
+          <div class="chip" onclick="toast('This week!')">This Week</div>
+          <div class="chip" onclick="toast('Academic events!')">Academic</div>
+          <div class="chip" onclick="toast('Social events!')">Social</div>
+          <div class="chip" onclick="toast('Sports events!')">Sports</div>
+        </div>
+        <div id="ev-list"></div>
+      </div>
+
+      <div class="pg" id="pg-chat">
+        <div class="chat-wrap">
+          <div class="cl-panel">
+            <div class="cl-head">💬 Messages</div>
+            <div class="cl-list" id="chat-list"></div>
+          </div>
+          <div class="chat-win" id="chat-win">
+            <div class="empty-messages" id="chat-placeholder" style="min-height:auto;flex:1">
+              <div class="empty-ico">💬</div>
+              <div class="empty-title">Select a chat</div>
+              <div class="empty-desc">Choose a conversation from the left to start chatting</div>
+            </div>
+            <div id="chat-active" style="display:none;flex:1;flex-direction:column;height:100%">
+              <div class="chat-hd">
+                <div class="chd-av" id="chd-av">🖥️</div>
+                <div style="flex:1;min-width:0">
+                  <div class="chd-nm" id="chd-nm">CSC 300 Group</div>
+                  <div class="chd-st" id="chd-st">12 online</div>
+                </div>
+              </div>
+              <div class="chat-msgs" id="chat-msgs"></div>
+              <div class="chat-inp-bar">
+                <input class="chat-inp" id="chat-inp" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg" id="pg-profile">
+        <div class="prof-card">
+          <div class="prof-banner" id="prof-banner" style="background:linear-gradient(135deg,rgba(26,86,255,.35),rgba(0,194,122,.25))">🎓</div>
+          <div class="prof-bd">
+            <div class="prof-av" id="prof-av">AB</div>
+            <div class="prof-nm" id="prof-nm">Olawuyi Oluwaseun</div>
+            <div class="prof-dept" id="prof-dept">Information Technology · 300 Level · Samuel Akande</div>
+            <div class="prof-bio" id="prof-bio">Building things, breaking things, fixing things ⚡ | Tech enthusiast | Chess player | Babcock '26</div>
+            <div class="prof-acts">
+              <button class="btn-out" id="prof-edit-btn" onclick="toast('✏️ Edit profile — coming soon!')">Edit Profile</button>
+              <div class="comp-act" onclick="toast('🔗 Profile link copied!')">🔗 Share</div>
+            </div>
+            <div class="prof-stats">
+              <div class="ps"><div class="ps-n" id="p-posts">12</div><div class="ps-l">Posts</div></div>
+              <div class="ps"><div class="ps-n" id="p-followers">612</div><div class="ps-l">Followers</div></div>
+              <div class="ps"><div class="ps-n" id="p-following">248</div><div class="ps-l">Following</div></div>
+              <div class="ps"><div class="ps-n">7</div><div class="ps-l">Groups</div></div>
+            </div>
+            <div class="prof-tags" id="prof-tags">
+              <span class="ptag">#CSC300</span><span class="ptag">#winslow Hall</span>
+              <span class="ptag">#TechClub</span><span class="ptag">#Chess</span><span class="ptag">#Babcock26</span>
+            </div>
+          </div>
+        </div>
+        <div class="sec-hd">My Posts</div>
+        <div id="prof-posts"></div>
+      </div>
+
+      <div class="pg" id="pg-conf">
+        <div class="pg-hd"><div class="pg-title"> Confession Wall</div></div>
+        <div class="conf-composer">
+          <div class="conf-note"> Your identity is hidden — post anonymously</div>
+          <textarea class="comp-ta" id="conf-ta" placeholder="Confess your campus secrets… " rows="3" style="border-color:rgba(139,92,246,.2)"></textarea>
+          <div style="margin-top:8px;display:flex">
+            <button class="comp-sub" style="background:var(--purple);box-shadow:0 4px 18px var(--purple-dim)" onclick="submitConf()">Confess 👻</button>
+          </div>
+        </div>
+        <div id="conf-list"></div>
+      </div>
+
+      <div class="pg" id="pg-memes">
+        <div class="pg-hd"><div class="pg-title"> Meme Hub</div><button class="btn-out" onclick="toast('📤 Upload your meme!')">+ Upload Meme</button></div>
+        <div class="meme-grid" id="meme-grid"></div>
+      </div>
+
+      <div class="pg" id="pg-polls">
+        <div class="pg-hd"><div class="pg-title"> Polls & Trending</div><button class="btn-out" onclick="toast('📊 Create poll — coming!')">+ New Poll</button></div>
+        <div id="polls-wrap"></div>
+      </div>
+
+      <div class="pg" id="pg-admin">
+        <div class="pg-hd">
+          <div class="pg-title">🛡️ Admin Dashboard</div>
+          <span style="font-size:11px;color:var(--text2);background:var(--surface2);padding:4px 10px;border-radius:6px;border:1px solid var(--border)">MODERATOR VIEW</span>
+        </div>
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="sec-hd">Content Flagged for Review</div>
+        <div id="mod-q"></div>
+      </div>
+
+    </main>
+
+    <aside class="rail">
+
+      <div class="widget">
+        <div class="w-title">⏰ Post Siwes Countdown</div>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-bottom:8px">Back to hell</div>
+        <div class="cd-grid" id="cd-grid"></div>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:6px">You are doomed</div>
+      </div>
+
+      <div class="widget">
+        <div class="w-title">🔥 Trending on Campus</div>
+        <div id="trending"></div>
+      </div>
+
+      <div class="widget">
+        <div class="w-title">👥 People You May Know</div>
+        <div id="suggs"></div>
+      </div>
+
+      <div class="widget">
+        <div class="w-title">⚡ Campus Pulse</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6" id="pulse-txt">
+          Loading campus vibes…
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-ico">✅</span><span id="toast-msg">Done</span></div>
+
+<div class="overlay" id="m-grp">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Create a Group</div><div class="modal-x" onclick="closeModal('m-grp')">✕</div></div>
+    <label class="lbl">Group Name</label><input class="inp" id="ng-nm" placeholder="e.g. CSC 400 Study Squad">
+    <label class="lbl">Type</label>
+    <select class="inp" id="ng-type"><option>Department</option><option>Hostel</option><option>Club</option><option>Course</option></select>
+    <label class="lbl">Description</label>
+    <textarea class="inp" id="ng-desc" rows="2" placeholder="What's this group about?"></textarea>
+    <button class="btn-main" onclick="createGroup()">Create Group →</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-ev">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Create an Event</div><div class="modal-x" onclick="closeModal('m-ev')">✕</div></div>
+    <label class="lbl">Event Title</label><input class="inp" id="ne-title" placeholder="e.g. CSC Tech Night">
+    <div class="row2">
+      <div><label class="lbl">Date</label><input class="inp" type="date" id="ne-date"></div>
+      <div><label class="lbl">Time</label><input class="inp" type="time" id="ne-time"></div>
+    </div>
+    <label class="lbl">Location</label><input class="inp" id="ne-loc" placeholder="e.g. Chapel Auditorium">
+    <label class="lbl">Description</label>
+    <textarea class="inp" id="ne-desc" rows="2" placeholder="Tell people about this event…"></textarea>
+    <button class="btn-main" onclick="createEvent()">Create Event →</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-meme" onclick="closeMemeModal()">
+  <div class="meme-modal" onclick="event.stopPropagation()">
+    <div class="meme-modal-x" onclick="closeMemeModal()">✕</div>
+    <img id="meme-full-img" src="" alt="" draggable="false">
+    <div class="meme-modal-bd">
+      <div class="meme-full-cap" id="meme-full-cap"></div>
+      <div class="meme-full-acts">
+        <div class="mact-big" onclick="toast('😂 Meme liked!')">😂 <span id="meme-full-likes"></span></div>
+        <div class="mact-big" onclick="toast('🔗 Link copied!')">🔗 Share</div>
+        <div class="mact-big" onclick="toast('🔖 Saved!')">🔖 Save</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/twemoji@latest/dist/twemoji.min.js"></script>
+<script src="app.js"></script>
+<script>
+  let _emojiTimer=null;
+  function applyEmojis(){
+    clearTimeout(_emojiTimer);
+    _emojiTimer=setTimeout(()=>{
+      if(typeof twemoji!=='undefined'){
+        twemoji.parse(document.body,{
+          className:'twemoji',
+          getURL:(iconId)=>`https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.1.0/img/apple/64/${iconId}.png`
+        });
+      }
+    },60);
+  }
+  setTimeout(applyEmojis,300);
+</script>
+</body>
+</html>
