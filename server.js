@@ -15,21 +15,20 @@ const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-// Email transporter (configure via env vars or use Gmail app password)
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'babcockhub.verify@gmail.com',
-    pass: process.env.EMAIL_PASS || '',
-  },
-});
+// Email transporter (SendGrid or Gmail app password)
+const transporter = nodemailer.createTransport(
+  process.env.EMAIL_SERVICE === 'sendgrid'
+    ? { host: 'smtp.sendgrid.net', port: 587, auth: { user: 'apikey', pass: process.env.EMAIL_PASS || '' } }
+    : { service: 'gmail', auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } }
+);
 
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 function sendVerificationEmail(email, name, token) {
   const link = `${BASE_URL}/api/verify?token=${token}`;
+  const fromEmail = process.env.EMAIL_USER || (process.env.EMAIL_SERVICE === 'sendgrid' ? 'noreply@babcockhub.com' : 'noreply@gmail.com');
   const mailOptions = {
-    from: `"BuSocial" <${process.env.EMAIL_USER || 'noreply@babcockhub.com'}>`,
+    from: `"BuSocial" <${fromEmail}>`,
     to: email,
     subject: 'Verify your BuSocial account',
     html: `
