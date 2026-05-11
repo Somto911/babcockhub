@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const crypto = require('crypto');
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const nodemailer = require('nodemailer');
 const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, sanitizeUser } = require('./database');
@@ -18,9 +20,8 @@ const io = new Server(server, {
 // Email transporter (Gmail app password)
 const transporter = process.env.EMAIL_USER && process.env.EMAIL_PASS
   ? nodemailer.createTransport({
-      host: 'smtp.gmail.com', port: 465, secure: true,
+      service: 'gmail',
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-      connectionTimeout: 15000,
     })
   : null;
 
