@@ -5,8 +5,15 @@ const crypto = require('crypto');
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, sanitizeUser } = require('./database');
+const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+
+// Email transporter (SendGrid API via HTTPS - always works on Render)
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('[EMAIL] SendGrid configured');
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -17,24 +24,14 @@ const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-// Email transporter (Gmail app password)
-const transporter = process.env.EMAIL_USER && process.env.EMAIL_PASS
-  ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    })
-  : null;
-
-const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
-
 function sendVerificationEmail(email, name, token) {
-  if (!transporter) {
-    console.log('[EMAIL] No email transporter configured. Set SENDGRID_API_KEY or EMAIL_USER/EMAIL_PASS.');
-    return Promise.reject(new Error('Email not configured'));
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('[EMAIL] SENDGRID_API_KEY not set. Verification link:', `${BASE_URL}/api/verify?token=${token}`);
+    return Promise.reject(new Error('SendGrid not configured'));
   }
   const link = `${BASE_URL}/api/verify?token=${token}`;
-  const fromEmail = process.env.FROM_EMAIL || process.env.EMAIL_USER || 'noreply@babcockhub.com';
-  const mailOptions = {
+  const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
+  const msg = {
     from: `"BuSocial" <${fromEmail}>`,
     to: email,
     subject: 'Verify your BuSocial account',
@@ -53,7 +50,7 @@ function sendVerificationEmail(email, name, token) {
       </div>
     `,
   };
-  return transporter.sendMail(mailOptions);
+  return sgMail.send(msg);
 }
 
 app.use(express.json());
@@ -152,8 +149,12 @@ app.post('/api/register', (req, res) => {
         sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
           console.log('[REGISTER] ✓ Verification email sent to:', normalized);
         }).catch((emailErr) => {
-          console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
-          console.log('[REGISTER]   To fix: set SENDGRID_API_KEY on Render (or FROM_EMAIL + EMAIL_USER + EMAIL_PASS for Gmail)');
+          if (emailErr.response && emailErr.response.body) {
+            console.log('[REGISTER] ✗ SendGrid error:', JSON.stringify(emailErr.response.body.errors));
+          } else {
+            console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
+          }
+          console.log('[REGISTER]   To fix: add SENDGRID_API_KEY env var on Render');
         });
         const vLink = `${BASE_URL}/api/verify?token=${newUser.verificationToken}`;
         console.log('[VERIFY] Link for', normalized, ':', vLink);
