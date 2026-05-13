@@ -6,7 +6,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, sanitizeUser } = require('./database');
+const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, getComments, addComment, deleteComment, sanitizeUser } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
@@ -205,6 +205,46 @@ function verificationPage(message, success) {
   const redirect = success ? '<meta http-equiv="refresh" content="2;url=/"><script>setTimeout(()=>window.location.href="/",2000)</script>' : '';
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BuSocial - Email Verification</title>${redirect}<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;background:#0a0e1a;color:#d4dae8;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}.card{background:rgba(25,32,64,.92);backdrop-filter:blur(20px);border:1px solid rgba(100,130,200,.12);border-radius:20px;padding:40px;max-width:420px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.7)}.icon{width:56px;height:56px;border-radius:14px;background:${success ? 'linear-gradient(135deg,#34d399,#4f7fff)' : 'linear-gradient(135deg,#f87171,#fbbf24)'};display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px}h1{font-size:20px;color:#eef0f8;margin:0 0 8px}p{font-size:14px;color:#7d88a8;line-height:1.6;margin:0}</style></head><body><div class="card"><div class="icon">${success ? '✅' : '❌'}</div><h1>${success ? 'Verified!' : 'Verification Failed'}</h1><p>${message}</p>${success ? '<p style="margin-top:16px;font-size:13px;color:#7d88a8">Redirecting to login...</p>' : ''}</div></body></html>`;
 }
+
+app.get('/api/comments', (req, res) => {
+  try {
+    const postId = req.query.postId;
+    getComments((err, comments) => {
+      if (err) return res.status(500).json({ message: 'Failed to load comments: ' + err.message });
+      const filtered = postId ? comments.filter((c) => c.postId === postId) : comments;
+      return res.json({ comments: filtered });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.post('/api/comments', (req, res) => {
+  try {
+    const { postId, author, text, userId } = req.body;
+    if (!postId || !text || !userId) return res.status(400).json({ message: 'Missing required fields.' });
+    addComment(postId, author, text, userId, (err, comment) => {
+      if (err) return res.status(500).json({ message: 'Failed to add comment: ' + err.message });
+      return res.status(201).json({ comment });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.delete('/api/comments/:id', (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ message: 'userId required.' });
+    deleteComment(parseInt(req.params.id), userId, (err, deleted) => {
+      if (err) return res.status(500).json({ message: 'Failed to delete comment: ' + err.message });
+      if (!deleted) return res.status(404).json({ message: 'Comment not found or not yours.' });
+      return res.json({ success: true });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
 
 app.get('/api/chats', (req, res) => {
   try {

@@ -56,6 +56,21 @@ function initDatabase() {
     db.run('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0', () => {});
     db.run('ALTER TABLE users ADD COLUMN verificationToken TEXT', () => {});
 
+    // Comments table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        postId TEXT NOT NULL,
+        author TEXT NOT NULL,
+        text TEXT NOT NULL,
+        time TEXT DEFAULT 'Just now',
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating comments table:', err);
+    });
+
     // Messages table
     db.run(`
       CREATE TABLE IF NOT EXISTS messages (
@@ -264,6 +279,32 @@ function addMessage(chatId, senderId, senderName, txt, callback) {
   );
 }
 
+function getComments(callback) {
+  db.all('SELECT * FROM comments ORDER BY createdAt ASC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    callback(null, rows || []);
+  });
+}
+
+function addComment(postId, author, text, userId, callback) {
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  db.run(
+    'INSERT INTO comments (postId, author, text, time, userId) VALUES (?, ?, ?, ?, ?)',
+    [postId, author, text, time, userId],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      callback(null, { id: this.lastID, postId, author, text, time, userId });
+    }
+  );
+}
+
+function deleteComment(commentId, userId, callback) {
+  db.run('DELETE FROM comments WHERE id = ? AND userId = ?', [commentId, userId], function(err) {
+    if (err) { callback(err, false); return; }
+    callback(null, this.changes > 0);
+  });
+}
+
 function sanitizeUser(user) {
   const copy = { ...user };
   delete copy.password;
@@ -280,6 +321,9 @@ module.exports = {
   createUser,
   getChats,
   addMessage,
+  getComments,
+  addComment,
+  deleteComment,
   sanitizeUser,
 };
 

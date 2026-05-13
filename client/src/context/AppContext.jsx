@@ -172,7 +172,7 @@ export function AppProvider({ children }) {
 
   const addComment = useCallback((postId, text, user) => {
     if (!text.trim()) return;
-    const comment = {
+    const optimistic = {
       id: Date.now(),
       author: user?.name || 'You',
       text: text.trim(),
@@ -180,15 +180,29 @@ export function AppProvider({ children }) {
       userId: user?.id || 0,
     };
     setPosts((prev) => prev.map((p) =>
-      p.id === postId ? { ...p, comments: [...(p.comments || []), comment] } : p
+      p.id === postId ? { ...p, comments: [...(p.comments || []), optimistic] } : p
     ));
+    api('/api/comments', {
+      method: 'POST',
+      body: JSON.stringify({ postId: String(postId), author: user?.name || 'You', text: text.trim(), userId: user?.id || 0 }),
+    }).then((data) => {
+      if (data?.comment) {
+        setPosts((prev) => prev.map((p) =>
+          p.id === postId ? { ...p, comments: (p.comments || []).map((c) => c.id === optimistic.id ? { ...c, id: data.comment.id } : c) } : p
+        ));
+      }
+    }).catch(() => {});
   }, []);
 
   const deleteComment = useCallback((postId, commentId) => {
     setPosts((prev) => prev.map((p) =>
       p.id === postId ? { ...p, comments: (p.comments || []).filter((c) => c.id !== commentId) } : p
     ));
-  }, []);
+    api(`/api/comments/${commentId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ userId: user?.id || 0 }),
+    }).catch(() => {});
+  }, [user?.id]);
 
   const markNotifRead = useCallback((id) => {
     setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
@@ -225,6 +239,22 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (user) loadChats();
   }, [user, loadChats]);
+
+  useEffect(() => {
+    api('/api/comments').then((data) => {
+      if (data?.comments) {
+        const grouped = {};
+        data.comments.forEach((c) => {
+          if (!grouped[c.postId]) grouped[c.postId] = [];
+          grouped[c.postId].push(c);
+        });
+        setPosts((prev) => prev.map((p) => ({
+          ...p,
+          comments: grouped[String(p.id)] || p.comments || [],
+        })));
+      }
+    }).catch(() => {});
+  }, []);
 
   const value = {
     user, setUser, toast, showToast, updateProfile, theme, toggleTheme,
