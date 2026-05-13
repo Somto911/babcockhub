@@ -30,19 +30,19 @@ export default function Auth() {
     const fd = new FormData(e.target);
     const email = fd.get('email')?.trim();
     const password = fd.get('password');
-    if (!email || !password) { setError('⚠️ Fill in all fields'); return; }
-    if (!email.includes('@')) { setError('❌ Enter a valid email address'); return; }
-    if (!email.endsWith('@student.babcock.edu.ng')) { setError('❌ Only @student.babcock.edu.ng emails are allowed'); return; }
+    if (!email || !password) { setError('Fill in all fields'); return; }
+    if (!email.includes('@')) { setError('Enter a valid email address'); return; }
+    if (!email.endsWith('@student.babcock.edu.ng')) { setError('Only @student.babcock.edu.ng emails are allowed'); return; }
     setLoading(true);
     try {
       await login(email, password);
-      showToast('🎉 Welcome back!');
+      showToast('Welcome back!');
     } catch (err) {
       if (err.needsVerification) {
         setRegisteredEmail(email);
-        setError('❌ Please verify your email before logging in.');
+        setError('Please verify your email before logging in.');
       } else {
-        setError(`❌ ${err.message}`);
+        setError(err.message);
       }
     } finally {
       setLoading(false);
@@ -59,15 +59,15 @@ export default function Auth() {
     const lvl = fd.get('lvl');
     const password = fd.get('password');
     const hostel = fd.get('hostel') || 'Off Campus';
-    if (!name || !email || !dept || !lvl || !password) { setError('⚠️ Fill in all required fields'); return; }
-    if (!email.endsWith('@student.babcock.edu.ng')) { setError('❌ Only @student.babcock.edu.ng emails allowed'); return; }
+    if (!name || !email || !dept || !lvl || !password) { setError('Fill in all required fields'); return; }
+    if (!email.endsWith('@student.babcock.edu.ng')) { setError('Only @student.babcock.edu.ng emails allowed'); return; }
     setLoading(true);
     try {
       await register({ name, email, dept, lvl, hostel, password });
       setRegisteredEmail(email);
-      showToast('📧 Check your email to verify!');
+      showToast('Check your email to verify!');
     } catch (err) {
-      setError(`❌ ${err.message}`);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -78,9 +78,9 @@ export default function Auth() {
     setResending(true);
     try {
       const res = await api('/api/resend-verification', { method: 'POST', body: JSON.stringify({ email: registeredEmail }) });
-      showToast(`📧 ${res.message}`);
+      showToast(res.message);
     } catch (err) {
-      setError(`❌ ${err.message}`);
+      setError(err.message);
     } finally {
       setResending(false);
     }
@@ -108,23 +108,22 @@ export default function Auth() {
 
         {registeredEmail ? (
           <div className="verify-prompt">
-            <div className="verify-icon">📧</div>
+            <div className="verify-icon">✉</div>
             <div className="verify-title">Verify your email</div>
             <div className="verify-desc">We sent a verification link to<br /><b>{registeredEmail}</b></div>
             <div className="verify-desc2">Click the link in the email to activate your account, then sign in.</div>
             <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
               <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Email'}</span>
-              <span className="btn-arrow">→</span>
             </button>
-            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>← Back to Sign In</div>
+            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>Back to Sign In</div>
             {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
           </div>
         ) : (<><div className="tab-row">
           <div className={`tab${tab === 'login' ? ' on' : ''}`} onClick={() => setTab('login')}>
-            <span className="tab-ico">👋</span><span>Sign In</span>
+            <span>Sign In</span>
           </div>
           <div className={`tab${tab === 'reg' ? ' on' : ''}`} onClick={() => setTab('reg')}>
-            <span className="tab-ico">🚀</span><span>Create Account</span>
+            <span>Create Account</span>
           </div>
         </div>
 
@@ -137,7 +136,6 @@ export default function Auth() {
             <input className="inp" type="password" name="password" placeholder="Enter your password" />
             <button className="btn-main" type="submit" disabled={loading}>
               <span className="btn-text">{loading ? 'Signing in...' : 'Sign In to BuSocial'}</span>
-              <span className="btn-arrow">→</span>
             </button>
             {error && <div className="auth-error">{error}</div>}
             <div className="auth-note">Secured · University-verified · <b>Babcock only</b></div>
@@ -190,7 +188,6 @@ export default function Auth() {
             <input className="inp" type="password" name="password" placeholder="Create a strong password" />
             <button className="btn-main" type="submit" disabled={loading}>
               <span className="btn-text">{loading ? 'Creating...' : 'Create My Account'}</span>
-              <span className="btn-arrow">→</span>
             </button>
             {error && <div className="auth-error">{error}</div>}
             <div className="auth-note">Only <b>@student.babcock.edu.ng</b> emails accepted</div>
