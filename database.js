@@ -114,15 +114,15 @@ function initDatabase() {
       )
     `, (err) => {
       if (err) console.error('Error creating messages table:', err);
-      
-      // Seed database after tables are created
-      db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
-        if (row && row.count === 0) {
-          seedDatabase().then(resolve);
-        } else {
-          resolve();
-        }
-      });
+    });
+
+    // Seed database after all tables created
+    db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+      if (row && row.count === 0) {
+        seedDatabase().then(resolve);
+      } else {
+        resolve();
+      }
     });
   });
 }
@@ -201,7 +201,29 @@ function seedDatabase() {
                 [chatId3, 1, 'Adeyinka', "It's been 2 days now — this needs escalation", '9:00 AM']);
               db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
                 [chatId3, 3, 'Goodluck Rep', '⚡ UPDATE: Power restored as of 2PM. Report any issues.', '2:05 PM'],
-                () => resolve()
+                () => {
+                  // Seed demo posts
+                  const seedPosts = [
+                    ['Adeyinka Bello', 'Computer Science · 300L', 'sports', "PSG please \u{1F62D} the world is behind you right now…", '', 1],
+                    ['Chidera Okonkwo', 'Law · 400L', 'sports', "If Arsenal win the UCL just kill me \u{1F480} I cannot survive", '', 2],
+                    ['Emmanuel Nwachukwu', 'Economics · 200L', 'academics', 'Does anyone have the Linux tutorial notes from last semester? \u{1F630}', '', 3],
+                    ['Adeyinka Bello', 'Computer Science · 300L', 'hostel', "Winslow Hall UPDATE: Power is BACK in Block C! \u{26A1}", 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop', 1],
+                    ['Chidera Okonkwo', 'Law · 400L', 'events', "\u{1F3E5} Free medical outreach this sunday in front of Caf! #BabcockMed", '', 2],
+                    ['Emmanuel Nwachukwu', 'Economics · 200L', 'gist', 'The BUSA elections are looking wild \u{1F602} UZOMA4SPORTS came with energy!', '', 3],
+                    ['Adeyinka Bello', 'Computer Science · 300L', 'academics', "\u{1F393} JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress. WE MADE IT!", 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', 1],
+                  ];
+                  let postCount = 0;
+                  seedPosts.forEach(([author, dept, cat, txt, imageUrl, userId]) => {
+                    db.run(
+                      'INSERT INTO posts (author, dept, cat, txt, imageUrl, userId, createdAt) VALUES (?, ?, ?, ?, ?, ?, datetime("now", ?))',
+                      [author, dept, cat, txt, imageUrl, userId, `-${seedPosts.length - postCount} minutes`],
+                      () => {
+                        postCount++;
+                        if (postCount === seedPosts.length) resolve();
+                      }
+                    );
+                  });
+                }
               );
             }
           );
@@ -307,12 +329,17 @@ function addMessage(chatId, senderId, senderName, txt, callback) {
   );
 }
 
-function getPosts(callback) {
-  db.all('SELECT * FROM posts ORDER BY createdAt DESC', (err, posts) => {
+function getPosts(page = 1, limit = 10, callback) {
+  if (typeof page === 'function') { callback = page; page = 1; limit = 10; }
+  if (typeof limit === 'function') { callback = limit; limit = 10; }
+  const offset = (page - 1) * limit;
+  db.all('SELECT * FROM posts ORDER BY createdAt DESC LIMIT ? OFFSET ?', [limit, offset], (err, posts) => {
     if (err) { callback(err, []); return; }
     const results = [];
     let completed = 0;
-    if (posts.length === 0) { callback(null, []); return; }
+    if (posts.length === 0) { callback(null, [], false, 0); return; }
+    db.get('SELECT COUNT(*) as total FROM posts', (err, row) => {
+      const total = row?.total || 0;
     posts.forEach((post) => {
       db.all('SELECT userId FROM post_likes WHERE postId = ?', [post.id], (err, likes) => {
         db.all('SELECT * FROM comments WHERE postId = ? ORDER BY createdAt ASC', [String(post.id)], (err, comments) => {
@@ -332,9 +359,10 @@ function getPosts(callback) {
             t: formatTimeAgo(post.createdAt),
           });
           completed++;
-          if (completed === posts.length) callback(null, results);
+          if (completed === posts.length) callback(null, results, offset + posts.length < total, total);
         });
       });
+    });
     });
   });
 }

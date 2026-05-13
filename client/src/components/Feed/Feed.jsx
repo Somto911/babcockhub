@@ -1,17 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import Post from './Post';
 import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts } = useApp();
   const [text, setText] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [cat, setCat] = useState('general');
   const [filter, setFilter] = useState('all');
   const [storyIdx, setStoryIdx] = useState(null);
   const [viewerStories, setViewerStories] = useState([]);
+  const sentinelRef = useRef(null);
+
+  const handleObserver = useCallback((entries) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasMorePosts && !loadingPosts) {
+      loadMorePosts();
+    }
+  }, [hasMorePosts, loadingPosts, loadMorePosts]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(handleObserver, { rootMargin: '200px' });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   const filtered = posts
     .filter((p) => filter === 'all' || p.cat === filter)
@@ -85,6 +101,8 @@ export default function Feed() {
         {filtered.map((p) => (
           <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
         ))}
+        {loadingPosts && <div className="feed-loader"><div className="spinner" /></div>}
+        {hasMorePosts && !loadingPosts && <div ref={sentinelRef} className="feed-sentinel" />}
       </div>
     </div>
     {storyIdx != null && (

@@ -29,6 +29,9 @@ export function AppProvider({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState('dark');
   const [activeUsers, setActiveUsers] = useState(0);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const postPageRef = useRef(1);
 
   useEffect(() => { activeChatRef.current = activeChat; }, [activeChat]);
 
@@ -47,7 +50,7 @@ export function AppProvider({ children }) {
       setActiveUsers(data?.count || 0);
     });
     s.on('post:new', (post) => {
-      setPosts((prev) => [post, ...prev]);
+      setPosts((prev) => prev.some((p) => p.id === post.id) ? prev : [post, ...prev]);
     });
     s.on('post:like', (data) => {
       setPosts((prev) => prev.map((p) =>
@@ -260,10 +263,35 @@ export function AppProvider({ children }) {
     if (user) initSocket();
   }, [user, initSocket]);
 
-  useEffect(() => {
-    api('/api/posts').then((data) => {
-      if (data?.posts) setPosts(data.posts);
+  const loadMorePosts = useCallback(() => {
+    if (loadingPosts || !hasMorePosts) return;
+    setLoadingPosts(true);
+    const nextPage = postPageRef.current + 1;
+    api(`/api/posts?page=${nextPage}&limit=10`).then((data) => {
+      if (data?.posts) {
+        setPosts((prev) => {
+          const existingIds = new Set(prev.map((p) => p.id));
+          const newPosts = data.posts.filter((p) => !existingIds.has(p.id));
+          return [...prev, ...newPosts];
+        });
+        postPageRef.current = nextPage;
+        setHasMorePosts(!!data.hasMore);
+      }
+    }).catch(() => {}).finally(() => setLoadingPosts(false));
+  }, [loadingPosts, hasMorePosts]);
+
+  const loadInitialPosts = useCallback(() => {
+    postPageRef.current = 1;
+    api('/api/posts?page=1&limit=10').then((data) => {
+      if (data?.posts) {
+        setPosts(data.posts);
+        setHasMorePosts(!!data.hasMore);
+      }
     }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadInitialPosts();
     api('/api/active-count').then((data) => {
       if (data?.activeUsers != null) setActiveUsers(data.activeUsers);
     }).catch(() => {});
@@ -298,7 +326,7 @@ export function AppProvider({ children }) {
     stories, setStories, viewStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
-    activeUsers, trending, suggs, login, register, logout,
+    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, trending, suggs, login, register, logout,
     chatList, activeChat, selectChat, sendMessage, loadChats, socket,
     addComment, deleteComment, searchQuery, setSearchQuery,
   };

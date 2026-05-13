@@ -210,9 +210,11 @@ const activeUsers = new Map();
 
 app.get('/api/posts', (req, res) => {
   try {
-    getPosts((err, posts) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    getPosts(page, limit, (err, posts, hasMore, total) => {
       if (err) return res.status(500).json({ message: 'Failed to load posts: ' + err.message });
-      return res.json({ posts });
+      return res.json({ posts, hasMore: !!hasMore, total: total || 0, page, limit });
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error: ' + error.message });
