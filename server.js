@@ -6,7 +6,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, getComments, addComment, deleteComment, sanitizeUser } = require('./database');
+const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
@@ -206,6 +206,54 @@ function verificationPage(message, success) {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BuSocial - Email Verification</title>${redirect}<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;background:#0a0e1a;color:#d4dae8;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}.card{background:rgba(25,32,64,.92);backdrop-filter:blur(20px);border:1px solid rgba(100,130,200,.12);border-radius:20px;padding:40px;max-width:420px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.7)}.icon{width:56px;height:56px;border-radius:14px;background:${success ? 'linear-gradient(135deg,#34d399,#4f7fff)' : 'linear-gradient(135deg,#f87171,#fbbf24)'};display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px}h1{font-size:20px;color:#eef0f8;margin:0 0 8px}p{font-size:14px;color:#7d88a8;line-height:1.6;margin:0}</style></head><body><div class="card"><div class="icon">${success ? '✅' : '❌'}</div><h1>${success ? 'Verified!' : 'Verification Failed'}</h1><p>${message}</p>${success ? '<p style="margin-top:16px;font-size:13px;color:#7d88a8">Redirecting to login...</p>' : ''}</div></body></html>`;
 }
 
+const activeUsers = new Map();
+
+app.get('/api/posts', (req, res) => {
+  try {
+    getPosts((err, posts) => {
+      if (err) return res.status(500).json({ message: 'Failed to load posts: ' + err.message });
+      return res.json({ posts });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.post('/api/posts', (req, res) => {
+  try {
+    const { author, dept, cat, txt, imageUrl, userId } = req.body;
+    if (!txt || !userId) return res.status(400).json({ message: 'Missing required fields.' });
+    createPost(author || 'Anonymous', dept || '', cat || 'general', txt, imageUrl, userId, (err, post) => {
+      if (err) return res.status(500).json({ message: 'Failed to create post: ' + err.message });
+      io.emit('post:new', post);
+      return res.status(201).json({ post });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.post('/api/posts/:id/like', (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ message: 'userId required.' });
+    toggleLike(parseInt(req.params.id), userId, (err, result) => {
+      if (err) return res.status(500).json({ message: 'Failed to toggle like: ' + err.message });
+      io.emit('post:like', { postId: parseInt(req.params.id), ...result });
+      return res.json(result);
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.get('/api/active-count', (req, res) => {
+  res.json({ activeUsers: activeUsers.size, totalPosts: 0 });
+  getActivePostCount((err, count) => {
+    if (!err) res.json({ activeUsers: activeUsers.size, totalPosts: count });
+  });
+});
+
 app.get('/api/comments', (req, res) => {
   try {
     const postId = req.query.postId;
@@ -262,14 +310,30 @@ app.get('/api/chats', (req, res) => {
   }
 });
 
+function broadcastActiveUsers() {
+  io.emit('users:online', { count: activeUsers.size, users: Array.from(activeUsers.values()) });
+}
+
 io.on('connection', (socket) => {
   console.log('[SOCKET] Connected:', socket.id);
   let connectedUser = null;
 
   socket.on('join', (payload) => {
     connectedUser = payload;
+    activeUsers.set(socket.id, { id: payload.id, name: payload.name });
     socket.join(`user-${payload.id}`);
-    console.log('[SOCKET] User joined:', payload.name);
+    broadcastActiveUsers();
+    console.log('[SOCKET] User joined:', payload.name, `(${activeUsers.size} online)`);
+  });
+
+  socket.on('disconnect', () => {
+    if (connectedUser) {
+      activeUsers.delete(socket.id);
+      broadcastActiveUsers();
+      console.log('[SOCKET] Disconnected:', connectedUser.name, `(${activeUsers.size} online)`);
+    } else {
+      console.log('[SOCKET] Disconnected:', socket.id);
+    }
   });
 
   socket.on('chat:join', ({ chatId }) => {
@@ -315,9 +379,6 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('disconnect', () => {
-    console.log('[SOCKET] Disconnected:', socket.id);
-  });
 });
 
 const PORT = process.env.PORT || 3000;

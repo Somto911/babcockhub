@@ -2,7 +2,7 @@ import { useApp } from '../../context/AppContext';
 import { ini } from '../../utils/helpers';
 
 export default function Sidebar({ showNav, onClose }) {
-  const { user, setActivePage, activePage, logout, showToast, theme, toggleTheme } = useApp();
+  const { user, setActivePage, activePage, logout, showToast, theme, toggleTheme, activeUsers } = useApp();
 
   const go = (page) => { setActivePage(page); onClose && onClose(); };
 
@@ -62,6 +62,10 @@ export default function Sidebar({ showNav, onClose }) {
           </div>
         )}
 
+        <div className="sidebar-online">
+          <div className="sidebar-online-dot" />
+          <span>{activeUsers} active user{activeUsers !== 1 ? 's' : ''}</span>
+        </div>
         <div className="sid-lbl">Account</div>
         <div className="nav" onClick={toggleTheme} style={{ color: 'var(--text2)' }}>
           <span className="nav-ico">{theme === 'dark' ? '☀️' : '🌙'}</span>

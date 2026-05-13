@@ -56,6 +56,34 @@ function initDatabase() {
     db.run('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0', () => {});
     db.run('ALTER TABLE users ADD COLUMN verificationToken TEXT', () => {});
 
+    // Posts table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        author TEXT NOT NULL,
+        dept TEXT DEFAULT '',
+        cat TEXT DEFAULT 'general',
+        txt TEXT NOT NULL,
+        imageUrl TEXT DEFAULT '',
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating posts table:', err);
+    });
+
+    // Post likes
+    db.run(`
+      CREATE TABLE IF NOT EXISTS post_likes (
+        postId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        PRIMARY KEY (postId, userId),
+        FOREIGN KEY (postId) REFERENCES posts(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating post_likes table:', err);
+    });
+
     // Comments table
     db.run(`
       CREATE TABLE IF NOT EXISTS comments (
@@ -279,6 +307,85 @@ function addMessage(chatId, senderId, senderName, txt, callback) {
   );
 }
 
+function getPosts(callback) {
+  db.all('SELECT * FROM posts ORDER BY createdAt DESC', (err, posts) => {
+    if (err) { callback(err, []); return; }
+    const results = [];
+    let completed = 0;
+    if (posts.length === 0) { callback(null, []); return; }
+    posts.forEach((post) => {
+      db.all('SELECT userId FROM post_likes WHERE postId = ?', [post.id], (err, likes) => {
+        db.all('SELECT * FROM comments WHERE postId = ? ORDER BY createdAt ASC', [String(post.id)], (err, comments) => {
+          results.push({
+            id: post.id,
+            author: post.author,
+            dept: post.dept,
+            cat: post.cat,
+            txt: post.txt,
+            imageUrl: post.imageUrl || '',
+            likes: likes ? likes.map((l) => l.userId) : [],
+            liked: false,
+            reposts: 0,
+            reposted: false,
+            repostedBy: [],
+            comments: comments || [],
+            t: formatTimeAgo(post.createdAt),
+          });
+          completed++;
+          if (completed === posts.length) callback(null, results);
+        });
+      });
+    });
+  });
+}
+
+function createPost(author, dept, cat, txt, imageUrl, userId, callback) {
+  db.run(
+    'INSERT INTO posts (author, dept, cat, txt, imageUrl, userId) VALUES (?, ?, ?, ?, ?, ?)',
+    [author, dept, cat, txt, imageUrl || '', userId],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      callback(null, {
+        id: this.lastID, author, dept, cat, txt, imageUrl: imageUrl || '', userId,
+        likes: [], liked: false, reposts: 0, reposted: false, repostedBy: [], comments: [], t: 'Just now',
+      });
+    }
+  );
+}
+
+function toggleLike(postId, userId, callback) {
+  db.get('SELECT * FROM post_likes WHERE postId = ? AND userId = ?', [postId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM post_likes WHERE postId = ? AND userId = ?', [postId, userId], function(err) {
+        callback(err, { liked: false, userId });
+      });
+    } else {
+      db.run('INSERT INTO post_likes (postId, userId) VALUES (?, ?)', [postId, userId], function(err) {
+        callback(err, { liked: true, userId });
+      });
+    }
+  });
+}
+
+function getActivePostCount(callback) {
+  db.get('SELECT COUNT(*) as count FROM posts', (err, row) => {
+    if (err) { callback(err, 0); return; }
+    callback(null, row?.count || 0);
+  });
+}
+
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return 'Just now';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
 function getComments(callback) {
   db.all('SELECT * FROM comments ORDER BY createdAt ASC', (err, rows) => {
     if (err) { callback(err, []); return; }
@@ -321,6 +428,10 @@ module.exports = {
   createUser,
   getChats,
   addMessage,
+  getPosts,
+  createPost,
+  toggleLike,
+  getActivePostCount,
   getComments,
   addComment,
   deleteComment,
