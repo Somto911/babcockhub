@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ini, grad } from '../../utils/helpers';
+import { api, ini, grad } from '../../utils/helpers';
 
 export default function Profile() {
-  const { user, posts, profileTarget, setActivePage, updateProfile, showToast } = useApp();
+  const { user, posts, profileTarget, setActivePage, updateProfile, showToast, toggleFollow, followingMap } = useApp();
   const [editing, setEditing] = useState(false);
+  const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
   const [edit, setEdit] = useState({
     name: user?.name || '',
     dept: user?.dept || '',
@@ -17,6 +18,23 @@ export default function Profile() {
   const targetPosts = posts.filter((p) => p.author === targetName || p.repostedBy?.includes(targetName));
   const isMe = targetName === user?.name;
 
+  useEffect(() => {
+    if (!targetName) return;
+    if (targetName === user?.name && user?.id) {
+      api(`/api/follow/${user.id}/counts?viewerId=${user.id}`).then((data) => {
+        if (data) setFollowCounts(data);
+      }).catch(() => {});
+      return;
+    }
+    api(`/api/users/by-name?name=${encodeURIComponent(targetName)}`).then((res) => {
+      if (res?.user?.id) {
+        return api(`/api/follow/${res.user.id}/counts?viewerId=${user?.id || 0}`);
+      }
+    }).then((data) => {
+      if (data) setFollowCounts(data);
+    }).catch(() => {});
+  }, [targetName, user]);
+
   const handleSave = () => {
     if (!edit.name.trim()) return showToast('⚠️ Name cannot be empty');
     updateProfile(edit);
@@ -27,6 +45,19 @@ export default function Profile() {
   const handleCancel = () => {
     setEdit({ name: user?.name || '', dept: user?.dept || '', lvl: user?.lvl || '', hostel: user?.hostel || '', bio: user?.bio || '' });
     setEditing(false);
+  };
+
+  const handleFollow = () => {
+    api(`/api/users/by-name?name=${encodeURIComponent(targetName)}`).then((res) => {
+      if (res?.user?.id) {
+        toggleFollow(res.user.id);
+        setFollowCounts((prev) => ({
+          ...prev,
+          followers: prev.isFollowing ? prev.followers - 1 : prev.followers + 1,
+          isFollowing: !prev.isFollowing,
+        }));
+      }
+    }).catch(() => {});
   };
 
   return (
@@ -60,15 +91,15 @@ export default function Profile() {
                 {isMe ? (
                   <button className="btn-out" onClick={() => setEditing(true)}>✏️ Edit Profile</button>
                 ) : (
-                  <button className="btn-main" style={{ width: 'auto', padding: '7px 18px' }} onClick={() => showToast('➕ Followed!')}>➕ Follow</button>
+                  <button className={`btn-main flw-btn${followCounts.isFollowing ? ' fld' : ''}`} style={{ width: 'auto', padding: '7px 18px' }} onClick={handleFollow}>{followCounts.isFollowing ? 'Following' : 'Follow'}</button>
                 )}
               </div>
             </>
           )}
           <div className="prof-stats">
             <div className="ps"><div className="ps-n">{targetPosts.length}</div><div className="ps-l">Posts</div></div>
-            <div className="ps"><div className="ps-n">612</div><div className="ps-l">Followers</div></div>
-            <div className="ps"><div className="ps-n">248</div><div className="ps-l">Following</div></div>
+            <div className="ps"><div className="ps-n">{followCounts.followers}</div><div className="ps-l">Followers</div></div>
+            <div className="ps"><div className="ps-n">{followCounts.following}</div><div className="ps-l">Following</div></div>
             <div className="ps"><div className="ps-n">7</div><div className="ps-l">Groups</div></div>
           </div>
           <div className="prof-tags">

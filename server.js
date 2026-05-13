@@ -6,7 +6,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { initDatabase, getUser, findUserByEmail, findUserByToken, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser } = require('./database');
+const { initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
@@ -254,6 +254,53 @@ app.get('/api/active-count', (req, res) => {
   getActivePostCount((err, count) => {
     if (!err) res.json({ activeUsers: activeUsers.size, totalPosts: count });
   });
+});
+
+app.get('/api/users/by-name', (req, res) => {
+  try {
+    const name = req.query.name;
+    if (!name) return res.status(400).json({ message: 'Missing name' });
+    findUserByName(name, (err, user) => {
+      if (err) return res.status(500).json({ message: err.message });
+      if (!user) return res.json({ user: null });
+      res.json({ user });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.post('/api/follow/:userId', (req, res) => {
+  try {
+    const { userId: followerId } = req.body;
+    const followingId = parseInt(req.params.userId);
+    if (!followerId) return res.status(400).json({ message: 'Missing followerId' });
+    toggleFollow(followerId, followingId, (err, result) => {
+      if (err) return res.status(500).json({ message: 'Failed to toggle follow: ' + err.message });
+      res.json(result);
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.get('/api/follow/:userId/counts', (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    getFollowCounts(userId, (err, counts) => {
+      if (err) return res.status(500).json({ message: 'Failed to get counts: ' + err.message });
+      const followingId = parseInt(req.query.viewerId);
+      if (followingId) {
+        isFollowing(followingId, userId, (err, following) => {
+          res.json({ ...counts, isFollowing: !!following });
+        });
+      } else {
+        res.json({ ...counts, isFollowing: false });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
 });
 
 app.get('/api/comments', (req, res) => {

@@ -99,6 +99,19 @@ function initDatabase() {
       if (err) console.error('Error creating comments table:', err);
     });
 
+    // Follows table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS follows (
+        followerId INTEGER NOT NULL,
+        followingId INTEGER NOT NULL,
+        PRIMARY KEY (followerId, followingId),
+        FOREIGN KEY (followerId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (followingId) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating follows table:', err);
+    });
+
     // Messages table
     db.run(`
       CREATE TABLE IF NOT EXISTS messages (
@@ -440,6 +453,42 @@ function deleteComment(commentId, userId, callback) {
   });
 }
 
+function toggleFollow(followerId, followingId, callback) {
+  db.get('SELECT * FROM follows WHERE followerId = ? AND followingId = ?', [followerId, followingId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM follows WHERE followerId = ? AND followingId = ?', [followerId, followingId], function(err) {
+        callback(err, { following: false });
+      });
+    } else {
+      db.run('INSERT INTO follows (followerId, followingId) VALUES (?, ?)', [followerId, followingId], function(err) {
+        callback(err, { following: true });
+      });
+    }
+  });
+}
+
+function getFollowCounts(userId, callback) {
+  let followers = 0, following = 0;
+  db.get('SELECT COUNT(*) as count FROM follows WHERE followingId = ?', [userId], (err, row) => {
+    followers = row?.count || 0;
+    db.get('SELECT COUNT(*) as count FROM follows WHERE followerId = ?', [userId], (err, row) => {
+      following = row?.count || 0;
+      callback(null, { followers, following });
+    });
+  });
+}
+
+function isFollowing(followerId, followingId, callback) {
+  db.get('SELECT 1 FROM follows WHERE followerId = ? AND followingId = ?', [followerId, followingId], (err, row) => {
+    callback(null, !!row);
+  });
+}
+
+function findUserByName(name, callback) {
+  db.get('SELECT id, name, dept, lvl, hostel FROM users WHERE name = ?', [name], callback);
+}
+
 function sanitizeUser(user) {
   const copy = { ...user };
   delete copy.password;
@@ -464,5 +513,9 @@ module.exports = {
   addComment,
   deleteComment,
   sanitizeUser,
+  toggleFollow,
+  getFollowCounts,
+  isFollowing,
+  findUserByName,
 };
 

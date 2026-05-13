@@ -512,6 +512,10 @@ select.inp{cursor:pointer;-webkit-appearance:none;background-image:url("data:ima
 .sv-img{max-width:100%;max-height:100%;object-fit:contain;pointer-events:none;user-select:none}
 .sv-hint{position:absolute;bottom:20px;font-size:12px;color:rgba(255,255,255,.4);z-index:10}
 
+/* Follow button */
+.flw-btn.fld{background:var(--bg2);color:var(--text);border:1px solid var(--border2);cursor:pointer}
+.flw-btn.fld:hover{background:var(--border);color:var(--accent);border-color:var(--accent)}
+
 /* Infinite scroll */
 .feed-sentinel{height:1px}
 .feed-loader{display:flex;justify-content:center;padding:24px}

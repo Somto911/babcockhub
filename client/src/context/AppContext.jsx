@@ -31,6 +31,7 @@ export function AppProvider({ children }) {
   const [activeUsers, setActiveUsers] = useState(0);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [followingMap, setFollowingMap] = useState({});
   const postPageRef = useRef(1);
 
   useEffect(() => { activeChatRef.current = activeChat; }, [activeChat]);
@@ -259,6 +260,21 @@ export function AppProvider({ children }) {
     }).catch(() => {});
   }, [user]);
 
+  const toggleFollow = useCallback((targetUserId) => {
+    setFollowingMap((m) => {
+      const updated = { ...m, [targetUserId]: !m[targetUserId] };
+      api(`/api/follow/${targetUserId}`, {
+        method: 'POST',
+        body: JSON.stringify({ userId: user?.id }),
+      }).then((data) => {
+        setFollowingMap((prev) => ({ ...prev, [targetUserId]: data?.following }));
+      }).catch(() => {
+        setFollowingMap((prev) => ({ ...prev, [targetUserId]: m[targetUserId] }));
+      });
+      return updated;
+    });
+  }, [user?.id]);
+
   useEffect(() => {
     if (user) initSocket();
   }, [user, initSocket]);
@@ -326,7 +342,7 @@ export function AppProvider({ children }) {
     stories, setStories, viewStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
-    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, trending, suggs, login, register, logout,
+    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, followingMap, toggleFollow, trending, suggs, login, register, logout,
     chatList, activeChat, selectChat, sendMessage, loadChats, socket,
     addComment, deleteComment, searchQuery, setSearchQuery,
   };
