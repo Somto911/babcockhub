@@ -1,30 +1,35 @@
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import Post from './Post';
+import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery } = useApp();
   const [text, setText] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [cat, setCat] = useState('general');
   const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
+  const [storyIdx, setStoryIdx] = useState(null);
+  const [viewerStories, setViewerStories] = useState([]);
 
   const filtered = posts
     .filter((p) => filter === 'all' || p.cat === filter)
-    .filter((p) => !search || p.txt.toLowerCase().includes(search) || p.author.toLowerCase().includes(search));
+    .filter((p) => !searchQuery || p.txt.toLowerCase().includes(searchQuery.toLowerCase()) || p.author.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const hour = new Date().getHours();
   const greet = hour < 12 ? `Good morning, ${user?.name?.split(' ')[0] || ''}` : hour < 17 ? `Good afternoon, ${user?.name?.split(' ')[0] || ''}` : `Good evening, ${user?.name?.split(' ')[0] || ''}`;
 
   const handleSubmit = () => {
     if (!text.trim()) return showToast('⚠️ Write something!');
-    submitPost(text.trim(), cat);
+    submitPost(text.trim(), cat, imageUrl.trim());
     setText('');
+    setImageUrl('');
     showToast('🚀 Posted!');
   };
 
   return (
+    <>
     <div className="pg on" id="pg-feed">
       <div className="stories">
         <div className="story" onClick={() => showToast('📸 Create a story feature coming soon!')}>
@@ -33,8 +38,8 @@ export default function Feed() {
             <div className="plus-label">Add Story</div>
           </div>
         </div>
-        {stories.map((s) => (
-          <div className={`story${s.seen ? ' seen' : ''}`} key={s.id} onClick={() => { viewStory(s.id); showToast(`📸 Viewing ${s.name} story…`); }}>
+        {stories.map((s, idx) => (
+          <div className={`story${s.seen ? ' seen' : ''}`} key={s.id} onClick={() => { viewStory(s.id); setViewerStories(stories); setStoryIdx(idx); }}>
             <div className="story-bg">
               <img className="story-img" src={s.img} alt={s.name} />
               <div className="story-overlay" />
@@ -54,10 +59,10 @@ export default function Feed() {
         <div className="comp-top">
           <div className="comp-av">{user ? ini(user.name) : '?'}</div>
           <textarea className="comp-ta" placeholder="What's happening on campus? 🔥" rows={2} value={text} onChange={(e) => setText(e.target.value)} />
+          <input id="img-url-input" className="comp-img-url" type="text" placeholder="Image URL (optional)" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
         </div>
         <div className="comp-bar">
-          <div className="comp-act" onClick={() => showToast('📷 Image upload — Phase 2!')}>📷 Photo</div>
-          <div className="comp-act" onClick={() => showToast('🎥 Video — Phase 3!')}>🎬 Video</div>
+          <div className="comp-act" onClick={() => document.getElementById('img-url-input').focus()}>📷 Photo URL</div>
           <select className="comp-sel" value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="general">General</option>
             <option value="academics">Academics</option>
@@ -78,9 +83,13 @@ export default function Feed() {
       <div id="feed-posts">
         {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No posts found</div>}
         {filtered.map((p) => (
-          <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} />
+          <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
         ))}
       </div>
     </div>
+    {storyIdx != null && (
+      <StoryViewer stories={viewerStories} activeIdx={storyIdx} onClose={() => { setStoryIdx(null); setViewerStories([]); }} onNext={() => setStoryIdx((i) => Math.min(i + 1, viewerStories.length - 1))} onPrev={() => setStoryIdx((i) => Math.max(i - 1, 0))} onMarkSeen={viewStory} />
+    )}
+    </>
   );
 }

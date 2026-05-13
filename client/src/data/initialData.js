@@ -8,13 +8,27 @@ export const initialStories = [
 ];
 
 export const initialPosts = [
-  { id: 1, author: 'Olawuyi Oluwaseun', dept: 'IT · 300L', t: '2 min ago', cat: 'sports', txt: "PSG please 😭 the world is behind you right now… if you lose this UCL final I'm going to be sad fr fr 🏆⚽", likes: 412, comments: 89, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 2, author: 'Fagboy', dept: 'Mass Comm · 200L', t: '1 hr ago', cat: 'sports', txt: "If Arsenal win the UCL just kill me 💀 I cannot survive seeing it happen. I've suffered since 2020 and I'm not ready for this 😭❤️", likes: 567, comments: 134, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 3, author: 'Ogunsola Dapo', dept: 'Engineering · 200L', t: '2 hrs ago', cat: 'gist', txt: 'The BUSA elections are looking wild 😂 UZOMA4SPORTS really came with the energy this year. What y\'all think?', likes: 218, comments: 67, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 189, comments: 43, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 5, author: 'Ememanka Chiemela', dept: 'Unknown · 300L', t: '5 hrs ago', cat: 'events', txt: '🏥 Free medical outreach this sunday in front of Caf ! Blood pressure check, and health counselling. Bring your people! #BabcockMed', likes: 312, comments: 28, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 6, author: 'Emmanuel Ewedu', dept: 'Economics · 200L', t: '6 hrs ago', cat: 'academics', txt: 'Does anyone have the Linux tutorial notes from last semester? Lecturer just announced a test for next week 😰 Please help a guy out 🙏', likes: 8, comments: 34, liked: false, reposts: 0, reposted: false, repostedBy: [] },
-  { id: 7, author: 'precious ugo', dept: 'Business Admin · 400L', t: '8 hrs ago', cat: 'academics', txt: '🎓 JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress, tears, and late nights. WE MADE IT! To every 400L student still grinding — you\'re almost there 💪', likes: 644, comments: 91, liked: false, reposts: 0, reposted: false, repostedBy: [] },
+  { id: 1, author: 'Olawuyi Oluwaseun', dept: 'IT · 300L', t: '2 min ago', cat: 'sports', txt: "PSG please 😭 the world is behind you right now… if you lose this UCL final I'm going to be sad fr fr 🏆⚽", likes: 412, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+    { id: 101, author: 'Fagboy', text: 'PSG no get chance bro 😂', time: '1 min ago', userId: 2 },
+    { id: 102, author: 'Ogunsola Dapo', text: 'Mbappe on his way to Madrid already 💀', time: 'Just now', userId: 3 },
+  ] },
+  { id: 2, author: 'Fagboy', dept: 'Mass Comm · 200L', t: '1 hr ago', cat: 'sports', txt: "If Arsenal win the UCL just kill me 💀 I cannot survive seeing it happen. I've suffered since 2020 and I'm not ready for this 😭❤️", likes: 567, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+    { id: 103, author: 'Olawuyi Oluwaseun', text: 'Arsenal fans been suffering since 2004 😭', time: '55 min ago', userId: 1 },
+  ] },
+  { id: 3, author: 'Ogunsola Dapo', dept: 'Engineering · 200L', t: '2 hrs ago', cat: 'gist', txt: 'The BUSA elections are looking wild 😂 UZOMA4SPORTS really came with the energy this year. What y\'all think?', likes: 218, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
+  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 189, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop', comments: [
+    { id: 104, author: 'Ememanka Chiemela', text: 'Finally! Block C residents can charge their phones again ⚡', time: '2 hrs ago', userId: 5 },
+    { id: 105, author: 'Precious Ugo', text: 'What about Block A? Still in darkness? 😤', time: '1 hr ago', userId: 7 },
+  ] },
+  { id: 5, author: 'Ememanka Chiemela', dept: 'Unknown · 300L', t: '5 hrs ago', cat: 'events', txt: '🏥 Free medical outreach this sunday in front of Caf ! Blood pressure check, and health counselling. Bring your people! #BabcockMed', likes: 312, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
+  { id: 6, author: 'Emmanuel Ewedu', dept: 'Economics · 200L', t: '6 hrs ago', cat: 'academics', txt: 'Does anyone have the Linux tutorial notes from last semester? Lecturer just announced a test for next week 😰 Please help a guy out 🙏', likes: 8, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+    { id: 106, author: 'Fagboy', text: 'I have them! DM me your WhatsApp number', time: '5 hrs ago', userId: 2 },
+  ] },
+  { id: 7, author: 'precious ugo', dept: 'Business Admin · 400L', t: '8 hrs ago', cat: 'academics', txt: '🎓 JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress, tears, and late nights. WE MADE IT! To every 400L student still grinding — you\'re almost there 💪', likes: 644, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', comments: [
+    { id: 107, author: 'Ogunsola Dapo', text: 'Congratulations!! 🎉 Well done', time: '7 hrs ago', userId: 3 },
+    { id: 108, author: 'Olawuyi Oluwaseun', text: 'Proud of you! 🎓', time: '6 hrs ago', userId: 1 },
+    { id: 109, author: 'Ememanka Chiemela', text: 'Almost there myself, this is motivation 🙏', time: '6 hrs ago', userId: 5 },
+  ] },
 ];
 
 export const initialGroups = [
@@ -89,6 +103,14 @@ export const suggs = [
   { nm: 'Odiakaose Itohan', dept: 'Public Health · 300L', flw: false },
   { nm: 'Gbadebo Oluwamisimi', dept: 'Software Engineering · 400L', flw: false },
   { nm: 'Irondi Excel', dept: ' Software Engineering · 400L', flw: false },
+];
+
+export const initialNotifications = [
+  { id: 1, type: 'like', message: 'Ogunsola Dapo liked your post', read: false, time: '2 min ago', userId: 3, postId: 4 },
+  { id: 2, type: 'comment', message: 'Fagboy commented on your post', read: false, time: '15 min ago', userId: 2, postId: 1 },
+  { id: 3, type: 'like', message: 'Ememanka Chiemela liked your post', read: false, time: '1 hr ago', userId: 5, postId: 7 },
+  { id: 4, type: 'follow', message: 'Precious Ugo started following you', read: true, time: '3 hrs ago', userId: 7 },
+  { id: 5, type: 'comment', message: 'Olawuyi Oluwaseun replied to your comment', read: true, time: '5 hrs ago', userId: 1, postId: 2 },
 ];
 
 export const modItems = [

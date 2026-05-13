@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { api } from '../utils/helpers';
-import { initialPosts, initialGroups, initialEvents, initialConfs, initialMemes, initialPolls, initialStories, initialChats, trending, suggs, modItems } from '../data/initialData';
+import { initialPosts, initialGroups, initialEvents, initialConfs, initialMemes, initialPolls, initialStories, initialChats, initialNotifications, trending, suggs, modItems } from '../data/initialData';
 
 const AppContext = createContext();
 
@@ -24,6 +24,9 @@ export function AppProvider({ children }) {
   const [chatList, setChatList] = useState(initialChats);
   const [activeChat, setActiveChat] = useState(null);
   const activeChatRef = useRef(null);
+
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => { activeChatRef.current = activeChat; }, [activeChat]);
 
@@ -158,9 +161,50 @@ export function AppProvider({ children }) {
     setStories((prev) => prev.map((s) => s.id === id ? { ...s, seen: true } : s));
   }, []);
 
-  const submitPost = useCallback((txt, cat) => {
+  const addComment = useCallback((postId, text, user) => {
+    if (!text.trim()) return;
+    const comment = {
+      id: Date.now(),
+      author: user?.name || 'You',
+      text: text.trim(),
+      time: 'Just now',
+      userId: user?.id || 0,
+    };
+    setPosts((prev) => prev.map((p) =>
+      p.id === postId ? { ...p, comments: [...(p.comments || []), comment] } : p
+    ));
+  }, []);
+
+  const deleteComment = useCallback((postId, commentId) => {
+    setPosts((prev) => prev.map((p) =>
+      p.id === postId ? { ...p, comments: (p.comments || []).filter((c) => c.id !== commentId) } : p
+    ));
+  }, []);
+
+  const markNotifRead = useCallback((id) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  }, []);
+
+  const markAllNotifRead = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  }, []);
+
+  const addNotification = useCallback((type, message, userId, postId) => {
+    const notif = {
+      id: Date.now(),
+      type,
+      message,
+      read: false,
+      time: 'Just now',
+      userId,
+      postId,
+    };
+    setNotifications((prev) => [notif, ...prev]);
+  }, []);
+
+  const submitPost = useCallback((txt, cat, imageUrl) => {
     setPosts((prev) => [
-      { id: Date.now(), author: user?.name || 'You', dept: `${user?.dept?.split(' ')[0] || 'Student'} · ${user?.lvl || '300'}L`, t: 'Just now', cat: cat || 'general', txt, likes: 0, comments: 0, liked: false, reposts: 0, reposted: false, repostedBy: [] },
+      { id: Date.now(), author: user?.name || 'You', dept: `${user?.dept?.split(' ')[0] || 'Student'} · ${user?.lvl || '300'}L`, t: 'Just now', cat: cat || 'general', txt, imageUrl: imageUrl || '', likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], comments: [] },
       ...prev,
     ]);
   }, [user]);
@@ -180,9 +224,11 @@ export function AppProvider({ children }) {
     groups, setGroups, events, setEvents,
     confs, setConfs, memes, setMemes, polls, setPolls,
     stories, setStories, viewStory,
+    notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
     trending, suggs, login, register, logout,
     chatList, activeChat, selectChat, sendMessage, loadChats, socket,
+    addComment, deleteComment, searchQuery, setSearchQuery,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
