@@ -4,8 +4,8 @@ import Layout from './components/Layout/Layout';
 import './App.css';
 
 function AppContent() {
-  const { user } = useApp();
-  return user ? <Layout /> : <Auth />;
+  const { user, theme } = useApp();
+  return <div className={`app-root theme-${theme}`}>{user ? <Layout /> : <Auth />}</div>;
 }
 
 export default function App() {

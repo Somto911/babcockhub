@@ -27,6 +27,7 @@ export function AppProvider({ children }) {
 
   const [notifications, setNotifications] = useState(initialNotifications);
   const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => { activeChatRef.current = activeChat; }, [activeChat]);
 
@@ -157,6 +158,14 @@ export function AppProvider({ children }) {
     );
   }, [user]);
 
+  const updateProfile = useCallback((data) => {
+    setUser((prev) => ({ ...prev, ...data }));
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
   const viewStory = useCallback((id) => {
     setStories((prev) => prev.map((s) => s.id === id ? { ...s, seen: true } : s));
   }, []);
@@ -218,7 +227,7 @@ export function AppProvider({ children }) {
   }, [user, loadChats]);
 
   const value = {
-    user, setUser, toast, showToast,
+    user, setUser, toast, showToast, updateProfile, theme, toggleTheme,
     activePage, setActivePage, profileTarget, setProfileTarget,
     posts, setPosts, likePost, repostPost, submitPost,
     groups, setGroups, events, setEvents,
