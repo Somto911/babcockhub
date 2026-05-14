@@ -7,7 +7,6 @@ import { ini, grad } from '../../utils/helpers';
 export default function Feed() {
   const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts } = useApp();
   const [text, setText] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [cat, setCat] = useState('general');
   const [filter, setFilter] = useState('all');
   const [storyIdx, setStoryIdx] = useState(null);
@@ -38,9 +37,8 @@ export default function Feed() {
 
   const handleSubmit = () => {
     if (!text.trim()) return showToast('⚠️ Write something!');
-    submitPost(text.trim(), cat, imageUrl.trim());
+    submitPost(text.trim(), cat, '');
     setText('');
-    setImageUrl('');
     showToast('🚀 Posted!');
   };
 
@@ -74,11 +72,9 @@ export default function Feed() {
       <div className="composer">
         <div className="comp-top">
           <div className="comp-av">{user ? ini(user.name) : '?'}</div>
-          <textarea className="comp-ta" placeholder="What's happening on campus? 🔥" rows={2} value={text} onChange={(e) => setText(e.target.value)} />
-          <input id="img-url-input" className="comp-img-url" type="text" placeholder="Image URL (optional)" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+          <textarea className="comp-ta" placeholder="What's happening on campus?" rows={2} value={text} onChange={(e) => setText(e.target.value)} />
         </div>
         <div className="comp-bar">
-          <div className="comp-act" onClick={() => document.getElementById('img-url-input').focus()}>📷 Photo URL</div>
           <select className="comp-sel" value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="general">General</option>
             <option value="academics">Academics</option>
