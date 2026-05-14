@@ -342,7 +342,7 @@ export function AppProvider({ children }) {
     stories, setStories, viewStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
-    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, followingMap, toggleFollow, trending, suggs, login, register, logout,
+    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, followingMap, toggleFollow, trending, suggs, login, register, logout,
     chatList, activeChat, selectChat, sendMessage, loadChats, socket,
     addComment, deleteComment, searchQuery, setSearchQuery,
   };

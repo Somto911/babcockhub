@@ -5,7 +5,7 @@ import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts } = useApp();
   const [text, setText] = useState('');
   const [cat, setCat] = useState('general');
   const [filter, setFilter] = useState('all');
@@ -65,8 +65,11 @@ export default function Feed() {
       </div>
 
       <div className="greeting-bar">
-        <div className="greet-text">{greet} ✨</div>
-        <div className="greet-sub">Here's what's happening on campus today</div>
+        <div style={{ flex: 1 }}>
+          <div className="greet-text">{greet} ✨</div>
+          <div className="greet-sub">Here's what's happening on campus today</div>
+        </div>
+        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">↻</button>
       </div>
 
       <div className="composer">
