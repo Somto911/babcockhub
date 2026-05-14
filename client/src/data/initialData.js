@@ -115,6 +115,6 @@ export const initialNotifications = [
 
 export const modItems = [
   { id: 1, txt: 'Post contains targeted language against a named student…', rep: 'Reported by 4 users', type: 'Hate Speech' },
-  { id: 2, txt: 'Confession may contain identifiable info about another student…', rep: 'Auto-flagged by content filter', type: 'Privacy Concern' },
+  { id: 2, txt: 'Anonymous post may contain identifiable info about another student…', rep: 'Auto-flagged by content filter', type: 'Privacy Concern' },
   { id: 3, txt: 'Unauthorized commercial promotion disguised as an event post…', rep: 'Reported by 2 users', type: 'Spam / Commercial' },
 ];

@@ -15,7 +15,7 @@ export default function Sidebar({ showNav, onClose }) {
   ];
 
   const campusItems = [
-    { id: 'conf', label: 'Confession Wall', icon: '👻' },
+    { id: 'conf', label: 'Anonymous', icon: 'A' },
     { id: 'memes', label: 'Meme Hub', icon: '😂' },
     { id: 'polls', label: 'Polls & Trends', icon: '📊' },
   ];
