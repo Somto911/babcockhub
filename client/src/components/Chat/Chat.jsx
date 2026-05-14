@@ -3,8 +3,9 @@ import { useApp } from '../../context/AppContext';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Chat() {
-  const { chatList, activeChat, selectChat, sendMessage, user } = useApp();
+  const { chatList, activeChat, selectChat, sendMessage, user, friends, startDm, showToast } = useApp();
   const [msg, setMsg] = useState('');
+  const [showNewMsg, setShowNewMsg] = useState(false);
   const msgsEndRef = useRef(null);
 
   useEffect(() => {
@@ -17,11 +18,34 @@ export default function Chat() {
     setMsg('');
   };
 
+  const handleSelectFriend = (friend) => {
+    startDm(friend);
+    setShowNewMsg(false);
+  };
+
   return (
     <div className="pg on" id="pg-chat">
       <div className="chat-wrap">
         <div className="cl-panel">
-          <div className="cl-head">💬 Messages</div>
+          <div className="cl-head">
+            <span>Messages</span>
+            <button className="cl-new" onClick={() => setShowNewMsg(!showNewMsg)} title="New message">+</button>
+          </div>
+          {showNewMsg && (
+            <div className="cl-new-panel">
+              <div className="cl-new-title">Select a friend to message</div>
+              {friends.length === 0 && <div className="cl-new-empty">No friends yet. Follow each other to start chatting!</div>}
+              {friends.map((f) => (
+                <div key={f.id} className="cl-new-friend" onClick={() => handleSelectFriend(f)}>
+                  <div className="cli-av" style={{ background: grad(f.name) }}>{ini(f.name)}</div>
+                  <div className="cli-nfo">
+                    <div className="cli-nm">{f.name}</div>
+                    <div className="cli-pr">{f.dept}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="cl-list">
             {chatList.map((c) => (
               <div key={c.id} className={`cli${activeChat?.id === c.id ? ' on' : ''}`} onClick={() => selectChat(c.id)}>
@@ -44,7 +68,7 @@ export default function Chat() {
             <div className="empty-messages" style={{ minHeight: 'auto', flex: 1 }}>
               <div className="empty-ico">💬</div>
               <div className="empty-title">Select a chat</div>
-              <div className="empty-desc">Choose a conversation from the left to start chatting</div>
+              <div className="empty-desc">Choose a conversation or click + to start a new message</div>
             </div>
           ) : (
             <div style={{ display: 'flex', flex: 1, flexDirection: 'column', height: '100%' }}>

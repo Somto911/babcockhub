@@ -489,6 +489,44 @@ function findUserByName(name, callback) {
   db.get('SELECT id, name, dept, lvl, hostel FROM users WHERE name = ?', [name], callback);
 }
 
+function getMutualFollowers(userId, callback) {
+  db.all(`
+    SELECT DISTINCT u.id, u.name, u.dept, u.lvl, u.hostel
+    FROM follows f1
+    JOIN follows f2 ON f1.followerId = f2.followingId AND f1.followingId = f2.followerId
+    JOIN users u ON u.id = f1.followingId
+    WHERE f1.followerId = ? AND f1.followingId != ?
+  `, [userId, userId], (err, rows) => {
+    if (err) { callback(err, []); return; }
+    callback(null, rows || []);
+  });
+}
+
+function createChat(nm, ico, grad, grp, callback) {
+  db.run('INSERT INTO chats (nm, ico, grad, grp) VALUES (?, ?, ?, ?)', [nm, ico, grad, grp ? 1 : 0], function(err) {
+    if (err) { callback(err, null); return; }
+    callback(null, { id: this.lastID, nm, ico, grad, grp: !!grp });
+  });
+}
+
+function addChatParticipant(chatId, userId, callback) {
+  db.run('INSERT OR IGNORE INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId, userId], function(err) {
+    callback(err);
+  });
+}
+
+function findDmChat(userId1, userId2, callback) {
+  db.get(`
+    SELECT cp1.chatId FROM chat_participants cp1
+    JOIN chat_participants cp2 ON cp1.chatId = cp2.chatId
+    JOIN chats c ON c.id = cp1.chatId
+    WHERE cp1.userId = ? AND cp2.userId = ? AND c.grp = 0
+  `, [userId1, userId2], (err, row) => {
+    if (err) { callback(err, null); return; }
+    callback(null, row?.chatId || null);
+  });
+}
+
 function sanitizeUser(user) {
   const copy = { ...user };
   delete copy.password;
@@ -517,5 +555,9 @@ module.exports = {
   getFollowCounts,
   isFollowing,
   findUserByName,
+  getMutualFollowers,
+  createChat,
+  addChatParticipant,
+  findDmChat,
 };
 

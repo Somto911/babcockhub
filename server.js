@@ -6,7 +6,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing } = require('./database');
+const { initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
@@ -337,6 +337,41 @@ app.delete('/api/comments/:id', (req, res) => {
       if (err) return res.status(500).json({ message: 'Failed to delete comment: ' + err.message });
       if (!deleted) return res.status(404).json({ message: 'Comment not found or not yours.' });
       return res.json({ success: true });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.get('/api/friends/:userId', (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    getMutualFollowers(userId, (err, friends) => {
+      if (err) return res.status(500).json({ message: err.message });
+      res.json({ friends });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+app.post('/api/chats', (req, res) => {
+  try {
+    const { nm, ico, grad, grp, participants } = req.body;
+    if (!nm) return res.status(400).json({ message: 'Name required' });
+    createChat(nm, ico || '💬', grad || '#4f7fff', grp || false, (err, chat) => {
+      if (err) return res.status(500).json({ message: err.message });
+      let done = 0;
+      const addAll = () => {
+        if (done >= participants.length) return res.json({ chat });
+        addChatParticipant(chat.id, participants[done], (err) => {
+          if (err) console.error('Failed to add participant:', err);
+          done++;
+          addAll();
+        });
+      };
+      if (participants?.length) addAll();
+      else res.json({ chat });
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error: ' + error.message });

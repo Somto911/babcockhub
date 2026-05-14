@@ -346,7 +346,14 @@ select.inp{cursor:pointer;-webkit-appearance:none;background-image:url("data:ima
 
 .chat-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);overflow:hidden;height:calc(100vh - var(--topbar) - 40px);display:flex}
 .cl-panel{width:226px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.cl-head{padding:12px 13px;border-bottom:1px solid var(--border);font-family:var(--head);font-size:14px;color:var(--white)}
+.cl-head{padding:12px 13px;border-bottom:1px solid var(--border);font-family:var(--head);font-size:14px;color:var(--white);display:flex;align-items:center;justify-content:space-between}
+.cl-new{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cl-new:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.cl-new-panel{border-bottom:1px solid var(--border);padding:10px 12px;max-height:240px;overflow-y:auto}
+.cl-new-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.cl-new-empty{font-size:12px;color:var(--text2);text-align:center;padding:12px}
+.cl-new-friend{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--r);cursor:pointer;transition:background .15s}
+.cl-new-friend:hover{background:var(--bg3)}
 .cl-list{overflow-y:auto;flex:1}
 .cli{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s}
 .cli:hover{background:var(--bg2)}

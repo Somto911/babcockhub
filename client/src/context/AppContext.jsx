@@ -23,6 +23,7 @@ export function AppProvider({ children }) {
 
   const [chatList, setChatList] = useState(initialChats);
   const [activeChat, setActiveChat] = useState(null);
+  const [friends, setFriends] = useState([]);
   const activeChatRef = useRef(null);
 
   const [notifications, setNotifications] = useState(initialNotifications);
@@ -126,6 +127,37 @@ export function AppProvider({ children }) {
       console.error('[CHAT] Failed to load:', e);
     }
   }, []);
+
+  const loadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const data = await api(`/api/friends/${user.id}`);
+      setFriends(data.friends || []);
+    } catch (e) {
+      console.error('[FRIENDS] Failed to load:', e);
+    }
+  }, [user?.id]);
+
+  const startDm = useCallback(async (friend) => {
+    if (!user?.id) return;
+    const existing = chatList.find((c) => !c.grp && c.partnerId === friend.id);
+    if (existing) { selectChat(existing.id); return; }
+    const data = await api('/api/chats', {
+      method: 'POST',
+      body: JSON.stringify({
+        nm: friend.name,
+        ico: friend.name.charAt(0),
+        grad: '#4f7fff',
+        grp: false,
+        participants: [user.id, friend.id],
+      }),
+    });
+    if (data?.chat) {
+      const newChat = { ...data.chat, partnerId: friend.id, online: '1 online', t: 'Just now', preview: 'No messages yet', badge: 0, msgs: [] };
+      setChatList((prev) => [newChat, ...prev]);
+      selectChat(newChat.id);
+    }
+  }, [user?.id, chatList, selectChat]);
 
   const selectChat = useCallback((chatId) => {
     const chat = chatList.find((c) => c.id === chatId);
@@ -329,7 +361,7 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (user) loadChats();
+    if (user) { loadChats(); loadFriends(); }
   }, [user, loadChats]);
 
   useEffect(() => {
@@ -358,7 +390,7 @@ export function AppProvider({ children }) {
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
     activeUsers, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, followingMap, toggleFollow, submitPoll, trending, suggs, login, register, logout,
-    chatList, activeChat, selectChat, sendMessage, loadChats, socket,
+    chatList, activeChat, selectChat, sendMessage, loadChats, socket, friends, loadFriends, startDm,
     addComment, deleteComment, searchQuery, setSearchQuery,
   };
 
