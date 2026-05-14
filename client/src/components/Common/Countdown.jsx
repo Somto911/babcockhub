@@ -1,8 +1,12 @@
+import { useMemo } from 'react';
 import { useCountdown } from '../../hooks/useCountdown';
 
 export default function Countdown() {
-  const target = new Date();
-  target.setDate(target.getDate() + 49);
+  const target = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 49);
+    return d;
+  }, []);
   const { d, h, m, s } = useCountdown(target);
 
   return (

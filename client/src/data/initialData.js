@@ -16,7 +16,7 @@ export const initialPosts = [
     { id: 103, author: 'Olawuyi Oluwaseun', text: 'Arsenal fans been suffering since 2004 😭', time: '55 min ago', userId: 1 },
   ] },
   { id: 3, author: 'Ogunsola Dapo', dept: 'Engineering · 200L', t: '2 hrs ago', cat: 'gist', txt: 'The BUSA elections are looking wild 😂 UZOMA4SPORTS really came with the energy this year. What y\'all think?', likes: 218, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
-  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 189, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop', comments: [
+  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 189, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
     { id: 104, author: 'Ememanka Chiemela', text: 'Finally! Block C residents can charge their phones again ⚡', time: '2 hrs ago', userId: 5 },
     { id: 105, author: 'Precious Ugo', text: 'What about Block A? Still in darkness? 😤', time: '1 hr ago', userId: 7 },
   ] },
