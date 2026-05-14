@@ -8,23 +8,23 @@ export const initialStories = [
 ];
 
 export const initialPosts = [
-  { id: 1, author: 'Olawuyi Oluwaseun', dept: 'IT · 300L', t: '2 min ago', cat: 'sports', txt: "PSG please 😭 the world is behind you right now… if you lose this UCL final I'm going to be sad fr fr 🏆⚽", likes: 412, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+  { id: 1, author: 'Olawuyi Oluwaseun', dept: 'IT · 300L', t: '2 min ago', cat: 'sports', txt: "PSG please 😭 the world is behind you right now… if you lose this UCL final I'm going to be sad fr fr 🏆⚽", likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
     { id: 101, author: 'Fagboy', text: 'PSG no get chance bro 😂', time: '1 min ago', userId: 2 },
     { id: 102, author: 'Ogunsola Dapo', text: 'Mbappe on his way to Madrid already 💀', time: 'Just now', userId: 3 },
   ] },
-  { id: 2, author: 'Fagboy', dept: 'Mass Comm · 200L', t: '1 hr ago', cat: 'sports', txt: "If Arsenal win the UCL just kill me 💀 I cannot survive seeing it happen. I've suffered since 2020 and I'm not ready for this 😭❤️", likes: 567, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+  { id: 2, author: 'Fagboy', dept: 'Mass Comm · 200L', t: '1 hr ago', cat: 'sports', txt: "If Arsenal win the UCL just kill me 💀 I cannot survive seeing it happen. I've suffered since 2020 and I'm not ready for this 😭❤️", likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
     { id: 103, author: 'Olawuyi Oluwaseun', text: 'Arsenal fans been suffering since 2004 😭', time: '55 min ago', userId: 1 },
   ] },
-  { id: 3, author: 'Ogunsola Dapo', dept: 'Engineering · 200L', t: '2 hrs ago', cat: 'gist', txt: 'The BUSA elections are looking wild 😂 UZOMA4SPORTS really came with the energy this year. What y\'all think?', likes: 218, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
-  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 189, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+  { id: 3, author: 'Ogunsola Dapo', dept: 'Engineering · 200L', t: '2 hrs ago', cat: 'gist', txt: 'The BUSA elections are looking wild 😂 UZOMA4SPORTS really came with the energy this year. What y\'all think?', likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
+  { id: 4, author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', t: '3 hrs ago', cat: 'hostel', txt: "⚡ Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam — we move!", likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
     { id: 104, author: 'Ememanka Chiemela', text: 'Finally! Block C residents can charge their phones again ⚡', time: '2 hrs ago', userId: 5 },
     { id: 105, author: 'Precious Ugo', text: 'What about Block A? Still in darkness? 😤', time: '1 hr ago', userId: 7 },
   ] },
-  { id: 5, author: 'Ememanka Chiemela', dept: 'Unknown · 300L', t: '5 hrs ago', cat: 'events', txt: '🏥 Free medical outreach this sunday in front of Caf ! Blood pressure check, and health counselling. Bring your people! #BabcockMed', likes: 312, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
-  { id: 6, author: 'Emmanuel Ewedu', dept: 'Economics · 200L', t: '6 hrs ago', cat: 'academics', txt: 'Does anyone have the Linux tutorial notes from last semester? Lecturer just announced a test for next week 😰 Please help a guy out 🙏', likes: 8, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
+  { id: 5, author: 'Ememanka Chiemela', dept: 'Unknown · 300L', t: '5 hrs ago', cat: 'events', txt: '🏥 Free medical outreach this sunday in front of Caf ! Blood pressure check, and health counselling. Bring your people! #BabcockMed', likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [] },
+  { id: 6, author: 'Emmanuel Ewedu', dept: 'Economics · 200L', t: '6 hrs ago', cat: 'academics', txt: 'Does anyone have the Linux tutorial notes from last semester? Lecturer just announced a test for next week 😰 Please help a guy out 🙏', likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: '', comments: [
     { id: 106, author: 'Fagboy', text: 'I have them! DM me your WhatsApp number', time: '5 hrs ago', userId: 2 },
   ] },
-  { id: 7, author: 'precious ugo', dept: 'Business Admin · 400L', t: '8 hrs ago', cat: 'academics', txt: '🎓 JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress, tears, and late nights. WE MADE IT! To every 400L student still grinding — you\'re almost there 💪', likes: 644, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', comments: [
+  { id: 7, author: 'precious ugo', dept: 'Business Admin · 400L', t: '8 hrs ago', cat: 'academics', txt: '🎓 JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress, tears, and late nights. WE MADE IT! To every 400L student still grinding — you\'re almost there 💪', likes: 0, liked: false, reposts: 0, reposted: false, repostedBy: [], imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', comments: [
     { id: 107, author: 'Ogunsola Dapo', text: 'Congratulations!! 🎉 Well done', time: '7 hrs ago', userId: 3 },
     { id: 108, author: 'Olawuyi Oluwaseun', text: 'Proud of you! 🎓', time: '6 hrs ago', userId: 1 },
     { id: 109, author: 'Ememanka Chiemela', text: 'Almost there myself, this is motivation 🙏', time: '6 hrs ago', userId: 5 },
@@ -48,25 +48,25 @@ export const initialEvents = [
 ];
 
 export const initialConfs = [
-  { id: 1, t: '15 min ago', txt: 'I have been attending the wrong tutorial class for 3 weeks. I thought I was getting smarter — turns out I was studying a completely different course 💀', likes: 312, liked: false },
-  { id: 2, t: '1 hr ago', txt: "There is someone in my department whose voice I have been in love with for 2 entire years and we have never once spoken. Every time they answer questions in class I lose all focus on the lecture.", likes: 187, liked: false },
-  { id: 3, t: '3 hrs ago', txt: "The jollof rice in Elijah Hall on Thursdays is genuinely top 5 meals of my life. I go there even though I don't live there. I am not ashamed and I will not apologise.", likes: 445, liked: false },
-  { id: 4, t: '5 hrs ago', txt: 'I failed my first exam in 100L and cried for 2 straight days. Then I made the Dean\'s List in 200L. If you are struggling right now — it does not stay this way. Keep going.', likes: 892, liked: false },
+  { id: 1, t: '15 min ago', txt: 'I have been attending the wrong tutorial class for 3 weeks. I thought I was getting smarter — turns out I was studying a completely different course 💀', likes: 0, liked: false },
+  { id: 2, t: '1 hr ago', txt: "There is someone in my department whose voice I have been in love with for 2 entire years and we have never once spoken. Every time they answer questions in class I lose all focus on the lecture.", likes: 0, liked: false },
+  { id: 3, t: '3 hrs ago', txt: "The jollof rice in Elijah Hall on Thursdays is genuinely top 5 meals of my life. I go there even though I don't live there. I am not ashamed and I will not apologise.", likes: 0, liked: false },
+  { id: 4, t: '5 hrs ago', txt: 'I failed my first exam in 100L and cried for 2 straight days. Then I made the Dean\'s List in 200L. If you are struggling right now — it does not stay this way. Keep going.', likes: 0, liked: false },
 ];
 
 export const initialMemes = [
-  { ico: '😡', cap: 'This whole elections were rigged', likes: 2847, url: 'https://media4.giphy.com/media/8rT2k19HNjhImz6bwP/giphy.gif' },
-  { ico: '🎤', cap: 'abeg so we no get social director?? 😂😂', likes: 1923, url: 'https://media0.giphy.com/media/ouEIsl1nsBjUpMbfxm/giphy.gif' },
-  { ico: '📋', cap: 'How do you lose an unopposed election 😂💀', likes: 3102, url: 'https://media1.giphy.com/media/DmCq5rJEk6phhv4WSz/giphy.gif' },
-  { ico: '😭', cap: 'So after everything Angel no win Gensec', likes: 2456, url: 'https://media4.giphy.com/media/4QA4DlNNe6NHMSNqrO/giphy.gif' },
-  { ico: '⌨️', cap: 'Me at 11:59PM submitting a 3,000-word essay I started at 11:30PM', likes: 832, url: 'https://media4.giphy.com/media/gwhneLWxsHkaCyRj4n/giphy.gif' },
-  { ico: '🍚', cap: 'Me when I hear jollof rice is on the menu at the dining hall', likes: 1024, url: 'https://media4.giphy.com/media/FP7pLBvhnV3jBvUW7j/giphy.gif' },
-  { ico: '💡', cap: 'NEPA taking light during my 4-hour exam-prep study marathon', likes: 743, url: 'https://media2.giphy.com/media/F7MTsSTtFx17fQHlrN/giphy.gif' },
-  { ico: '🙏', cap: 'Me explaining to God exactly why that carryover needs to disappear', likes: 567, url: 'https://media4.giphy.com/media/QXp6l0FH4QOUYfXIH1/giphy.gif' },
-  { ico: '😴', cap: 'When lecturer finally says "you can go" after a 3-hour lecture', likes: 921, url: 'https://media1.giphy.com/media/MlpBNQVcc5GX9RhyFP/giphy.gif' },
-  { ico: '📝', cap: 'When you realize the test is TODAY and not NEXT WEEK', likes: 756, url: 'https://media3.giphy.com/media/iiIpe7ejuBbAfgyMPl/giphy.gif' },
-  { ico: '📱', cap: 'Group project: 1 person does the work, 10 people say "nice one guys"', likes: 678, url: 'https://media4.giphy.com/media/2d400VBPJbxaU/giphy.gif' },
-  { ico: '🎓', cap: 'When you finally pass that course you failed 3 times', likes: 1456, url: 'https://media4.giphy.com/media/f2PSqb4ZkIWYZGp0ZY/giphy.gif' },
+  { ico: '😡', cap: 'This whole elections were rigged', likes: 0, url: 'https://media4.giphy.com/media/8rT2k19HNjhImz6bwP/giphy.gif' },
+  { ico: '🎤', cap: 'abeg so we no get social director?? 😂😂', likes: 0, url: 'https://media0.giphy.com/media/ouEIsl1nsBjUpMbfxm/giphy.gif' },
+  { ico: '📋', cap: 'How do you lose an unopposed election 😂💀', likes: 0, url: 'https://media1.giphy.com/media/DmCq5rJEk6phhv4WSz/giphy.gif' },
+  { ico: '😭', cap: 'So after everything Angel no win Gensec', likes: 0, url: 'https://media4.giphy.com/media/4QA4DlNNe6NHMSNqrO/giphy.gif' },
+  { ico: '⌨️', cap: 'Me at 11:59PM submitting a 3,000-word essay I started at 11:30PM', likes: 0, url: 'https://media4.giphy.com/media/gwhneLWxsHkaCyRj4n/giphy.gif' },
+  { ico: '🍚', cap: 'Me when I hear jollof rice is on the menu at the dining hall', likes: 0, url: 'https://media4.giphy.com/media/FP7pLBvhnV3jBvUW7j/giphy.gif' },
+  { ico: '💡', cap: 'NEPA taking light during my 4-hour exam-prep study marathon', likes: 0, url: 'https://media2.giphy.com/media/F7MTsSTtFx17fQHlrN/giphy.gif' },
+  { ico: '🙏', cap: 'Me explaining to God exactly why that carryover needs to disappear', likes: 0, url: 'https://media4.giphy.com/media/QXp6l0FH4QOUYfXIH1/giphy.gif' },
+  { ico: '😴', cap: 'When lecturer finally says "you can go" after a 3-hour lecture', likes: 0, url: 'https://media1.giphy.com/media/MlpBNQVcc5GX9RhyFP/giphy.gif' },
+  { ico: '📝', cap: 'When you realize the test is TODAY and not NEXT WEEK', likes: 0, url: 'https://media3.giphy.com/media/iiIpe7ejuBbAfgyMPl/giphy.gif' },
+  { ico: '📱', cap: 'Group project: 1 person does the work, 10 people say "nice one guys"', likes: 0, url: 'https://media4.giphy.com/media/2d400VBPJbxaU/giphy.gif' },
+  { ico: '🎓', cap: 'When you finally pass that course you failed 3 times', likes: 0, url: 'https://media4.giphy.com/media/f2PSqb4ZkIWYZGp0ZY/giphy.gif' },
 ];
 
 export const initialPolls = [
