@@ -241,7 +241,7 @@ app.post('/api/posts/:id/like', (req, res) => {
     if (!userId) return res.status(400).json({ message: 'userId required.' });
     toggleLike(parseInt(req.params.id), userId, (err, result) => {
       if (err) return res.status(500).json({ message: 'Failed to toggle like: ' + err.message });
-      io.emit('post:like', { postId: parseInt(req.params.id), ...result });
+      io.emit('post:like', { postId: parseInt(req.params.id), userId, ...result });
       return res.json(result);
     });
   } catch (error) {

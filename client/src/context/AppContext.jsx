@@ -54,6 +54,7 @@ export function AppProvider({ children }) {
       setPosts((prev) => prev.some((p) => p.id === post.id) ? prev : [post, ...prev]);
     });
     s.on('post:like', (data) => {
+      if (data.userId === user?.id) return;
       setPosts((prev) => prev.map((p) =>
         p.id === data.postId
           ? { ...p, likes: data.liked ? [...(p.likes || []), data.userId] : (p.likes || []).filter((id) => id !== data.userId) }
