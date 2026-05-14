@@ -50,8 +50,8 @@ export const initialEvents = [
 export const initialConfs = [
   { id: 1, t: '15 min ago', txt: 'I have been attending the wrong tutorial class for 3 weeks. I thought I was getting smarter — turns out I was studying a completely different course 💀', likes: 0, liked: false },
   { id: 2, t: '1 hr ago', txt: "There is someone in my department whose voice I have been in love with for 2 entire years and we have never once spoken. Every time they answer questions in class I lose all focus on the lecture.", likes: 0, liked: false },
-  { id: 3, t: '3 hrs ago', txt: "The jollof rice in Elijah Hall on Thursdays is genuinely top 5 meals of my life. I go there even though I don't live there. I am not ashamed and I will not apologise.", likes: 0, liked: false },
-  { id: 4, t: '5 hrs ago', txt: 'I failed my first exam in 100L and cried for 2 straight days. Then I made the Dean\'s List in 200L. If you are struggling right now — it does not stay this way. Keep going.', likes: 0, liked: false },
+  { id: 3, t: '3 hrs ago', txt: "I've been hooking up with my lecturer's son for the past 4 months and he has no idea it's me. I sit in the front row every lecture and we make eye contact the entire time. This is so sick but I can't stop.", likes: 0, liked: false },
+  { id: 4, t: '5 hrs ago', txt: "I walked into my exam hall wearing nothing but boxers under my gown because I was late and didn't have time to put on trousers. Got to my seat and realized my fly was down the WHOLE time. A girl behind me saw everything and just whispered 'not bad'. I think about that day every single night.", likes: 0, liked: false },
 ];
 
 export const initialMemes = [

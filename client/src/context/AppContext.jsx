@@ -265,6 +265,16 @@ export function AppProvider({ children }) {
     }).catch(() => {});
   }, [user]);
 
+  const submitPoll = useCallback((question, options) => {
+    const newPoll = {
+      id: Date.now(),
+      q: question,
+      opts: options.map((l) => ({ l, v: 0 })),
+      voted: null,
+    };
+    setPolls((prev) => [newPoll, ...prev]);
+  }, []);
+
   const toggleFollow = useCallback((targetUserId) => {
     setFollowingMap((m) => {
       const updated = { ...m, [targetUserId]: !m[targetUserId] };
@@ -347,7 +357,7 @@ export function AppProvider({ children }) {
     stories, setStories, viewStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
-    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, followingMap, toggleFollow, trending, suggs, login, register, logout,
+    activeUsers, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, followingMap, toggleFollow, submitPoll, trending, suggs, login, register, logout,
     chatList, activeChat, selectChat, sendMessage, loadChats, socket,
     addComment, deleteComment, searchQuery, setSearchQuery,
   };

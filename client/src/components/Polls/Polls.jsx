@@ -2,21 +2,55 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function Polls() {
-  const { polls, showToast } = useApp();
+  const { polls, setPolls, showToast, submitPoll } = useApp();
   const [votes, setVotes] = useState({});
+  const [creating, setCreating] = useState(false);
+  const [q, setQ] = useState('');
+  const [opts, setOpts] = useState(['', '']);
 
   const vote = (pid, oi) => {
-    if (votes[pid] !== undefined) return showToast('⚠️ Already voted!');
+    if (votes[pid] !== undefined) return showToast('Already voted!');
     setVotes((prev) => ({ ...prev, [pid]: oi }));
-    showToast('✅ Vote recorded!');
+    setPolls((prev) => prev.map((p) => p.id === pid ? { ...p, opts: p.opts.map((o, i) => i === oi ? { ...o, v: o.v + 1 } : o) } : p));
+    showToast('Vote recorded!');
+  };
+
+  const addOpt = () => { if (opts.length < 6) setOpts([...opts, '']); };
+
+  const removeOpt = (i) => { if (opts.length > 2) setOpts(opts.filter((_, idx) => idx !== i)); };
+
+  const handleCreate = () => {
+    if (!q.trim()) return showToast('Enter a question!');
+    const valid = opts.filter((o) => o.trim());
+    if (valid.length < 2) return showToast('At least 2 options!');
+    submitPoll(q.trim(), valid.map((o) => o.trim()));
+    setQ('');
+    setOpts(['', '']);
+    setCreating(false);
+    showToast('Poll created!');
   };
 
   return (
     <div className="pg on" id="pg-polls">
       <div className="pg-hd">
-        <div className="pg-title">📊 Polls & Trending</div>
-        <button className="btn-out" onClick={() => showToast('📊 Create poll — coming!')}>+ New Poll</button>
+        <div className="pg-title">Polls & Trends</div>
+        <button className="btn-out" onClick={() => setCreating(!creating)}>{creating ? 'Cancel' : '+ New Poll'}</button>
       </div>
+      {creating && (
+        <div className="poll-creator">
+          <input className="inp" placeholder="Ask a question..." value={q} onChange={(e) => setQ(e.target.value)} />
+          {opts.map((o, i) => (
+            <div className="poll-opt-row" key={i}>
+              <input className="inp" placeholder={`Option ${i + 1}`} value={o} onChange={(e) => { const n = [...opts]; n[i] = e.target.value; setOpts(n); }} />
+              {opts.length > 2 && <button className="poll-rm" onClick={() => removeOpt(i)}>x</button>}
+            </div>
+          ))}
+          <div className="poll-creator-acts">
+            {opts.length < 6 && <button className="btn-out" onClick={addOpt} style={{ padding: '6px 14px', fontSize: '12px' }}>+ Add option</button>}
+            <button className="btn-main" onClick={handleCreate} style={{ padding: '8px 20px', width: 'auto' }}>Create Poll</button>
+          </div>
+        </div>
+      )}
       <div id="polls-wrap">
         {polls.map((p) => {
           const tot = p.opts.reduce((s, o) => s + o.v, 0);

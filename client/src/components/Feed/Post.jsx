@@ -41,7 +41,7 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
       )}
       <div className="post-ft">
         <div className={`pact${post.liked ? ' liked' : ''}`} onClick={() => onLike(post.id)}>
-          {post.liked ? '❤️' : '🤍'}<span>{post.likes}</span>
+          {post.liked ? '♥' : '♡'}<span>{Array.isArray(post.likes) ? post.likes.length : post.likes}</span>
         </div>
         <div className="pact" onClick={() => setShowComments(!showComments)}>
           💬<span>{commentCount}</span>
