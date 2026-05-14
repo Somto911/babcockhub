@@ -138,6 +138,14 @@ export function AppProvider({ children }) {
     }
   }, [user?.id]);
 
+  const selectChat = useCallback((chatId) => {
+    const chat = chatList.find((c) => c.id === chatId);
+    if (!chat) return;
+    if (activeChat && socket) socket.emit('chat:leave', { chatId: activeChat.id });
+    setActiveChat(chat);
+    if (socket) socket.emit('chat:join', { chatId: chat.id });
+  }, [chatList, activeChat, socket]);
+
   const startDm = useCallback(async (friend) => {
     if (!user?.id) return;
     const existing = chatList.find((c) => !c.grp && c.partnerId === friend.id);
@@ -158,14 +166,6 @@ export function AppProvider({ children }) {
       selectChat(newChat.id);
     }
   }, [user?.id, chatList, selectChat]);
-
-  const selectChat = useCallback((chatId) => {
-    const chat = chatList.find((c) => c.id === chatId);
-    if (!chat) return;
-    if (activeChat && socket) socket.emit('chat:leave', { chatId: activeChat.id });
-    setActiveChat(chat);
-    if (socket) socket.emit('chat:join', { chatId: chat.id });
-  }, [chatList, activeChat, socket]);
 
   const sendMessage = useCallback((txt) => {
     if (!txt || !activeChat) return;
