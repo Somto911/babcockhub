@@ -11,6 +11,7 @@ export function AppProvider({ children }) {
   const [toast, setToast] = useState(null);
   const [activePage, setActivePage] = useState('feed');
   const [profileTarget, setProfileTarget] = useState(null);
+  const [activeGroup, setActiveGroup] = useState(null);
 
   const [posts, setPosts] = useState(initialPosts);
   const [groups, setGroups] = useState(initialGroups);
@@ -384,7 +385,7 @@ export function AppProvider({ children }) {
     user, setUser, toast, showToast, updateProfile, theme, toggleTheme,
     activePage, setActivePage, profileTarget, setProfileTarget,
     posts, setPosts, likePost, repostPost, submitPost,
-    groups, setGroups, events, setEvents,
+    groups, setGroups, events, setEvents, activeGroup, setActiveGroup,
     confs, setConfs, memes, setMemes, polls, setPolls,
     stories, setStories, viewStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,

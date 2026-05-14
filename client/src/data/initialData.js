@@ -2,9 +2,6 @@ export const initialStories = [
   { id: 1, name: 'Pioneer Chapel', icon: '🕊️', img: '/images/campus-view.jpg', seen: false },
   { id: 2, name: 'International Sabbath', icon: '✝️', img: '/images/international-sabbath.jpg', seen: false },
   { id: 3, name: 'Campus Life', icon: '⛪', img: '/images/pioneer-interior.jpg', seen: true },
-  { id: 4, name: 'Sports Complex', icon: '⚽', img: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=400&h=600&fit=crop', seen: false },
-  { id: 5, name: 'Library', icon: '📚', img: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop', seen: false },
-  { id: 6, name: 'Graduation Hall', icon: '🎓', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=400&h=600&fit=crop', seen: false },
 ];
 
 export const initialPosts = [
@@ -32,12 +29,12 @@ export const initialPosts = [
 ];
 
 export const initialGroups = [
-  { id: 1, nm: 'Computer Science Dept 🖥️', type: 'Department', desc: 'Official dept group for all CS students. Announcements, resources, and academic discussions.', mem: 842, ico: '🖥️', joined: true, grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))' },
-  { id: 2, nm: 'winslow Hall 🏠', type: 'Hostel', desc: 'Residents of winslow Hall. Power updates, lost & found, hostel life discussions.', mem: 213, ico: '🏠', joined: true, grad: 'linear-gradient(135deg,rgba(240,64,64,.5),rgba(245,149,0,.35))' },
-  { id: 3, nm: 'BUCC ⚡', type: 'Club', desc: 'Building, shipping, learning together. Weekly hackathons, tech talks, and industry links.', mem: 156, ico: '⚡', joined: true, grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))' },
-  { id: 4, nm: 'Law Students Forum ⚖️', type: 'Department', desc: 'For all Law students. Moot court updates, case study discussions, and career advice.', mem: 601, ico: '⚖️', joined: false, grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.35))' },
-  { id: 5, nm: 'CS 300 Study Group 📚', type: 'Course', desc: 'Notes, study sessions, and exam prep for all CSC 300 level students.', mem: 98, ico: '📚', joined: true, grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.35))' },
-  { id: 6, nm: 'Babcock Chess Club ♟️', type: 'Club', desc: 'Weekly chess sessions at the student centre. All skill levels welcome!', mem: 47, ico: '♟️', joined: false, grad: 'linear-gradient(135deg,rgba(6,182,212,.5),rgba(139,92,246,.35))' },
+  { id: 1, nm: 'Computer Science Dept', type: 'Department', cat: 'academics', desc: 'Official dept group for all CS students. Announcements, resources, and academic discussions.', mem: 842, ico: '🖥️', joined: true, grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))' },
+  { id: 2, nm: 'winslow Hall', type: 'Hostel', cat: 'hostel', desc: 'Residents of winslow Hall. Power updates, lost & found, hostel life discussions.', mem: 213, ico: '🏠', joined: true, grad: 'linear-gradient(135deg,rgba(240,64,64,.5),rgba(245,149,0,.35))' },
+  { id: 3, nm: 'BUCC', type: 'Club', cat: 'general', desc: 'Building, shipping, learning together. Weekly hackathons, tech talks, and industry links.', mem: 156, ico: '⚡', joined: true, grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))' },
+  { id: 4, nm: 'Law Students Forum', type: 'Department', cat: 'academics', desc: 'For all Law students. Moot court updates, case study discussions, and career advice.', mem: 601, ico: '⚖️', joined: false, grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.35))' },
+  { id: 5, nm: 'CS 300 Study Group', type: 'Course', cat: 'academics', desc: 'Notes, study sessions, and exam prep for all CSC 300 level students.', mem: 98, ico: '📚', joined: true, grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.35))' },
+  { id: 6, nm: 'Babcock Chess Club', type: 'Club', cat: 'general', desc: 'Weekly chess sessions at the student centre. All skill levels welcome!', mem: 47, ico: '♟️', joined: false, grad: 'linear-gradient(135deg,rgba(6,182,212,.5),rgba(139,92,246,.35))' },
 ];
 
 export const initialEvents = [

@@ -1,28 +1,60 @@
 import { useApp } from '../../context/AppContext';
+import Post from '../Feed/Post';
+import { ini, grad } from '../../utils/helpers';
 
 export default function Groups() {
-  const { groups, showToast } = useApp();
+  const { groups, setGroups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, repostPost, showToast, addComment, deleteComment, user } = useApp();
 
   const toggleJoin = (id) => {
     const g = groups.find((x) => x.id === id);
     if (!g) return;
-    showToast(g.joined ? `👋 Left ${g.nm}` : `✅ Joined ${g.nm}`);
+    setGroups((prev) => prev.map((x) => x.id === id ? { ...x, joined: !x.joined } : x));
+    showToast(g.joined ? `Left ${g.nm}` : `Joined ${g.nm}`);
   };
+
+  const openGroup = (g) => {
+    setActiveGroup(g);
+  };
+
+  const closeGroup = () => {
+    setActiveGroup(null);
+  };
+
+  if (activeGroup) {
+    const groupPosts = posts.filter((p) => p.cat === activeGroup.cat || activeGroup.cat === 'general');
+    return (
+      <div className="pg on" id="pg-groups">
+        <div className="grp-feed-hd">
+          <button className="btn-out" onClick={closeGroup} style={{ padding: '5px 12px', fontSize: '12px' }}>← Back</button>
+          <div className="grp-feed-info">
+            <div className="grp-feed-ico" style={{ background: activeGroup.grad }}>{activeGroup.ico}</div>
+            <div>
+              <div className="grp-feed-nm">{activeGroup.nm}</div>
+              <div className="grp-feed-type">{activeGroup.type} · {activeGroup.mem.toLocaleString()} members</div>
+            </div>
+          </div>
+          <button className={`join-btn${activeGroup.joined ? ' jd' : ''}`} onClick={() => toggleJoin(activeGroup.id)} style={{ marginLeft: 'auto' }}>
+            {activeGroup.joined ? 'Joined' : 'Join'}
+          </button>
+        </div>
+        <div className="grp-feed-desc">{activeGroup.desc}</div>
+        {groupPosts.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No posts in this group yet</div>}
+        {groupPosts.map((p) => (
+          <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="pg on" id="pg-groups">
       <div className="pg-hd">
-        <div className="pg-title">👥 Groups</div>
-        <button className="btn-out" onClick={() => showToast('🌟 Create group — coming soon!')}>+ Create Group</button>
-      </div>
-      <div className="chips">
-        {['All Groups', 'Departments', 'Hostels', 'Clubs', 'Courses'].map((l) => (
-          <div key={l} className={`chip${l === 'All Groups' ? ' on' : ''}`}>{l}</div>
-        ))}
+        <div className="pg-title">Groups</div>
+        <button className="btn-out" onClick={() => showToast('Create group coming soon!')}>+ Create Group</button>
       </div>
       <div id="grp-list">
         {groups.map((g) => (
-          <div className="grp" key={g.id}>
+          <div className="grp" key={g.id} style={{ cursor: 'pointer' }} onClick={() => openGroup(g)}>
             <div className="grp-banner" style={{ background: g.grad }}>{g.ico}</div>
             <div className="grp-body">
               <div className="grp-ico" style={{ background: g.grad }}>{g.ico}</div>
@@ -31,53 +63,13 @@ export default function Groups() {
               <div className="grp-desc">{g.desc}</div>
               <div className="grp-ft">
                 <div className="grp-mem">👥 {g.mem.toLocaleString()} members</div>
-                <button className={`join-btn${g.joined ? ' jd' : ''}`} onClick={() => toggleJoin(g.id)}>
-                  {g.joined ? '✓ Joined' : 'Join'}
+                <button className={`join-btn${g.joined ? ' jd' : ''}`} onClick={(e) => { e.stopPropagation(); toggleJoin(g.id); }}>
+                  {g.joined ? 'Joined' : 'Join'}
                 </button>
               </div>
             </div>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-export function GroupsModal({ onClose }) {
-  const { groups, showToast } = useApp();
-
-  const toggleJoin = (id) => {
-    const g = groups.find((x) => x.id === id);
-    if (!g) return;
-    showToast(g.joined ? `👋 Left ${g.nm}` : `✅ Joined ${g.nm}`);
-  };
-
-  return (
-    <div className="overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: '600px' }}>
-        <div className="modal-hd">
-          <div className="modal-title">👥 Groups</div>
-          <div className="modal-x" onClick={onClose}>✕</div>
-        </div>
-        <div id="grp-list">
-          {groups.map((g) => (
-            <div className="grp" key={g.id}>
-              <div className="grp-banner" style={{ background: g.grad }}>{g.ico}</div>
-              <div className="grp-body" style={{ cursor: 'default' }}>
-                <div className="grp-ico" style={{ background: g.grad }}>{g.ico}</div>
-                <div className="grp-type">{g.type}</div>
-                <div className="grp-nm">{g.nm}</div>
-                <div className="grp-desc">{g.desc}</div>
-                <div className="grp-ft">
-                  <div className="grp-mem">👥 {g.mem.toLocaleString()} members</div>
-                  <button className={`join-btn${g.joined ? ' jd' : ''}`} onClick={() => toggleJoin(g.id)}>
-                    {g.joined ? '✓ Joined' : 'Join'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
