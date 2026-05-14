@@ -55,11 +55,11 @@ export function AppProvider({ children }) {
     });
     s.on('post:like', (data) => {
       if (data.userId === user?.id) return;
-      setPosts((prev) => prev.map((p) =>
-        p.id === data.postId
-          ? { ...p, likes: data.liked ? [...(p.likes || []), data.userId] : (p.likes || []).filter((id) => id !== data.userId) }
-          : p
-      ));
+      setPosts((prev) => prev.map((p) => {
+        if (p.id !== data.postId) return p;
+        const curLikes = Array.isArray(p.likes) ? p.likes : [];
+        return { ...p, likes: data.liked ? [...curLikes, data.userId] : curLikes.filter((id) => id !== data.userId) };
+      }));
     });
     s.on('chat:message', (data) => {
       setChatList((prev) => {
@@ -157,7 +157,11 @@ export function AppProvider({ children }) {
   }, [activeChat, socket, user]);
 
   const likePost = useCallback((id) => {
-    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? (p.likes || []).filter((u) => u !== user?.id) : [...(p.likes || []), user?.id] } : p)));
+    setPosts((prev) => prev.map((p) => {
+      if (p.id !== id) return p;
+      const curLikes = Array.isArray(p.likes) ? p.likes : [];
+      return { ...p, liked: !p.liked, likes: p.liked ? curLikes.filter((u) => u !== user?.id) : [...curLikes, user?.id] };
+    }));
     api(`/api/posts/${id}/like`, {
       method: 'POST',
       body: JSON.stringify({ userId: user?.id || 0 }),
