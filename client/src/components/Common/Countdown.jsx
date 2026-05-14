@@ -2,7 +2,7 @@ import { useCountdown } from '../../hooks/useCountdown';
 
 export default function Countdown() {
   const target = new Date();
-  target.setDate(target.getDate() + 42);
+  target.setDate(target.getDate() + 49);
   const { d, h, m, s } = useCountdown(target);
 
   return (

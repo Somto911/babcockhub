@@ -220,7 +220,7 @@ function seedDatabase() {
                     ['Adeyinka Bello', 'Computer Science · 300L', 'sports', "PSG please \u{1F62D} the world is behind you right now…", '', 1],
                     ['Chidera Okonkwo', 'Law · 400L', 'sports', "If Arsenal win the UCL just kill me \u{1F480} I cannot survive", '', 2],
                     ['Emmanuel Nwachukwu', 'Economics · 200L', 'academics', 'Does anyone have the Linux tutorial notes from last semester? \u{1F630}', '', 3],
-                    ['Adeyinka Bello', 'Computer Science · 300L', 'hostel', "Winslow Hall UPDATE: Power is BACK in Block C! \u{26A1}", 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop', 1],
+                    ['Adeyinka Bello', 'Computer Science · 300L', 'hostel', "Winslow Hall UPDATE: Power is BACK in Block C! \u{26A1}", '', 1],
                     ['Chidera Okonkwo', 'Law · 400L', 'events', "\u{1F3E5} Free medical outreach this sunday in front of Caf! #BabcockMed", '', 2],
                     ['Emmanuel Nwachukwu', 'Economics · 200L', 'gist', 'The BUSA elections are looking wild \u{1F602} UZOMA4SPORTS came with energy!', '', 3],
                     ['Adeyinka Bello', 'Computer Science · 300L', 'academics', "\u{1F393} JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress. WE MADE IT!", 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', 1],
