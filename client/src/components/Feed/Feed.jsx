@@ -5,12 +5,15 @@ import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory } = useApp();
   const [text, setText] = useState('');
-  const [cat, setCat] = useState('general');
+  const [cat, setCat] = useState('academics');
   const [filter, setFilter] = useState('all');
   const [storyIdx, setStoryIdx] = useState(null);
   const [viewerStories, setViewerStories] = useState([]);
+  const [showStoryForm, setShowStoryForm] = useState(false);
+  const [storyName, setStoryName] = useState('');
+  const [storyImg, setStoryImg] = useState('');
   const sentinelRef = useRef(null);
 
   const handleObserver = useCallback((entries) => {
@@ -36,17 +39,37 @@ export default function Feed() {
   const greet = hour < 12 ? `Good morning, ${user?.name?.split(' ')[0] || ''}` : hour < 17 ? `Good afternoon, ${user?.name?.split(' ')[0] || ''}` : `Good evening, ${user?.name?.split(' ')[0] || ''}`;
 
   const handleSubmit = () => {
-    if (!text.trim()) return showToast('⚠️ Write something!');
+    if (!text.trim()) return showToast('Write something!');
     submitPost(text.trim(), cat, '');
     setText('');
-    showToast('🚀 Posted!');
+    showToast('Posted!');
   };
 
   return (
     <>
     <div className="pg on" id="pg-feed">
+      {showStoryForm && (
+        <div className="overlay open" onClick={() => { setShowStoryForm(false); setStoryName(''); setStoryImg(''); }}>
+          <div className="modal" style={{ maxWidth: '400px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-hd">
+              <div className="modal-title">Add Story</div>
+              <div className="modal-x" onClick={() => { setShowStoryForm(false); setStoryName(''); setStoryImg(''); }}>X</div>
+            </div>
+            <input className="inp" placeholder="Your name..." value={storyName} onChange={(e) => setStoryName(e.target.value)} />
+            <input className="inp" placeholder="Image URL..." value={storyImg} onChange={(e) => setStoryImg(e.target.value)} />
+            <button className="btn-main" onClick={() => {
+              if (!storyImg.trim()) return showToast('Enter an image URL!');
+              submitStory(storyName.trim() || user?.name || 'Someone', storyImg.trim());
+              setShowStoryForm(false);
+              setStoryName('');
+              setStoryImg('');
+              showToast('Story added!');
+            }}>Add Story</button>
+          </div>
+        </div>
+      )}
       <div className="stories">
-        <div className="story" onClick={() => showToast('📸 Create a story feature coming soon!')}>
+        <div className="story" onClick={() => setShowStoryForm(true)}>
           <div className="story-add">
             <div className="plus">+</div>
             <div className="plus-label">Add Story</div>
@@ -66,10 +89,10 @@ export default function Feed() {
 
       <div className="greeting-bar">
         <div style={{ flex: 1 }}>
-          <div className="greet-text">{greet} ✨</div>
+          <div className="greet-text">{greet}</div>
           <div className="greet-sub">Here's what's happening on campus today</div>
         </div>
-        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">↻</button>
+        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">R</button>
       </div>
 
       <div className="composer">
@@ -79,7 +102,6 @@ export default function Feed() {
         </div>
         <div className="comp-bar">
           <select className="comp-sel" value={cat} onChange={(e) => setCat(e.target.value)}>
-            <option value="general">General</option>
             <option value="academics">Academics</option>
             <option value="hostel">Hostel Life</option>
             <option value="gist">Gist</option>
@@ -90,7 +112,7 @@ export default function Feed() {
       </div>
 
       <div className="chips">
-        {[['all', '✨ All'], ['academics', '📚 Academics'], ['hostel', '🏠 Hostel'], ['gist', '☕ Gist'], ['events', '📅 Events'], ['sports', '⚽ Sports']].map(([key, label]) => (
+        {[['all', 'All'], ['academics', 'Academics'], ['hostel', 'Hostel'], ['gist', 'Gist'], ['events', 'Events'], ['sports', 'Sports']].map(([key, label]) => (
           <div key={key} className={`chip${filter === key ? ' on' : ''}`} onClick={() => setFilter(key)}>{label}</div>
         ))}
       </div>

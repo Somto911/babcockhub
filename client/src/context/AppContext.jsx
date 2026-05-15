@@ -88,10 +88,10 @@ export function AppProvider({ children }) {
       });
       const ac = activeChatRef.current;
       if (!ac || data.chatId !== ac.id) {
-        showToast(`📩 New message: ${data.msg?.senderName || 'Someone'}`);
+        showToast(`New message: ${data.msg?.senderName || 'Someone'}`);
       }
     });
-    s.on('chat:error', (err) => showToast(`⚠️ ${err?.message || 'Chat error'}`));
+    s.on('chat:error', (err) => showToast(`${err?.message || 'Chat error'}`));
     setSocket(s);
   }, [user, socket, showToast]);
 
@@ -298,6 +298,17 @@ export function AppProvider({ children }) {
     }).catch(() => {});
   }, [user]);
 
+  const submitStory = useCallback((name, img, icon) => {
+    const newStory = {
+      id: Date.now(),
+      name,
+      icon: icon || name.charAt(0),
+      img,
+      seen: false,
+    };
+    setStories((prev) => [newStory, ...prev]);
+  }, []);
+
   const submitPoll = useCallback((question, options) => {
     const newPoll = {
       id: Date.now(),
@@ -387,7 +398,7 @@ export function AppProvider({ children }) {
     posts, setPosts, likePost, repostPost, submitPost,
     groups, setGroups, events, setEvents, activeGroup, setActiveGroup,
     confs, setConfs, memes, setMemes, polls, setPolls,
-    stories, setStories, viewStory,
+    stories, setStories, viewStory, submitStory,
     notifications, markNotifRead, markAllNotifRead, addNotification,
     modQueue, setModQueue,
     activeUsers, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, followingMap, toggleFollow, submitPoll, trending, suggs, login, register, logout,

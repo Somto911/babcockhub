@@ -49,7 +49,7 @@ export default function Chat() {
           <div className="cl-list">
             {chatList.map((c) => (
               <div key={c.id} className={`cli${activeChat?.id === c.id ? ' on' : ''}`} onClick={() => selectChat(c.id)}>
-                <div className="cli-av" style={{ background: c.grad || '#4f7fff' }}>{c.ico || '💬'}</div>
+                <div className="cli-av" style={{ background: c.grad || '#4f7fff' }}>{c.ico || 'M'}</div>
                 <div className="cli-nfo">
                   <div className="cli-nm">{c.nm}</div>
                   <div className="cli-pr">{c.preview || 'No messages yet'}</div>
@@ -66,14 +66,14 @@ export default function Chat() {
         <div className="chat-win">
           {!activeChat ? (
             <div className="empty-messages" style={{ minHeight: 'auto', flex: 1 }}>
-              <div className="empty-ico">💬</div>
+              <div className="empty-ico">M</div>
               <div className="empty-title">Select a chat</div>
               <div className="empty-desc">Choose a conversation or click + to start a new message</div>
             </div>
           ) : (
             <div style={{ display: 'flex', flex: 1, flexDirection: 'column', height: '100%' }}>
               <div className="chat-hd">
-                <div className="chd-av" style={{ background: activeChat.grad || '#4f7fff' }}>{activeChat.ico || '💬'}</div>
+                <div className="chd-av" style={{ background: activeChat.grad || '#4f7fff' }}>{activeChat.ico || 'M'}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="chd-nm">{activeChat.nm}</div>
                   <div className="chd-st">{activeChat.online || '1 online'}</div>
@@ -97,7 +97,7 @@ export default function Chat() {
               </div>
               <div className="chat-inp-bar">
                 <input className="chat-inp" type="text" placeholder="Type a message..." value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} />
-                <button className="send-btn" onClick={handleSend}>➤</button>
+                <button className="send-btn" onClick={handleSend}>S</button>
               </div>
             </div>
           )}

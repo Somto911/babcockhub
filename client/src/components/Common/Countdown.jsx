@@ -11,7 +11,7 @@ export default function Countdown() {
 
   return (
     <div className="widget">
-      <div className="w-title">⏰ Post Siwes Countdown</div>
+      <div className="w-title">Post Siwes Countdown</div>
       <div style={{ fontSize: '11px', color: 'var(--text2)', textAlign: 'center', marginBottom: '8px' }}>Back to hell</div>
       <div className="cd-grid">
         {[['DAYS', d], ['HRS', h], ['MIN', m], ['SEC', s]].map(([l, n]) => (

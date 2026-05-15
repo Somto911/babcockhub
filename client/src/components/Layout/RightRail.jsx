@@ -18,7 +18,7 @@ export default function RightRail() {
       <Countdown />
 
       <div className="widget">
-        <div className="w-title">🔥 Trending on Campus</div>
+        <div className="w-title">Trending on Campus</div>
         {trendList.map((t, i) => (
           <div className="trend" key={i}>
             <div className="trend-n">{i + 1}</div>
@@ -31,7 +31,7 @@ export default function RightRail() {
       </div>
 
       <div className="widget">
-        <div className="w-title">👥 People You May Know</div>
+        <div className="w-title">People You May Know</div>
         {suggs.map((s, i) => (
           <div className="sug" key={i}>
             <div className="sug-av" style={{ background: grad(s.nm) }}>{ini(s.nm)}</div>
@@ -50,7 +50,7 @@ export default function RightRail() {
       </div>
 
       <div className="widget">
-        <div className="w-title">⚡ Campus Pulse</div>
+        <div className="w-title">Campus Pulse</div>
         <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.6' }}>
           {pulseMessages[pulse]}
         </div>

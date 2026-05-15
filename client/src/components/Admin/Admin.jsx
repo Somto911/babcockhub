@@ -4,7 +4,7 @@ export default function Admin() {
   const { modQueue, showToast } = useApp();
 
   const modAct = (id, action) => {
-    showToast(action === 'ok' ? '✅ Content approved & kept' : '🗑️ Content removed');
+    showToast(action === 'ok' ? 'Content approved & kept' : 'Content removed');
   };
 
   return (

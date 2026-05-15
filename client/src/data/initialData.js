@@ -1,7 +1,7 @@
 export const initialStories = [
-  { id: 1, name: 'Pioneer Chapel', icon: '🕊️', img: '/images/campus-view.jpg', seen: false },
-  { id: 2, name: 'International Sabbath', icon: '✝️', img: '/images/international-sabbath.jpg', seen: false },
-  { id: 3, name: 'Campus Life', icon: '⛪', img: '/images/pioneer-interior.jpg', seen: true },
+  { id: 1, name: 'Pioneer Chapel', icon: 'P', img: '/images/campus-view.jpg', seen: false },
+  { id: 2, name: 'International Sabbath', icon: 'I', img: '/images/international-sabbath.jpg', seen: false },
+  { id: 3, name: 'Campus Life', icon: 'C', img: '/images/pioneer-interior.jpg', seen: true },
 ];
 
 export const initialPosts = [
@@ -29,19 +29,19 @@ export const initialPosts = [
 ];
 
 export const initialGroups = [
-  { id: 1, nm: 'Computer Science Dept', type: 'Department', cat: 'academics', desc: 'Official dept group for all CS students. Announcements, resources, and academic discussions.', mem: 842, ico: '🖥️', joined: true, grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))' },
-  { id: 2, nm: 'winslow Hall', type: 'Hostel', cat: 'hostel', desc: 'Residents of winslow Hall. Power updates, lost & found, hostel life discussions.', mem: 213, ico: '🏠', joined: true, grad: 'linear-gradient(135deg,rgba(240,64,64,.5),rgba(245,149,0,.35))' },
-  { id: 3, nm: 'BUCC', type: 'Club', cat: 'general', desc: 'Building, shipping, learning together. Weekly hackathons, tech talks, and industry links.', mem: 156, ico: '⚡', joined: true, grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))' },
-  { id: 4, nm: 'Law Students Forum', type: 'Department', cat: 'academics', desc: 'For all Law students. Moot court updates, case study discussions, and career advice.', mem: 601, ico: '⚖️', joined: false, grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.35))' },
-  { id: 5, nm: 'CS 300 Study Group', type: 'Course', cat: 'academics', desc: 'Notes, study sessions, and exam prep for all CSC 300 level students.', mem: 98, ico: '📚', joined: true, grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.35))' },
-  { id: 6, nm: 'Babcock Chess Club', type: 'Club', cat: 'general', desc: 'Weekly chess sessions at the student centre. All skill levels welcome!', mem: 47, ico: '♟️', joined: false, grad: 'linear-gradient(135deg,rgba(6,182,212,.5),rgba(139,92,246,.35))' },
+  { id: 1, nm: 'Computer Science Dept', type: 'Department', cat: 'academics', desc: 'Official dept group for all CS students. Announcements, resources, and academic discussions.', mem: 842, ico: 'C', joined: false, depts: ['Computer Science', 'IT', 'Software Engineering', 'Computer Engineering'], grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))' },
+  { id: 2, nm: 'winslow Hall', type: 'Hostel', cat: 'hostel', desc: 'Residents of winslow Hall. Power updates, lost & found, hostel life discussions.', mem: 213, ico: 'W', joined: false, depts: null, grad: 'linear-gradient(135deg,rgba(240,64,64,.5),rgba(245,149,0,.35))' },
+  { id: 3, nm: 'BUCC', type: 'Club', cat: 'general', desc: 'Building, shipping, learning together. Weekly hackathons, tech talks, and industry links.', mem: 156, ico: 'B', joined: false, depts: ['Computer Science', 'IT', 'Software Engineering', 'Computer Engineering', 'Information Technology'], grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))' },
+  { id: 4, nm: 'Law Students Forum', type: 'Department', cat: 'academics', desc: 'For all Law students. Moot court updates, case study discussions, and career advice.', mem: 601, ico: 'L', joined: false, depts: ['Law', 'International Law', 'Legal Studies'], grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.35))' },
+  { id: 5, nm: 'CS 300 Study Group', type: 'Course', cat: 'academics', desc: 'Notes, study sessions, and exam prep for all CSC 300 level students.', mem: 98, ico: 'S', joined: false, depts: ['Computer Science', 'IT', 'Software Engineering', 'Computer Engineering'], grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.35))' },
+  { id: 6, nm: 'Babcock Chess Club', type: 'Club', cat: 'general', desc: 'Weekly chess sessions at the student centre. All skill levels welcome!', mem: 47, ico: 'C', joined: false, depts: null, grad: 'linear-gradient(135deg,rgba(6,182,212,.5),rgba(139,92,246,.35))' },
 ];
 
 export const initialEvents = [
-  { id: 1, title: 'BU Hackathon 💻', ico: '💻', day: '15', mon: 'JUN', time: '9:00 AM', loc: 'Tech Hub Building', desc: '24-hour coding marathon. Build, deploy, and win amazing prizes. Free meals provided!', att: 340, going: false, grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))', remind24h: false, remindDay: false, remindSet: false },
-  { id: 2, title: 'Freshers Fair 🎉', ico: '🎉', day: '20', mon: 'SEP', time: '4:00 PM', loc: 'University Stadium', desc: 'Welcome to Babcock! Meet clubs, societies, and campus organizations. Food, music, and games!', att: 890, going: true, grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.3))', remind24h: false, remindDay: false, remindSet: false },
-  { id: 3, title: 'Graduation Day 🎓', ico: '🎓', day: '12', mon: 'OCT', time: '10:00 AM', loc: 'The Amphitheatre', desc: 'Celebrating our graduating class. Gowns, speeches, and new beginnings for the future leaders.', att: 1250, going: false, grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))', remind24h: false, remindDay: false, remindSet: false },
-  { id: 4, title: 'Best of 200L Final ⚽', ico: '⚽', day: '28', mon: 'MAY', time: '3:00 PM', loc: 'University Stadium', desc: 'The ultimate intramural showdown! Who will be crowned the best department in 200L?', att: 420, going: false, grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.3))', cat: 'sports', remind24h: false, remindDay: false, remindSet: false },
+  { id: 1, title: 'BU Hackathon', ico: 'H', day: '15', mon: 'JUN', time: '9:00 AM', loc: 'Tech Hub Building', desc: '24-hour coding marathon. Build, deploy, and win amazing prizes. Free meals provided!', att: 340, going: false, grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))', remind24h: false, remindDay: false, remindSet: false },
+  { id: 2, title: 'Freshers Fair', ico: 'F', day: '20', mon: 'SEP', time: '4:00 PM', loc: 'University Stadium', desc: 'Welcome to Babcock! Meet clubs, societies, and campus organizations. Food, music, and games!', att: 890, going: false, grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.3))', remind24h: false, remindDay: false, remindSet: false },
+  { id: 3, title: 'Graduation Day', ico: 'G', day: '12', mon: 'OCT', time: '10:00 AM', loc: 'The Amphitheatre', desc: 'Celebrating our graduating class. Gowns, speeches, and new beginnings for the future leaders.', att: 1250, going: false, grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))', remind24h: false, remindDay: false, remindSet: false },
+  { id: 4, title: 'Best of 200L Final', ico: 'B', day: '28', mon: 'MAY', time: '3:00 PM', loc: 'University Stadium', desc: 'The ultimate intramural showdown! Who will be crowned the best department in 200L?', att: 420, going: false, grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.3))', cat: 'sports', remind24h: false, remindDay: false, remindSet: false },
 ];
 
 export const initialConfs = [
@@ -52,18 +52,18 @@ export const initialConfs = [
 ];
 
 export const initialMemes = [
-  { ico: '😡', cap: 'This whole elections were rigged', likes: 0, url: 'https://media4.giphy.com/media/8rT2k19HNjhImz6bwP/giphy.gif' },
-  { ico: '🎤', cap: 'abeg so we no get social director?? 😂😂', likes: 0, url: 'https://media0.giphy.com/media/ouEIsl1nsBjUpMbfxm/giphy.gif' },
-  { ico: '📋', cap: 'How do you lose an unopposed election 😂💀', likes: 0, url: 'https://media1.giphy.com/media/DmCq5rJEk6phhv4WSz/giphy.gif' },
-  { ico: '😭', cap: 'So after everything Angel no win Gensec', likes: 0, url: 'https://media4.giphy.com/media/4QA4DlNNe6NHMSNqrO/giphy.gif' },
-  { ico: '⌨️', cap: 'Me at 11:59PM submitting a 3,000-word essay I started at 11:30PM', likes: 0, url: 'https://media4.giphy.com/media/gwhneLWxsHkaCyRj4n/giphy.gif' },
-  { ico: '🍚', cap: 'Me when I hear jollof rice is on the menu at the dining hall', likes: 0, url: 'https://media4.giphy.com/media/FP7pLBvhnV3jBvUW7j/giphy.gif' },
-  { ico: '💡', cap: 'NEPA taking light during my 4-hour exam-prep study marathon', likes: 0, url: 'https://media2.giphy.com/media/F7MTsSTtFx17fQHlrN/giphy.gif' },
-  { ico: '🙏', cap: 'Me explaining to God exactly why that carryover needs to disappear', likes: 0, url: 'https://media4.giphy.com/media/QXp6l0FH4QOUYfXIH1/giphy.gif' },
-  { ico: '😴', cap: 'When lecturer finally says "you can go" after a 3-hour lecture', likes: 0, url: 'https://media1.giphy.com/media/MlpBNQVcc5GX9RhyFP/giphy.gif' },
-  { ico: '📝', cap: 'When you realize the test is TODAY and not NEXT WEEK', likes: 0, url: 'https://media3.giphy.com/media/iiIpe7ejuBbAfgyMPl/giphy.gif' },
-  { ico: '📱', cap: 'Group project: 1 person does the work, 10 people say "nice one guys"', likes: 0, url: 'https://media4.giphy.com/media/2d400VBPJbxaU/giphy.gif' },
-  { ico: '🎓', cap: 'When you finally pass that course you failed 3 times', likes: 0, url: 'https://media4.giphy.com/media/f2PSqb4ZkIWYZGp0ZY/giphy.gif' },
+  { ico: 'R', cap: 'This whole elections were rigged', likes: 0, url: 'https://media4.giphy.com/media/8rT2k19HNjhImz6bwP/giphy.gif' },
+  { ico: 'M', cap: 'abeg so we no get social director??', likes: 0, url: 'https://media0.giphy.com/media/ouEIsl1nsBjUpMbfxm/giphy.gif' },
+  { ico: 'V', cap: 'How do you lose an unopposed election', likes: 0, url: 'https://media1.giphy.com/media/DmCq5rJEk6phhv4WSz/giphy.gif' },
+  { ico: 'C', cap: 'So after everything Angel no win Gensec', likes: 0, url: 'https://media4.giphy.com/media/4QA4DlNNe6NHMSNqrO/giphy.gif' },
+  { ico: 'K', cap: 'Me at 11:59PM submitting a 3,000-word essay I started at 11:30PM', likes: 0, url: 'https://media4.giphy.com/media/gwhneLWxsHkaCyRj4n/giphy.gif' },
+  { ico: 'R', cap: 'Me when I hear jollof rice is on the menu at the dining hall', likes: 0, url: 'https://media4.giphy.com/media/FP7pLBvhnV3jBvUW7j/giphy.gif' },
+  { ico: 'L', cap: 'NEPA taking light during my 4-hour exam-prep study marathon', likes: 0, url: 'https://media2.giphy.com/media/F7MTsSTtFx17fQHlrN/giphy.gif' },
+  { ico: 'P', cap: 'Me explaining to God exactly why that carryover needs to disappear', likes: 0, url: 'https://media4.giphy.com/media/QXp6l0FH4QOUYfXIH1/giphy.gif' },
+  { ico: 'Z', cap: 'When lecturer finally says "you can go" after a 3-hour lecture', likes: 0, url: 'https://media1.giphy.com/media/MlpBNQVcc5GX9RhyFP/giphy.gif' },
+  { ico: 'T', cap: 'When you realize the test is TODAY and not NEXT WEEK', likes: 0, url: 'https://media3.giphy.com/media/iiIpe7ejuBbAfgyMPl/giphy.gif' },
+  { ico: 'G', cap: 'Group project: 1 person does the work, 10 people say "nice one guys"', likes: 0, url: 'https://media4.giphy.com/media/2d400VBPJbxaU/giphy.gif' },
+  { ico: 'F', cap: 'When you finally pass that course you failed 3 times', likes: 0, url: 'https://media4.giphy.com/media/f2PSqb4ZkIWYZGp0ZY/giphy.gif' },
 ];
 
 export const initialPolls = [
@@ -73,27 +73,27 @@ export const initialPolls = [
 ];
 
 export const initialChats = [
-  { id: 1, nm: 'CS Dept Group', ico: '🖥️', grad: 'linear-gradient(135deg,#4f7fff,#34d399)', t: '2 min ago', preview: 'Seun: Did anyone get the assignment?', msgs: [
+  { id: 1, nm: 'CS Dept Group', ico: 'C', grad: 'linear-gradient(135deg,#4f7fff,#34d399)', t: '2 min ago', preview: 'Seun: Did anyone get the assignment?', msgs: [
     { senderId: 2, senderName: 'Seun', txt: 'Did anyone get the assignment?', t: '2:30 PM', own: false },
     { senderId: 3, senderName: 'Dapo', txt: 'Yeah check the portal', t: '2:31 PM', own: false },
     { senderId: 0, senderName: 'You', txt: 'Thanks!', t: '2:32 PM', own: true },
   ], online: '12 online' },
-  { id: 2, nm: 'winslow Hall', ico: '🏠', grad: 'linear-gradient(135deg,#f87171,#fbbf24)', t: '1 hr ago', preview: 'Chiemela: Power is back in Block C!', msgs: [
+  { id: 2, nm: 'winslow Hall', ico: 'W', grad: 'linear-gradient(135deg,#f87171,#fbbf24)', t: '1 hr ago', preview: 'Chiemela: Power is back in Block C!', msgs: [
     { senderId: 4, senderName: 'Chiemela', txt: 'Power is back in Block C!', t: '1:00 PM', own: false },
-    { senderId: 3, senderName: 'Dapo', txt: 'Finally 😭', t: '1:05 PM', own: false },
+    { senderId: 3, senderName: 'Dapo', txt: 'Finally!', t: '1:05 PM', own: false },
   ], online: '5 online' },
-  { id: 3, nm: 'BUCC Tech', ico: '⚡', grad: 'linear-gradient(135deg,#a78bfa,#22d3ee)', t: '3 hrs ago', preview: 'You: When\'s the next hackathon?', msgs: [
+  { id: 3, nm: 'BUCC Tech', ico: 'B', grad: 'linear-gradient(135deg,#a78bfa,#22d3ee)', t: '3 hrs ago', preview: 'You: When\'s the next hackathon?', msgs: [
     { senderId: 0, senderName: 'You', txt: 'When\'s the next hackathon?', t: '11:00 AM', own: true },
     { senderId: 5, senderName: 'Excel', txt: 'Next Saturday at Tech Hub', t: '11:30 AM', own: false },
   ], online: '3 online' },
-  { id: 4, nm: '400L Study Room', ico: '📚', grad: 'linear-gradient(135deg,#34d399,#4f7fff)', t: '1 day ago', preview: 'Favour: Who has the project slides?', msgs: [
+  { id: 4, nm: '400L Study Room', ico: 'S', grad: 'linear-gradient(135deg,#34d399,#4f7fff)', t: '1 day ago', preview: 'Favour: Who has the project slides?', msgs: [
     { senderId: 6, senderName: 'Favour', txt: 'Who has the project slides?', t: 'Yesterday', own: false },
   ], online: '7 online' },
 ];
 
 export const trending = [
-  { tag: '#BUSA Elections 🗳️', cnt: '1.2K posts' }, { tag: '#UZOMA4SPORTS ⚽', cnt: '847 posts' },
-  { tag: '#UCL Final 🏆', cnt: '634 posts' }, { tag: '#RIGGED 🚨', cnt: '521 posts' },
+  { tag: '#BUSA Elections', cnt: '1.2K posts' }, { tag: '#UZOMA4SPORTS', cnt: '847 posts' },
+  { tag: '#UCL Final', cnt: '634 posts' }, { tag: '#RIGGED', cnt: '521 posts' },
 ];
 
 export const suggs = [

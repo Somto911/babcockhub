@@ -108,7 +108,7 @@ export default function Auth() {
 
         {registeredEmail ? (
           <div className="verify-prompt">
-            <div className="verify-icon">✉</div>
+            <div className="verify-icon">E</div>
             <div className="verify-title">Verify your email</div>
             <div className="verify-desc">We sent a verification link to<br /><b>{registeredEmail}</b></div>
             <div className="verify-desc2">Click the link in the email to activate your account, then sign in.</div>

@@ -27,7 +27,7 @@ export default function Topbar({ onMenu }) {
 
   return (
     <div className="topbar">
-      <div className="tb-mobile-menu" onClick={onMenu}>☰</div>
+      <div className="tb-mobile-menu" onClick={onMenu}>M</div>
       <div className="tb-logo" onClick={() => setActivePage('feed')}>
         <div className="tb-icon">
           <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
@@ -44,8 +44,8 @@ export default function Topbar({ onMenu }) {
         <span className="tb-name">BuSocial</span>
       </div>
       <div className="tb-search" ref={searchRef}>
-        <span className="tb-search-ico">🔍</span>
-        <input type="text" placeholder="Search posts…" value={searchVal} onChange={(e) => { setSearchVal(e.target.value); setSearchOpen(true); setSearchQuery(e.target.value); }} onFocus={() => searchVal.trim() && setSearchOpen(true)} />
+        <span className="tb-search-ico">S</span>
+        <input type="text" placeholder="Search posts..." value={searchVal} onChange={(e) => { setSearchVal(e.target.value); setSearchOpen(true); setSearchQuery(e.target.value); }} onFocus={() => searchVal.trim() && setSearchOpen(true)} />
         {searchOpen && searchVal.trim() && (
           <div className="tb-search-dropdown">
             {searchResults.length === 0 && <div className="tb-search-empty">No results found</div>}
@@ -62,21 +62,21 @@ export default function Topbar({ onMenu }) {
         )}
       </div>
       <div className="tb-right">
-        <div className="tb-btn" onClick={() => setActivePage('chat')} title="Messages">💬</div>
+        <div className="tb-btn" onClick={() => setActivePage('chat')} title="Messages">M</div>
         <div className="tb-btn notif-btn" ref={notifRef} onClick={() => setNotifOpen(!notifOpen)} title="Notifications">
-          🔔{unreadCount > 0 && <div className="notif-dot" />}
+          N{unreadCount > 0 && <div className="notif-dot" />}
         </div>
         {notifOpen && (
           <div className="tb-notif-dropdown">
             <div className="tb-notif-header">
               <span>Notifications</span>
-              {unreadCount > 0 && <span className="tb-notif-mark" onClick={() => { markAllNotifRead(); showToast('✅ All marked as read'); }}>Mark all read</span>}
+              {unreadCount > 0 && <span className="tb-notif-mark" onClick={() => { markAllNotifRead(); showToast('All marked as read'); }}>Mark all read</span>}
             </div>
             <div className="tb-notif-list">
               {notifications.length === 0 && <div className="tb-notif-empty">No notifications</div>}
               {notifications.map((n) => (
                 <div key={n.id} className={`tb-notif-item${n.read ? '' : ' unread'}`} onClick={() => { if (!n.read) { markNotifRead(n.id); } setNotifOpen(false); }}>
-                  <div className="tb-notif-ico">{n.type === 'like' ? '❤️' : n.type === 'comment' ? '💬' : '👤'}</div>
+                  <div className="tb-notif-ico">{n.type === 'like' ? 'L' : n.type === 'comment' ? 'C' : 'F'}</div>
                   <div className="tb-notif-body">
                     <div className="tb-notif-msg">{n.message}</div>
                     <div className="tb-notif-time">{n.time}</div>

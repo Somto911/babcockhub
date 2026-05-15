@@ -36,10 +36,10 @@ export default function Profile() {
   }, [targetName, user]);
 
   const handleSave = () => {
-    if (!edit.name.trim()) return showToast('⚠️ Name cannot be empty');
+    if (!edit.name.trim()) return showToast('Name cannot be empty');
     updateProfile(edit);
     setEditing(false);
-    showToast('✅ Profile updated!');
+    showToast('Profile updated!');
   };
 
   const handleCancel = () => {
@@ -63,7 +63,7 @@ export default function Profile() {
   return (
     <div className="pg on" id="pg-profile">
       <div className="prof-card">
-        <div className="prof-banner" style={{ background: 'linear-gradient(135deg,rgba(26,86,255,.35),rgba(0,194,122,.25))' }}>🎓</div>
+        <div className="prof-banner" style={{ background: 'linear-gradient(135deg,rgba(26,86,255,.35),rgba(0,194,122,.25))' }}>P</div>
         <div className="prof-bd">
           <div className="prof-av" style={{ background: grad(targetName) }}>{ini(targetName)}</div>
           {editing && isMe ? (
@@ -89,7 +89,7 @@ export default function Profile() {
               <div className="prof-bio">{user?.bio || `${targetName} — ${user?.dept || ''} student`}</div>
               <div className="prof-acts">
                 {isMe ? (
-                  <button className="btn-out" onClick={() => setEditing(true)}>✏️ Edit Profile</button>
+                  <button className="btn-out" onClick={() => setEditing(true)}>Edit Profile</button>
                 ) : (
                   <button className={`btn-main flw-btn${followCounts.isFollowing ? ' fld' : ''}`} style={{ width: 'auto', padding: '7px 18px' }} onClick={handleFollow}>{followCounts.isFollowing ? 'Following' : 'Follow'}</button>
                 )}
@@ -114,7 +114,7 @@ export default function Profile() {
       {targetPosts.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No posts yet</div>}
       {targetPosts.map((p) => (
         <div className={`post${p.repostedBy?.includes(targetName) ? ' reposted-post' : ''}`} key={p.id}>
-          {p.repostedBy?.includes(targetName) && <div className="repost-label">🔁 Reposted</div>}
+          {p.repostedBy?.includes(targetName) && <div className="repost-label">Reposted</div>}
           <div className="post-hd">
             <div className="post-av" style={{ background: grad(p.author) }}>{ini(p.author)}</div>
             <div className="post-meta">
@@ -124,9 +124,9 @@ export default function Profile() {
           </div>
           <div className="post-body">{p.txt}</div>
           <div className="post-ft">
-            <div className="pact">🤍<span>{p.likes}</span></div>
-            <div className="pact">💬<span>{p.comments}</span></div>
-            <div className="pact">🔁<span>{p.reposts || 0}</span></div>
+            <div className="pact">Likes <span>{p.likes}</span></div>
+            <div className="pact">Comments <span>{p.comments}</span></div>
+            <div className="pact">Reposts <span>{p.reposts || 0}</span></div>
           </div>
         </div>
       ))}

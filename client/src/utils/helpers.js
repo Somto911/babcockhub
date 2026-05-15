@@ -47,11 +47,11 @@ export const taglines = [
 ];
 
 export const pulseMessages = [
-  '📚 3 study groups created in the last hour',
-  '🔥 #TechNight is trending — 284 posts today',
-  '🏠 Goodluck Hall power restored 2 hours ago',
-  '🎉 612 students are currently active on campus',
-  '📊 New poll: 78% prefer jollof over fried rice',
+  '3 study groups created in the last hour',
+  '#TechNight is trending -- 284 posts today',
+  'Goodluck Hall power restored 2 hours ago',
+  '612 students are currently active on campus',
+  'New poll: 78% prefer jollof over fried rice',
 ];
 
 export const months = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };

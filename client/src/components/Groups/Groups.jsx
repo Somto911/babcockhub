@@ -5,6 +5,9 @@ import { ini, grad } from '../../utils/helpers';
 export default function Groups() {
   const { groups, setGroups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, repostPost, showToast, addComment, deleteComment, user } = useApp();
 
+  const userDept = user?.dept?.split(' ')[0] || '';
+  const visibleGroups = groups.filter((g) => !g.depts || g.depts.some((d) => userDept.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(userDept.toLowerCase())));
+
   const toggleJoin = (id) => {
     const g = groups.find((x) => x.id === id);
     if (!g) return;
@@ -53,7 +56,8 @@ export default function Groups() {
         <button className="btn-out" onClick={() => showToast('Create group coming soon!')}>+ Create Group</button>
       </div>
       <div id="grp-list">
-        {groups.map((g) => (
+        {visibleGroups.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No groups available for your department</div>}
+        {visibleGroups.map((g) => (
           <div className="grp" key={g.id} style={{ cursor: 'pointer' }} onClick={() => openGroup(g)}>
             <div className="grp-banner" style={{ background: g.grad }}>{g.ico}</div>
             <div className="grp-body">
@@ -62,7 +66,7 @@ export default function Groups() {
               <div className="grp-nm">{g.nm}</div>
               <div className="grp-desc">{g.desc}</div>
               <div className="grp-ft">
-                <div className="grp-mem">👥 {g.mem.toLocaleString()} members</div>
+                <div className="grp-mem">Members: {g.mem.toLocaleString()}</div>
                 <button className={`join-btn${g.joined ? ' jd' : ''}`} onClick={(e) => { e.stopPropagation(); toggleJoin(g.id); }}>
                   {g.joined ? 'Joined' : 'Join'}
                 </button>

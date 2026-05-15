@@ -40,7 +40,7 @@ export default function Confessions() {
             <div className="conf-body">{c.txt}</div>
             <div className="post-ft" style={{ padding: 0 }}>
               <div className={`pact${c.liked ? ' liked' : ''}`} onClick={() => toggleLike(c.id)}>
-                {c.liked ? '♥' : '♡'}<span>{c.likes}</span>
+                {c.liked ? 'Liked' : 'Like'}<span>{c.likes}</span>
               </div>
               <div className="pact" onClick={() => showToast('Reply coming soon!')}>Reply</div>
             </div>

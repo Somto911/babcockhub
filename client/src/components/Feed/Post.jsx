@@ -31,7 +31,7 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
             {post.cat && post.cat !== 'general' && <span className={`cat-tag ${cats[post.cat] || ''}`}>{post.cat}</span>}
           </div>
         </div>
-        <div className="more-btn" onClick={() => showToast('🚩 Report/block options')}>···</div>
+        <div className="more-btn" onClick={() => showToast('Report/block options')}>...</div>
       </div>
       <div className="post-body">{post.txt}</div>
       {post.imageUrl && (
@@ -44,12 +44,12 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
           {post.liked ? '♥' : '♡'}<span>{Array.isArray(post.likes) ? post.likes.length : post.likes}</span>
         </div>
         <div className="pact" onClick={() => setShowComments(!showComments)}>
-          💬<span>{commentCount}</span>
+          C<span>{commentCount}</span>
         </div>
         <div className={`pact${post.reposted ? ' reposted' : ''}`} onClick={() => onRepost(post.id)}>
-          🔁<span>{post.reposts}</span>
+          R<span>{post.reposts}</span>
         </div>
-        <div className="pact" onClick={() => showToast('🔗 Link copied!')}>🔗 Share</div>
+        <div className="pact" onClick={() => showToast('Link copied!')}>Share</div>
       </div>
       {showComments && (
         <div className="comments-panel">
@@ -63,7 +63,7 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
                 <div className="comment-time">{c.time}</div>
               </div>
               {(currentUser?.id === c.userId || currentUser?.name === c.author) && (
-                <div className="comment-del" onClick={() => handleDeleteComment(c.id)} title="Delete">✕</div>
+                <div className="comment-del" onClick={() => handleDeleteComment(c.id)} title="Delete">X</div>
               )}
             </div>
           ))}
