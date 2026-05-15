@@ -99,6 +99,190 @@ function initDatabase() {
       if (err) console.error('Error creating comments table:', err);
     });
 
+    // Stories table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS stories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT DEFAULT '',
+        img TEXT NOT NULL,
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating stories table:', err);
+    });
+
+    // Groups table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS groups_t (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nm TEXT NOT NULL,
+        type TEXT DEFAULT '',
+        cat TEXT DEFAULT 'general',
+        desc TEXT DEFAULT '',
+        mem INTEGER DEFAULT 0,
+        ico TEXT DEFAULT '',
+        grad TEXT DEFAULT '',
+        depts TEXT DEFAULT 'null',
+        userId INTEGER NOT NULL DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating groups_t table:', err);
+    });
+
+    // Group members
+    db.run(`
+      CREATE TABLE IF NOT EXISTS group_members (
+        groupId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        PRIMARY KEY (groupId, userId),
+        FOREIGN KEY (groupId) REFERENCES groups_t(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating group_members table:', err);
+    });
+
+    // Events table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS events_t (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        ico TEXT DEFAULT '',
+        day TEXT DEFAULT '',
+        mon TEXT DEFAULT '',
+        time TEXT DEFAULT '',
+        loc TEXT DEFAULT '',
+        desc TEXT DEFAULT '',
+        att INTEGER DEFAULT 0,
+        grad TEXT DEFAULT '',
+        cat TEXT DEFAULT 'general',
+        userId INTEGER NOT NULL DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating events_t table:', err);
+    });
+
+    // Event attendees
+    db.run(`
+      CREATE TABLE IF NOT EXISTS event_attendees (
+        eventId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        remindSet BOOLEAN DEFAULT 0,
+        PRIMARY KEY (eventId, userId),
+        FOREIGN KEY (eventId) REFERENCES events_t(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating event_attendees table:', err);
+    });
+
+    // Confessions table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS confessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        txt TEXT NOT NULL,
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating confessions table:', err);
+    });
+
+    // Confession likes
+    db.run(`
+      CREATE TABLE IF NOT EXISTS confession_likes (
+        confessionId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        PRIMARY KEY (confessionId, userId)
+      )
+    `, (err) => {
+      if (err) console.error('Error creating confession_likes table:', err);
+    });
+
+    // Memes table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS memes_t (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ico TEXT DEFAULT '',
+        cap TEXT NOT NULL,
+        url TEXT NOT NULL,
+        likes INTEGER DEFAULT 0,
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating memes_t table:', err);
+    });
+
+    // Meme likes
+    db.run(`
+      CREATE TABLE IF NOT EXISTS meme_likes (
+        memeId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        PRIMARY KEY (memeId, userId)
+      )
+    `, (err) => {
+      if (err) console.error('Error creating meme_likes table:', err);
+    });
+
+    // Polls table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS polls_t (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        q TEXT NOT NULL,
+        userId INTEGER NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating polls_t table:', err);
+    });
+
+    // Poll options
+    db.run(`
+      CREATE TABLE IF NOT EXISTS poll_options (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pollId INTEGER NOT NULL,
+        l TEXT NOT NULL,
+        v INTEGER DEFAULT 0,
+        FOREIGN KEY (pollId) REFERENCES polls_t(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating poll_options table:', err);
+    });
+
+    // Poll votes
+    db.run(`
+      CREATE TABLE IF NOT EXISTS poll_votes (
+        pollId INTEGER NOT NULL,
+        optionId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
+        PRIMARY KEY (pollId, userId),
+        FOREIGN KEY (pollId) REFERENCES polls_t(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) console.error('Error creating poll_votes table:', err);
+    });
+
+    // Notifications table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        message TEXT NOT NULL,
+        read BOOLEAN DEFAULT 0,
+        time TEXT DEFAULT 'Just now',
+        userId INTEGER NOT NULL,
+        postId INTEGER DEFAULT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) console.error('Error creating notifications table:', err);
+    });
+
     // Follows table
     db.run(`
       CREATE TABLE IF NOT EXISTS follows (
@@ -527,6 +711,301 @@ function findDmChat(userId1, userId2, callback) {
   });
 }
 
+// ── Stories ──
+function getStories(callback) {
+  db.all('SELECT * FROM stories ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    callback(null, (rows || []).map(s => ({
+      id: s.id, name: s.name, icon: s.icon || s.name[0],
+      img: s.img, seen: false,
+    })));
+  });
+}
+
+function createStory(name, img, icon, userId, callback) {
+  db.run('INSERT INTO stories (name, icon, img, userId) VALUES (?, ?, ?, ?)',
+    [name, icon || name[0], img, userId],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      callback(null, { id: this.lastID, name, icon: icon || name[0], img, seen: false });
+    }
+  );
+}
+
+// ── Groups ──
+function getGroups(userId, callback) {
+  db.all('SELECT * FROM groups_t ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    const results = [];
+    let completed = 0;
+    if (!rows || rows.length === 0) { callback(null, []); return; }
+    rows.forEach((g) => {
+      db.get('SELECT COUNT(*) as cnt FROM group_members WHERE groupId = ?', [g.id], (err, memRow) => {
+        db.get('SELECT 1 FROM group_members WHERE groupId = ? AND userId = ?', [g.id, userId], (err, joinedRow) => {
+          let depts = null;
+          try { depts = JSON.parse(g.depts); } catch(e) {}
+          results.push({
+            id: g.id, nm: g.nm, type: g.type, cat: g.cat, desc: g.desc,
+            mem: memRow?.cnt || 0, ico: g.ico, joined: !!joinedRow,
+            depts, grad: g.grad,
+          });
+          completed++;
+          if (completed === rows.length) callback(null, results);
+        });
+      });
+    });
+  });
+}
+
+function createGroup(nm, type, cat, desc, ico, grad, depts, userId, callback) {
+  db.run('INSERT INTO groups_t (nm, type, cat, desc, ico, grad, depts, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [nm, type, cat, desc, ico, grad, JSON.stringify(depts), userId],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      const id = this.lastID;
+      db.run('INSERT INTO group_members (groupId, userId) VALUES (?, ?)', [id, userId], function(err2) {
+        callback(null, { id, nm, type, cat, desc, mem: 1, ico, joined: true, depts, grad });
+      });
+    }
+  );
+}
+
+function toggleGroupJoin(groupId, userId, callback) {
+  db.get('SELECT 1 FROM group_members WHERE groupId = ? AND userId = ?', [groupId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM group_members WHERE groupId = ? AND userId = ?', [groupId, userId], function(err) {
+        callback(err, { joined: false });
+      });
+    } else {
+      db.run('INSERT INTO group_members (groupId, userId) VALUES (?, ?)', [groupId, userId], function(err) {
+        callback(err, { joined: true });
+      });
+    }
+  });
+}
+
+// ── Events ──
+function getEvents(userId, callback) {
+  db.all('SELECT * FROM events_t ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    const results = [];
+    let completed = 0;
+    if (!rows || rows.length === 0) { callback(null, []); return; }
+    rows.forEach((e) => {
+      db.get('SELECT COUNT(*) as cnt FROM event_attendees WHERE eventId = ?', [e.id], (err, attRow) => {
+        db.get('SELECT remindSet FROM event_attendees WHERE eventId = ? AND userId = ?', [e.id, userId], (err, attendRow) => {
+          results.push({
+            id: e.id, title: e.title, ico: e.ico, day: e.day, mon: e.mon,
+            time: e.time, loc: e.loc, desc: e.desc, att: attRow?.cnt || 0,
+            going: !!attendRow, grad: e.grad, cat: e.cat,
+            remind24h: false, remindDay: false, remindSet: attendRow ? !!attendRow.remindSet : false,
+          });
+          completed++;
+          if (completed === rows.length) callback(null, results);
+        });
+      });
+    });
+  });
+}
+
+function createEvent(title, ico, day, mon, time, loc, desc, grad, cat, userId, callback) {
+  db.run('INSERT INTO events_t (title, ico, day, mon, time, loc, desc, grad, cat, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [title, ico, day, mon, time, loc, desc, grad, cat || 'general', userId],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      callback(null, {
+        id: this.lastID, title, ico, day, mon, time, loc, desc,
+        att: 0, going: false, grad, cat: cat || 'general',
+        remind24h: false, remindDay: false, remindSet: false,
+      });
+    }
+  );
+}
+
+function toggleEventAttend(eventId, userId, remindSet, callback) {
+  db.get('SELECT 1 FROM event_attendees WHERE eventId = ? AND userId = ?', [eventId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM event_attendees WHERE eventId = ? AND userId = ?', [eventId, userId], function(err) {
+        callback(err, { going: false });
+      });
+    } else {
+      db.run('INSERT INTO event_attendees (eventId, userId, remindSet) VALUES (?, ?, ?)', [eventId, userId, remindSet ? 1 : 0], function(err) {
+        callback(err, { going: true, remindSet: !!remindSet });
+      });
+    }
+  });
+}
+
+// ── Confessions ──
+function getConfessions(callback) {
+  db.all('SELECT * FROM confessions ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    const results = [];
+    let completed = 0;
+    if (!rows || rows.length === 0) { callback(null, []); return; }
+    rows.forEach((c) => {
+      db.all('SELECT userId FROM confession_likes WHERE confessionId = ?', [c.id], (err, likes) => {
+        results.push({
+          id: c.id, t: formatTimeAgo(c.createdAt), txt: c.txt,
+          likes: likes ? likes.map(l => l.userId) : [], liked: false,
+        });
+        completed++;
+        if (completed === rows.length) callback(null, results);
+      });
+    });
+  });
+}
+
+function createConfession(txt, userId, callback) {
+  db.run('INSERT INTO confessions (txt, userId) VALUES (?, ?)', [txt, userId], function(err) {
+    if (err) { callback(err, null); return; }
+    callback(null, { id: this.lastID, t: 'Just now', txt, likes: [], liked: false });
+  });
+}
+
+function toggleConfessionLike(confessionId, userId, callback) {
+  db.get('SELECT 1 FROM confession_likes WHERE confessionId = ? AND userId = ?', [confessionId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM confession_likes WHERE confessionId = ? AND userId = ?', [confessionId, userId], function(err) {
+        callback(err, { liked: false, userId });
+      });
+    } else {
+      db.run('INSERT INTO confession_likes (confessionId, userId) VALUES (?, ?)', [confessionId, userId], function(err) {
+        callback(err, { liked: true, userId });
+      });
+    }
+  });
+}
+
+// ── Memes ──
+function getMemes(callback) {
+  db.all('SELECT * FROM memes_t ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    callback(null, (rows || []).map(m => ({
+      id: m.id, ico: m.ico, cap: m.cap, likes: m.likes, url: m.url,
+    })));
+  });
+}
+
+function createMeme(ico, cap, url, userId, callback) {
+  db.run('INSERT INTO memes_t (ico, cap, url, userId) VALUES (?, ?, ?, ?)', [ico, cap, url, userId], function(err) {
+    if (err) { callback(err, null); return; }
+    callback(null, { id: this.lastID, ico, cap, likes: 0, url });
+  });
+}
+
+function toggleMemeLike(memeId, userId, callback) {
+  db.get('SELECT 1 FROM meme_likes WHERE memeId = ? AND userId = ?', [memeId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      db.run('DELETE FROM meme_likes WHERE memeId = ? AND userId = ?', [memeId, userId], function(err) {
+        db.run('UPDATE memes_t SET likes = MAX(0, likes - 1) WHERE id = ?', [memeId]);
+        callback(err, { liked: false });
+      });
+    } else {
+      db.run('INSERT INTO meme_likes (memeId, userId) VALUES (?, ?)', [memeId, userId], function(err) {
+        db.run('UPDATE memes_t SET likes = likes + 1 WHERE id = ?', [memeId]);
+        callback(err, { liked: true });
+      });
+    }
+  });
+}
+
+// ── Polls ──
+function getPolls(userId, callback) {
+  db.all('SELECT * FROM polls_t ORDER BY createdAt DESC', (err, rows) => {
+    if (err) { callback(err, []); return; }
+    const results = [];
+    let completed = 0;
+    if (!rows || rows.length === 0) { callback(null, []); return; }
+    rows.forEach((p) => {
+      db.all('SELECT * FROM poll_options WHERE pollId = ? ORDER BY id ASC', [p.id], (err, opts) => {
+        db.get('SELECT optionId FROM poll_votes WHERE pollId = ? AND userId = ?', [p.id, userId], (err, voteRow) => {
+          results.push({
+            id: p.id, q: p.q,
+            opts: (opts || []).map(o => ({ id: o.id, l: o.l, v: o.v })),
+            voted: voteRow ? voteRow.optionId : null,
+          });
+          completed++;
+          if (completed === rows.length) callback(null, results);
+        });
+      });
+    });
+  });
+}
+
+function createPoll(q, options, userId, callback) {
+  db.run('INSERT INTO polls_t (q, userId) VALUES (?, ?)', [q, userId], function(err) {
+    if (err) { callback(err, null); return; }
+    const pollId = this.lastID;
+    let done = 0;
+    const opts = [];
+    options.forEach((l) => {
+      db.run('INSERT INTO poll_options (pollId, l, v) VALUES (?, ?, 0)', [pollId, l], function(err) {
+        opts.push({ id: this.lastID, l, v: 0 });
+        done++;
+        if (done === options.length) {
+          callback(null, { id: pollId, q, opts, voted: null });
+        }
+      });
+    });
+    if (options.length === 0) callback(null, { id: pollId, q, opts: [], voted: null });
+  });
+}
+
+function votePoll(pollId, optionId, userId, callback) {
+  db.get('SELECT 1 FROM poll_votes WHERE pollId = ? AND userId = ?', [pollId, userId], (err, row) => {
+    if (err) { callback(err, null); return; }
+    if (row) {
+      callback(null, { voted: null, already: true });
+      return;
+    }
+    db.run('INSERT INTO poll_votes (pollId, optionId, userId) VALUES (?, ?, ?)', [pollId, optionId, userId], function(err) {
+      if (err) { callback(err, null); return; }
+      db.run('UPDATE poll_options SET v = v + 1 WHERE id = ?', [optionId]);
+      callback(null, { voted: optionId });
+    });
+  });
+}
+
+// ── Notifications ──
+function getNotifications(userId, callback) {
+  db.all('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [userId], (err, rows) => {
+    if (err) { callback(err, []); return; }
+    callback(null, (rows || []).map(n => ({
+      id: n.id, type: n.type, message: n.message,
+      read: !!n.read, time: formatTimeAgo(n.createdAt),
+      userId: n.userId, postId: n.postId,
+    })));
+  });
+}
+
+function createNotification(type, message, userId, postId, callback) {
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  db.run('INSERT INTO notifications (type, message, read, time, userId, postId) VALUES (?, ?, 0, ?, ?, ?)',
+    [type, message, time, userId, postId || null],
+    function(err) {
+      if (err) { callback(err, null); return; }
+      callback(null, { id: this.lastID, type, message, read: false, time, userId, postId });
+    }
+  );
+}
+
+function markNotifRead(notifId, callback) {
+  db.run('UPDATE notifications SET read = 1 WHERE id = ?', [notifId], function(err) {
+    callback(err);
+  });
+}
+
+function markAllNotifRead(userId, callback) {
+  db.run('UPDATE notifications SET read = 1 WHERE userId = ?', [userId], function(err) {
+    callback(err);
+  });
+}
+
 function sanitizeUser(user) {
   const copy = { ...user };
   delete copy.password;
@@ -559,5 +1038,26 @@ module.exports = {
   createChat,
   addChatParticipant,
   findDmChat,
+  getStories,
+  createStory,
+  getGroups,
+  createGroup,
+  toggleGroupJoin,
+  getEvents,
+  createEvent,
+  toggleEventAttend,
+  getConfessions,
+  createConfession,
+  toggleConfessionLike,
+  getMemes,
+  createMeme,
+  toggleMemeLike,
+  getPolls,
+  createPoll,
+  votePoll,
+  getNotifications,
+  createNotification,
+  markNotifRead,
+  markAllNotifRead,
 };
 

@@ -4,9 +4,11 @@ import { ini, grad, pulseMessages } from '../../utils/helpers';
 import Countdown from '../Common/Countdown';
 
 export default function RightRail() {
-  const { trending: trendList, suggs: initialSuggs, setActivePage } = useApp();
-  const [suggs, setSuggs] = useState(initialSuggs);
+  const { trending: trendList, suggs, setActivePage } = useApp();
+  const [localSuggs, setLocalSuggs] = useState([]);
   const [pulse, setPulse] = useState(0);
+
+  useEffect(() => { setLocalSuggs(suggs); }, [suggs]);
 
   useEffect(() => {
     const interval = setInterval(() => setPulse((i) => (i + 1) % pulseMessages.length), 6000);
@@ -32,7 +34,7 @@ export default function RightRail() {
 
       <div className="widget">
         <div className="w-title">People You May Know</div>
-        {suggs.map((s, i) => (
+        {localSuggs.map((s, i) => (
           <div className="sug" key={i}>
             <div className="sug-av" style={{ background: grad(s.nm) }}>{ini(s.nm)}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -40,8 +42,8 @@ export default function RightRail() {
               <div className="sug-dept">{s.dept}</div>
             </div>
             <div
-              className={`flw${s.flw ? ' fld' : ''}`}
-              onClick={() => setSuggs((prev) => prev.map((x, j) => j === i ? { ...x, flw: !x.flw } : x))}
+              className={'flw' + (s.flw ? ' fld' : '')}
+              onClick={() => setLocalSuggs((prev) => prev.map((x, j) => j === i ? { ...x, flw: !x.flw } : x))}
             >
               {s.flw ? 'Following' : 'Follow'}
             </div>

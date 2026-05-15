@@ -5,7 +5,7 @@ import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, setSearchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory } = useApp();
   const [text, setText] = useState('');
   const [cat, setCat] = useState('academics');
   const [filter, setFilter] = useState('all');
@@ -92,7 +92,12 @@ export default function Feed() {
           <div className="greet-text">{greet}</div>
           <div className="greet-sub">Here's what's happening on campus today</div>
         </div>
-        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">R</button>
+        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">↻</button>
+      </div>
+
+      <div className="tb-search" style={{ margin: '0 0 12px', position: 'relative', width: '100%' }}>
+        <span className="tb-search-ico" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '15px', zIndex: 1 }}>🔍</span>
+        <input type="text" placeholder="Search posts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 'var(--r2)', border: '1px solid var(--border)', background: 'var(--input)', color: 'var(--text)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
       </div>
 
       <div className="composer">

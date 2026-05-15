@@ -3,14 +3,14 @@ import { useApp } from '../../context/AppContext';
 import { GRADS } from '../../utils/helpers';
 
 export default function Events() {
-  const { events, setEvents, showToast, addNotification } = useApp();
+  const { events, showToast, addNotification, toggleEventAttend } = useApp();
   const [remindEvent, setRemindEvent] = useState(null);
 
   const attend = (id) => {
     const e = events.find((x) => x.id === id);
     if (!e) return;
     if (e.going) {
-      setEvents((prev) => prev.map((x) => x.id === id ? { ...x, going: false, remindSet: false } : x));
+      toggleEventAttend(id, false);
       showToast('Removed from attendees');
     } else {
       setRemindEvent(e);
@@ -19,10 +19,8 @@ export default function Events() {
 
   const confirmAttend = (sendReminder) => {
     if (!remindEvent) return;
-    setEvents((prev) => prev.map((x) => x.id === remindEvent.id ? { ...x, going: true, remindSet: sendReminder } : x));
+    toggleEventAttend(remindEvent.id, sendReminder);
     if (sendReminder) {
-      const eventDate = new Date();
-      eventDate.setDate(parseInt(remindEvent.day));
       const dayName = remindEvent.mon + ' ' + remindEvent.day;
       addNotification('reminder', 'Reminder: ' + remindEvent.title + ' is happening on ' + dayName + '!', 0, null);
       showToast('Reminder set for ' + remindEvent.title);
@@ -70,7 +68,7 @@ export default function Events() {
               </div>
             </div>
             <div className="ev-body">
-              <div className="ev-title">{e.title}{e.remindSet ? ' R' : ''}</div>
+              <div className="ev-title">{e.title}{e.remindSet ? ' 🔔' : ''}</div>
               <div className="ev-info">
                 <div className="ev-meta">{e.time}</div>
                 <div className="ev-meta">{e.loc}</div>

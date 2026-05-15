@@ -6,7 +6,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat } = require('./database');
+const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
@@ -392,6 +392,197 @@ app.get('/api/chats', (req, res) => {
     console.error('[CHATS] Unexpected error:', error);
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
+});
+
+// ── Stories API ──
+app.get('/api/stories', (req, res) => {
+  getStories((err, stories) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ stories });
+  });
+});
+
+app.post('/api/stories', (req, res) => {
+  const { name, img, icon, userId } = req.body;
+  if (!name || !img || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createStory(name, img, icon, userId, (err, story) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ story });
+  });
+});
+
+// ── Groups API ──
+app.get('/api/groups', (req, res) => {
+  const userId = parseInt(req.query.userId) || 0;
+  getGroups(userId, (err, groups) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ groups });
+  });
+});
+
+app.post('/api/groups', (req, res) => {
+  const { nm, type, cat, desc, ico, grad, depts, userId } = req.body;
+  if (!nm || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createGroup(nm, type || '', cat || 'general', desc || '', ico || nm[0], grad || '', depts || null, userId, (err, group) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ group });
+  });
+});
+
+app.post('/api/groups/:id/join', (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ message: 'userId required' });
+  toggleGroupJoin(parseInt(req.params.id), userId, (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(result);
+  });
+});
+
+// ── Events API ──
+app.get('/api/events', (req, res) => {
+  const userId = parseInt(req.query.userId) || 0;
+  getEvents(userId, (err, events) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ events });
+  });
+});
+
+app.post('/api/events', (req, res) => {
+  const { title, ico, day, mon, time, loc, desc, grad, cat, userId } = req.body;
+  if (!title || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createEvent(title, ico || '', day || '1', mon || 'JAN', time || '', loc || '', desc || '', grad || '', cat, userId, (err, event) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ event });
+  });
+});
+
+app.post('/api/events/:id/attend', (req, res) => {
+  const { userId, remindSet } = req.body;
+  if (!userId) return res.status(400).json({ message: 'userId required' });
+  toggleEventAttend(parseInt(req.params.id), userId, !!remindSet, (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(result);
+  });
+});
+
+// ── Confessions API ──
+app.get('/api/confessions', (req, res) => {
+  getConfessions((err, confessions) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ confessions });
+  });
+});
+
+app.post('/api/confessions', (req, res) => {
+  const { txt, userId } = req.body;
+  if (!txt || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createConfession(txt, userId, (err, confession) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ confession });
+  });
+});
+
+app.post('/api/confessions/:id/like', (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ message: 'userId required' });
+  toggleConfessionLike(parseInt(req.params.id), userId, (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(result);
+  });
+});
+
+// ── Memes API ──
+app.get('/api/memes', (req, res) => {
+  getMemes((err, memes) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ memes });
+  });
+});
+
+app.post('/api/memes', (req, res) => {
+  const { ico, cap, url, userId } = req.body;
+  if (!cap || !url || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createMeme(ico || '😂', cap, url, userId, (err, meme) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ meme });
+  });
+});
+
+app.post('/api/memes/:id/like', (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ message: 'userId required' });
+  toggleMemeLike(parseInt(req.params.id), userId, (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(result);
+  });
+});
+
+// ── Polls API ──
+app.get('/api/polls', (req, res) => {
+  const userId = parseInt(req.query.userId) || 0;
+  getPolls(userId, (err, polls) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ polls });
+  });
+});
+
+app.post('/api/polls', (req, res) => {
+  const { q, options, userId } = req.body;
+  if (!q || !options || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createPoll(q, options, userId, (err, poll) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ poll });
+  });
+});
+
+app.post('/api/polls/:id/vote', (req, res) => {
+  const { userId, optionId } = req.body;
+  if (!userId || !optionId) return res.status(400).json({ message: 'Missing fields' });
+  votePoll(parseInt(req.params.id), optionId, userId, (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(result);
+  });
+});
+
+// ── Notifications API ──
+app.get('/api/notifications/:userId', (req, res) => {
+  getNotifications(parseInt(req.params.userId), (err, notifications) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ notifications });
+  });
+});
+
+app.post('/api/notifications', (req, res) => {
+  const { type, message, userId, postId } = req.body;
+  if (!type || !message || !userId) return res.status(400).json({ message: 'Missing fields' });
+  createNotification(type, message, userId, postId, (err, notification) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.status(201).json({ notification });
+  });
+});
+
+app.post('/api/notifications/:id/read', (req, res) => {
+  markNotifRead(parseInt(req.params.id), (err) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ success: true });
+  });
+});
+
+app.get('/api/users/suggestions', (req, res) => {
+  const userId = parseInt(req.query.userId) || 0;
+  db.all('SELECT id, name, dept FROM users WHERE id != ? ORDER BY RANDOM() LIMIT 3', [userId], (err, users) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ users: (users || []).map(u => ({ nm: u.name, dept: u.dept, flw: false })) });
+  });
+});
+
+app.post('/api/notifications/read-all', (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ message: 'userId required' });
+  markAllNotifRead(userId, (err) => {
+    if (err) return res.status(500).json({ message: err.message });
+    res.json({ success: true });
+  });
 });
 
 function broadcastActiveUsers() {

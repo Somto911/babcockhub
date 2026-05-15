@@ -3,7 +3,7 @@ import Post from '../Feed/Post';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Groups() {
-  const { groups, setGroups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, repostPost, showToast, addComment, deleteComment, user } = useApp();
+  const { groups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, repostPost, showToast, addComment, deleteComment, user, toggleGroupJoin } = useApp();
 
   const userDept = user?.dept?.split(' ')[0] || '';
   const visibleGroups = groups.filter((g) => !g.depts || g.depts.some((d) => userDept.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(userDept.toLowerCase())));
@@ -11,8 +11,8 @@ export default function Groups() {
   const toggleJoin = (id) => {
     const g = groups.find((x) => x.id === id);
     if (!g) return;
-    setGroups((prev) => prev.map((x) => x.id === id ? { ...x, joined: !x.joined } : x));
-    showToast(g.joined ? `Left ${g.nm}` : `Joined ${g.nm}`);
+    toggleGroupJoin(id);
+    showToast(g.joined ? 'Left ' + g.nm : 'Joined ' + g.nm);
   };
 
   const openGroup = (g) => {

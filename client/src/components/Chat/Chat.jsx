@@ -66,7 +66,7 @@ export default function Chat() {
         <div className="chat-win">
           {!activeChat ? (
             <div className="empty-messages" style={{ minHeight: 'auto', flex: 1 }}>
-              <div className="empty-ico">M</div>
+              <div className="empty-ico">💬</div>
               <div className="empty-title">Select a chat</div>
               <div className="empty-desc">Choose a conversation or click + to start a new message</div>
             </div>
@@ -97,7 +97,7 @@ export default function Chat() {
               </div>
               <div className="chat-inp-bar">
                 <input className="chat-inp" type="text" placeholder="Type a message..." value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} />
-                <button className="send-btn" onClick={handleSend}>S</button>
+                <button className="send-btn" onClick={handleSend}>➤</button>
               </div>
             </div>
           )}

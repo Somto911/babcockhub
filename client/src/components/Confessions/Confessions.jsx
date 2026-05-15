@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function Confessions() {
-  const { confs, showToast } = useApp();
+  const { confs, showToast, submitConfession, toggleConfessionLike } = useApp();
   const [text, setText] = useState('');
 
-  const toggleLike = (id) => {
-    showToast('Liked!');
+  const handleToggleLike = (id) => {
+    toggleConfessionLike(id);
   };
 
   const submit = () => {
     if (!text.trim()) return showToast('Write something!');
     if (text.trim().length < 20) return showToast('Too short! Minimum 20 characters');
-    showToast('Posted anonymously!');
+    submitConfession(text.trim());
     setText('');
+    showToast('Posted anonymously!');
   };
 
   return (
@@ -39,7 +40,7 @@ export default function Confessions() {
             </div>
             <div className="conf-body">{c.txt}</div>
             <div className="post-ft" style={{ padding: 0 }}>
-              <div className={`pact${c.liked ? ' liked' : ''}`} onClick={() => toggleLike(c.id)}>
+              <div className={`pact${c.liked ? ' liked' : ''}`} onClick={() => handleToggleLike(c.id)}>
                 {c.liked ? 'Liked' : 'Like'}<span>{c.likes}</span>
               </div>
               <div className="pact" onClick={() => showToast('Reply coming soon!')}>Reply</div>

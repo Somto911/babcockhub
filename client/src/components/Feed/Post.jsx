@@ -44,10 +44,10 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
           {post.liked ? '♥' : '♡'}<span>{Array.isArray(post.likes) ? post.likes.length : post.likes}</span>
         </div>
         <div className="pact" onClick={() => setShowComments(!showComments)}>
-          C<span>{commentCount}</span>
+          💬<span>{commentCount}</span>
         </div>
         <div className={`pact${post.reposted ? ' reposted' : ''}`} onClick={() => onRepost(post.id)}>
-          R<span>{post.reposts}</span>
+          🔄<span>{post.reposts}</span>
         </div>
         <div className="pact" onClick={() => showToast('Link copied!')}>Share</div>
       </div>

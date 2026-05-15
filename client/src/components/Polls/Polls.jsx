@@ -2,16 +2,15 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 export default function Polls() {
-  const { polls, setPolls, showToast, submitPoll } = useApp();
-  const [votes, setVotes] = useState({});
+  const { polls, showToast, submitPoll, votePoll } = useApp();
   const [creating, setCreating] = useState(false);
   const [q, setQ] = useState('');
   const [opts, setOpts] = useState(['', '']);
 
-  const vote = (pid, oi) => {
-    if (votes[pid] !== undefined) return showToast('Already voted!');
-    setVotes((prev) => ({ ...prev, [pid]: oi }));
-    setPolls((prev) => prev.map((p) => p.id === pid ? { ...p, opts: p.opts.map((o, i) => i === oi ? { ...o, v: o.v + 1 } : o) } : p));
+  const vote = (pid, optId) => {
+    const p = polls.find(x => x.id === pid);
+    if (!p || p.voted !== null) return showToast('Already voted!');
+    votePoll(pid, optId);
     showToast('Vote recorded!');
   };
 
@@ -54,16 +53,16 @@ export default function Polls() {
       <div id="polls-wrap">
         {polls.map((p) => {
           const tot = p.opts.reduce((s, o) => s + o.v, 0);
-          const voted = votes[p.id] !== undefined ? votes[p.id] : p.voted;
+          const voted = p.voted;
           return (
             <div className="poll" key={p.id}>
               <div className="poll-q">{p.q}</div>
-              {p.opts.map((o, i) => {
+              {p.opts.map((o) => {
                 const pct = tot ? Math.round(o.v / tot * 100) : 0;
                 return (
-                  <div className="poll-opt" key={i} onClick={() => vote(p.id, i)}>
-                    <div className={`pbar${voted === i ? ' voted' : ''}`}>
-                      <div className="pbar-fill" style={{ width: voted !== null ? `${pct}%` : '0%' }} />
+                  <div className="poll-opt" key={o.id} onClick={() => vote(p.id, o.id)}>
+                    <div className={'pbar' + (voted === o.id ? ' voted' : '')}>
+                      <div className="pbar-fill" style={{ width: voted !== null ? pct + '%' : '0%' }} />
                       <div className="pbar-lbl">{o.l}</div>
                       {voted !== null && <div className="pbar-pct">{pct}%</div>}
                     </div>

@@ -63,7 +63,7 @@ export default function Profile() {
   return (
     <div className="pg on" id="pg-profile">
       <div className="prof-card">
-        <div className="prof-banner" style={{ background: 'linear-gradient(135deg,rgba(26,86,255,.35),rgba(0,194,122,.25))' }}>P</div>
+        <div className="prof-banner" style={{ background: 'linear-gradient(135deg,rgba(26,86,255,.35),rgba(0,194,122,.25))' }}>👤</div>
         <div className="prof-bd">
           <div className="prof-av" style={{ background: grad(targetName) }}>{ini(targetName)}</div>
           {editing && isMe ? (
@@ -100,7 +100,7 @@ export default function Profile() {
             <div className="ps"><div className="ps-n">{targetPosts.length}</div><div className="ps-l">Posts</div></div>
             <div className="ps"><div className="ps-n">{followCounts.followers}</div><div className="ps-l">Followers</div></div>
             <div className="ps"><div className="ps-n">{followCounts.following}</div><div className="ps-l">Following</div></div>
-            <div className="ps"><div className="ps-n">7</div><div className="ps-l">Groups</div></div>
+            <div className="ps"><div className="ps-n">0</div><div className="ps-l">Groups</div></div>
           </div>
           <div className="prof-tags">
             <span className="ptag">#CSC300</span>
