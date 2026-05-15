@@ -56,12 +56,6 @@ function sendVerificationEmail(email, name, token) {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
-// SPA fallback — serve index.html for all non-API routes
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return;
-  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-});
-
 let dbReady = false;
 
 // Initialize database and wait for it to complete
@@ -654,6 +648,12 @@ io.on('connection', (socket) => {
     });
   });
 
+});
+
+// SPA fallback — serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return;
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
