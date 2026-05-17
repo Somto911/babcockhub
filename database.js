@@ -18,6 +18,8 @@ function initDatabase() {
         lvl TEXT NOT NULL,
         hostel TEXT DEFAULT 'Off Campus',
         password TEXT NOT NULL,
+        verified INTEGER DEFAULT 0,
+        verificationToken TEXT,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `, (err) => {
@@ -51,10 +53,6 @@ function initDatabase() {
     `, (err) => {
       if (err) console.error('Error creating chat_participants table:', err);
     });
-
-    // Add verification columns to existing users table (safe to run if already added)
-    db.run('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0', () => {});
-    db.run('ALTER TABLE users ADD COLUMN verificationToken TEXT', () => {});
 
     // Posts table
     db.run(`
