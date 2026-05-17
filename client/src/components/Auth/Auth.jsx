@@ -65,7 +65,7 @@ export default function Auth() {
     try {
       await register({ name, email, dept, lvl, hostel, password });
       setRegisteredEmail(email);
-      showToast('Check your email to verify!');
+      showToast('Check your email for the verification code!');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -110,10 +110,10 @@ export default function Auth() {
           <div className="verify-prompt">
             <div className="verify-icon">✉️</div>
             <div className="verify-title">Verify your email</div>
-            <div className="verify-desc">We sent a verification link to<br /><b>{registeredEmail}</b></div>
-            <div className="verify-desc2">Click the link in the email to activate your account, then sign in.</div>
+            <div className="verify-desc">We sent a verification code to<br /><b>{registeredEmail}</b></div>
+            <div className="verify-desc2">Enter the code from the email in the verification page, or click the link in the email to auto-verify.</div>
             <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
-              <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Email'}</span>
+              <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Code'}</span>
             </button>
             <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>Back to Sign In</div>
             {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}

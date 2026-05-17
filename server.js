@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const crypto = require('crypto');
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
@@ -24,29 +23,28 @@ const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-function sendVerificationEmail(email, name, token) {
+function sendVerificationEmail(email, name, code) {
   if (!process.env.SENDGRID_API_KEY) {
-    console.log('[EMAIL] SENDGRID_API_KEY not set. Verification link:', `${BASE_URL}/api/verify?token=${token}`);
+    console.log('[EMAIL] SENDGRID_API_KEY not set. Verification code:', code);
     return Promise.reject(new Error('SendGrid not configured'));
   }
-  const link = `${BASE_URL}/api/verify?token=${token}`;
   const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
   const msg = {
     from: `"BuSocial" <${fromEmail}>`,
     to: email,
-    subject: 'Verify your BuSocial account',
+    subject: 'Your BuSocial verification code',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0f1629;color:#d4dae8;border-radius:12px;padding:32px">
         <div style="text-align:center;margin-bottom:24px">
           <div style="width:48px;height:48px;background:linear-gradient(135deg,#4f7fff,#818cf8);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff">Bu</div>
           <h1 style="color:#eef0f8;font-size:20px;margin:12px 0 0">Welcome to BuSocial, ${name}!</h1>
         </div>
-        <p style="color:#d4dae8;font-size:14px;line-height:1.6">You're one step away from joining the Babcock campus community. Click below to verify your email:</p>
-        <div style="text-align:center;margin:24px 0">
-          <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4f7fff,#818cf8);color:#fff;text-decoration:none;padding:12px 32px;border-radius:10px;font-weight:700;font-size:15px">Verify Email →</a>
+        <p style="color:#d4dae8;font-size:14px;line-height:1.6">You're one step away from joining the Babcock campus community. Use the code below to verify your email:</p>
+        <div style="text-align:center;margin:24px 0;padding:16px;background:rgba(79,127,255,.15);border-radius:12px;border:1px solid rgba(79,127,255,.3)">
+          <span style="font-size:36px;font-weight:800;color:#eef0f8;letter-spacing:8px">${code}</span>
         </div>
-        <p style="color:#7d88a8;font-size:12px">Or copy this link into your browser:<br><span style="color:#4f7fff">${link}</span></p>
-        <p style="color:#7d88a8;font-size:12px;margin-top:20px;border-top:1px solid rgba(100,130,200,.1);padding-top:12px">This link expires in 24 hours. If you didn't create this account, ignore this email.</p>
+        <p style="color:#7d88a8;font-size:12px;text-align:center">Enter this code in the app to activate your account.</p>
+        <p style="color:#7d88a8;font-size:12px;margin-top:20px;border-top:1px solid rgba(100,130,200,.1);padding-top:12px">This code expires in 24 hours. If you didn't create this account, ignore this email.</p>
       </div>
     `,
   };
@@ -150,9 +148,8 @@ app.post('/api/register', (req, res) => {
           }
           console.log('[REGISTER]   To fix: add SENDGRID_API_KEY env var on Render');
         });
-        const vLink = `${BASE_URL}/api/verify?token=${newUser.verificationToken}`;
-        console.log('[VERIFY] Link for', normalized, ':', vLink);
-        return res.status(201).json({ message: 'Account created! Check your email to verify.', needsVerification: true });
+        console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
+        return res.status(201).json({ message: 'Account created! Check your email for the verification code.', needsVerification: true });
       });
     });
   } catch (error) {
@@ -163,9 +160,9 @@ app.post('/api/register', (req, res) => {
 
 app.get('/api/verify', (req, res) => {
   const { token } = req.query;
-  if (!token) return res.status(400).send(verificationPage('Missing verification token.', false));
+  if (!token) return res.status(400).send(verificationPage('Missing verification code.', false));
   findUserByToken(token, (err, user) => {
-    if (err || !user) return res.status(400).send(verificationPage('Invalid or expired verification link.', false));
+    if (err || !user) return res.status(400).send(verificationPage('Invalid or expired verification code.', false));
     verifyUser(user.email, (err, success) => {
       if (err || !success) return res.status(500).send(verificationPage('Verification failed. Try again.', false));
       console.log('[VERIFY] User verified:', user.email);
@@ -181,16 +178,15 @@ app.post('/api/resend-verification', (req, res) => {
   findUserByEmail(normalized, (err, user) => {
     if (err || !user) return res.status(404).json({ message: 'No account found with that email.' });
     if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
-    const token = user.verificationToken;
-    if (!token) return res.status(500).json({ message: 'No verification token found. Re-register.' });
-    const vLink = `${BASE_URL}/api/verify?token=${token}`;
-    sendVerificationEmail(normalized, user.name, token).then(() => {
+    const code = user.verificationToken;
+    if (!code) return res.status(500).json({ message: 'No verification code found. Re-register.' });
+    sendVerificationEmail(normalized, user.name, code).then(() => {
       console.log('[RESEND] ✓ Verification email sent to:', normalized);
-      res.json({ message: 'Verification email resent!', verifyLink: vLink });
+      res.json({ message: 'Verification code resent!' });
     }).catch((emailErr) => {
       console.log('[RESEND] ✗ Email send failed:', emailErr.message);
-      console.log('[RESEND]   Link for', normalized, ':', vLink);
-      res.json({ message: 'Click the link below to verify.', verifyLink: vLink });
+      console.log('[RESEND]   Code for', normalized, ':', code);
+      res.json({ message: 'Verification code resent! Check your inbox.' });
     });
   });
 });
@@ -244,9 +240,8 @@ app.post('/api/posts/:id/like', (req, res) => {
 });
 
 app.get('/api/active-count', (req, res) => {
-  res.json({ activeUsers: activeUsers.size, totalPosts: 0 });
   getActivePostCount((err, count) => {
-    if (!err) res.json({ activeUsers: activeUsers.size, totalPosts: count });
+    res.json({ activeUsers: activeUsers.size, totalPosts: err ? 0 : count });
   });
 });
 

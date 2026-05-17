@@ -325,109 +325,7 @@ function initDatabase() {
 }
 
 function seedDatabase() {
-  return new Promise((resolve) => {
-    db.serialize(() => {
-      // Insert demo users
-      db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
-        ['Adeyinka Bello', 'adeyinka@student.babcock.edu.ng', 'Computer Science', '300', 'Goodluck Hall', 'babcock123']
-      );
-      db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
-        ['Chidera Okonkwo', 'chidera@student.babcock.edu.ng', 'Law', '400', 'Samuel Akande', 'law2026']
-      );
-      db.run(
-        'INSERT INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
-        ['Emmanuel Nwachukwu', 'emmanuel@student.babcock.edu.ng', 'Economics', '200', 'Winslow', 'econ2026'],
-        function(err) {
-          if (err) {
-            console.error('Error inserting users:', err);
-            resolve();
-            return;
-          }
-          
-          // Create demo chats
-          db.run(
-            'INSERT INTO chats (nm, ico, grp, grad, online) VALUES (?, ?, ?, ?, ?)',
-            ['CSC 300 Group 🖥️', '🖥️', 1, 'linear-gradient(135deg,#1a56ff,#00c27a)', '12 online'],
-            function(err) {
-              if (err) { console.error('Error creating chat:', err); return; }
-              const chatId1 = this.lastID;
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId1, 1]);
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId1, 2]);
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId1, 3]);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId1, 2, 'Chidera', 'Good morning! Anyone have the ML lecture slides?', '8:02 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId1, 3, 'Emmanuel', 'I think Adeyinka has them', '8:10 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId1, 1, 'Adeyinka', 'Yeah I have them, uploading now 📎', '8:12 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId1, 2, 'Chidera', 'You are an absolute legend ❤️', '8:13 AM']);
-            }
-          );
-
-          db.run(
-            'INSERT INTO chats (nm, ico, grp, grad, online) VALUES (?, ?, ?, ?, ?)',
-            ['Chidera Okonkwo', '⚖️', 0, 'linear-gradient(135deg,#f04040,#f59500)', '● Online'],
-            function(err) {
-              if (err) { console.error('Error creating chat:', err); return; }
-              const chatId2 = this.lastID;
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId2, 1]);
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId2, 2]);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId2, 2, 'Chidera', 'Are you coming to the moot court prep session today?', '11:00 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId2, 1, 'Adeyinka', "Can't make it — I have a lab session clash 😬", '11:05 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId2, 2, 'Chidera', "No worries! I'll share the notes after", '11:07 AM']);
-            }
-          );
-
-          db.run(
-            'INSERT INTO chats (nm, ico, grp, grad, online) VALUES (?, ?, ?, ?, ?)',
-            ['Goodluck Hall 🏠', '🏠', 1, 'linear-gradient(135deg,#8b5cf6,#06b6d4)', '38 online'],
-            function(err) {
-              if (err) { console.error('Error creating chat:', err); return; }
-              const chatId3 = this.lastID;
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId3, 1]);
-              db.run('INSERT INTO chat_participants (chatId, userId) VALUES (?, ?)', [chatId3, 3]);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId3, 3, 'Goodluck Rep', 'POWER OUT in Block C 😭 Contacting facilities now', '7:30 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId3, 1, 'Adeyinka', "It's been 2 days now — this needs escalation", '9:00 AM']);
-              db.run('INSERT INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
-                [chatId3, 3, 'Goodluck Rep', '⚡ UPDATE: Power restored as of 2PM. Report any issues.', '2:05 PM'],
-                () => {
-                  // Seed demo posts
-                  const seedPosts = [
-                    ['Adeyinka Bello', 'Computer Science · 300L', 'sports', "PSG please \u{1F62D} the world is behind you right now…", '', 1],
-                    ['Chidera Okonkwo', 'Law · 400L', 'sports', "If Arsenal win the UCL just kill me \u{1F480} I cannot survive", '', 2],
-                    ['Emmanuel Nwachukwu', 'Economics · 200L', 'academics', 'Does anyone have the Linux tutorial notes from last semester? \u{1F630}', '', 3],
-                    ['Adeyinka Bello', 'Computer Science · 300L', 'hostel', "Winslow Hall UPDATE: Power is BACK in Block C! \u{26A1}", '', 1],
-                    ['Chidera Okonkwo', 'Law · 400L', 'events', "\u{1F3E5} Free medical outreach this sunday in front of Caf! #BabcockMed", '', 2],
-                    ['Emmanuel Nwachukwu', 'Economics · 200L', 'gist', 'The BUSA elections are looking wild \u{1F602} UZOMA4SPORTS came with energy!', '', 3],
-                    ['Adeyinka Bello', 'Computer Science · 300L', 'academics', "\u{1F393} JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress. WE MADE IT!", 'https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop', 1],
-                  ];
-                  let postCount = 0;
-                  seedPosts.forEach(([author, dept, cat, txt, imageUrl, userId]) => {
-                    db.run(
-                      'INSERT INTO posts (author, dept, cat, txt, imageUrl, userId, createdAt) VALUES (?, ?, ?, ?, ?, ?, datetime("now", ?))',
-                      [author, dept, cat, txt, imageUrl, userId, `-${seedPosts.length - postCount} minutes`],
-                      () => {
-                        postCount++;
-                        if (postCount === seedPosts.length) resolve();
-                      }
-                    );
-                  });
-                }
-              );
-            }
-          );
-        }
-      );
-    });
-  });
+  return Promise.resolve();
 }
 
 function getUser(email, password, callback) {
@@ -438,16 +336,20 @@ function findUserByEmail(email, callback) {
   db.get('SELECT * FROM users WHERE email = ?', [email.toLowerCase()], callback);
 }
 
+function generateVerificationCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 function createUser(name, email, dept, lvl, hostel, password, callback) {
-  const token = require('crypto').randomBytes(32).toString('hex');
+  const code = generateVerificationCode();
   db.run(
     'INSERT INTO users (name, email, dept, lvl, hostel, password, verified, verificationToken) VALUES (?, ?, ?, ?, ?, ?, 0, ?)',
-    [name, email.toLowerCase(), dept, lvl, hostel, password, token],
+    [name, email.toLowerCase(), dept, lvl, hostel, password, code],
     function(err) {
       if (err) {
         callback(err, null);
       } else {
-        callback(null, { id: this.lastID, name, email: email.toLowerCase(), dept, lvl, hostel, verificationToken: token });
+        callback(null, { id: this.lastID, name, email: email.toLowerCase(), dept, lvl, hostel, verificationToken: code });
       }
     }
   );
@@ -455,6 +357,10 @@ function createUser(name, email, dept, lvl, hostel, password, callback) {
 
 function findUserByToken(token, callback) {
   db.get('SELECT * FROM users WHERE verificationToken = ?', [token], callback);
+}
+
+function findUserByVerificationCode(code, callback) {
+  db.get('SELECT * FROM users WHERE verificationToken = ? AND verified = 0', [code], callback);
 }
 
 function verifyUser(email, callback) {
@@ -537,29 +443,29 @@ function getPosts(page = 1, limit = 10, callback) {
     if (posts.length === 0) { callback(null, [], false, 0); return; }
     db.get('SELECT COUNT(*) as total FROM posts', (err, row) => {
       const total = row?.total || 0;
-    posts.forEach((post) => {
-      db.all('SELECT userId FROM post_likes WHERE postId = ?', [post.id], (err, likes) => {
-        db.all('SELECT * FROM comments WHERE postId = ? ORDER BY createdAt ASC', [String(post.id)], (err, comments) => {
-          results.push({
-            id: post.id,
-            author: post.author,
-            dept: post.dept,
-            cat: post.cat,
-            txt: post.txt,
-            imageUrl: post.imageUrl || '',
-            likes: likes ? likes.map((l) => l.userId) : [],
-            liked: false,
-            reposts: 0,
-            reposted: false,
-            repostedBy: [],
-            comments: comments || [],
-            t: formatTimeAgo(post.createdAt),
+      posts.forEach((post) => {
+        db.all('SELECT userId FROM post_likes WHERE postId = ?', [post.id], (err, likes) => {
+          db.all('SELECT * FROM comments WHERE postId = ? ORDER BY createdAt ASC', [String(post.id)], (err, comments) => {
+            results.push({
+              id: post.id,
+              author: post.author,
+              dept: post.dept,
+              cat: post.cat,
+              txt: post.txt,
+              imageUrl: post.imageUrl || '',
+              likes: likes ? likes.map((l) => l.userId) : [],
+              liked: false,
+              reposts: 0,
+              reposted: false,
+              repostedBy: [],
+              comments: comments || [],
+              t: formatTimeAgo(post.createdAt),
+            });
+            completed++;
+            if (completed === posts.length) callback(null, results, offset + posts.length < total, total);
           });
-          completed++;
-          if (completed === posts.length) callback(null, results, offset + posts.length < total, total);
         });
       });
-    });
     });
   });
 }
@@ -902,13 +808,17 @@ function toggleMemeLike(memeId, userId, callback) {
     if (err) { callback(err, null); return; }
     if (row) {
       db.run('DELETE FROM meme_likes WHERE memeId = ? AND userId = ?', [memeId, userId], function(err) {
-        db.run('UPDATE memes_t SET likes = MAX(0, likes - 1) WHERE id = ?', [memeId]);
-        callback(err, { liked: false });
+        if (err) { callback(err, null); return; }
+        db.run('UPDATE memes_t SET likes = MAX(0, likes - 1) WHERE id = ?', [memeId], function(err) {
+          callback(err, { liked: false });
+        });
       });
     } else {
       db.run('INSERT INTO meme_likes (memeId, userId) VALUES (?, ?)', [memeId, userId], function(err) {
-        db.run('UPDATE memes_t SET likes = likes + 1 WHERE id = ?', [memeId]);
-        callback(err, { liked: true });
+        if (err) { callback(err, null); return; }
+        db.run('UPDATE memes_t SET likes = likes + 1 WHERE id = ?', [memeId], function(err) {
+          callback(err, { liked: true });
+        });
       });
     }
   });
@@ -1018,6 +928,7 @@ module.exports = {
   getUser,
   findUserByEmail,
   findUserByToken,
+  findUserByVerificationCode,
   verifyUser,
   createUser,
   getChats,
