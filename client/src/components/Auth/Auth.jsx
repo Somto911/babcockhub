@@ -111,7 +111,7 @@ export default function Auth() {
             <div className="verify-icon">✉️</div>
             <div className="verify-title">Verify your email</div>
             <div className="verify-desc">We sent a verification code to<br /><b>{registeredEmail}</b></div>
-            <div className="verify-desc2">Enter the code from the email in the verification page, or click the link in the email to auto-verify.</div>
+            <div className="verify-desc2">Click the link in the email or enter the code on the verification page to activate your account.</div>
             <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
               <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Code'}</span>
             </button>

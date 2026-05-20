@@ -28,6 +28,7 @@ function sendVerificationEmail(email, name, code) {
     console.log('[EMAIL] SENDGRID_API_KEY not set. Verification code:', code);
     return Promise.reject(new Error('SendGrid not configured'));
   }
+  const link = `${BASE_URL}/api/verify?token=${code}`;
   const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
   const msg = {
     from: `"BuSocial" <${fromEmail}>`,
@@ -39,11 +40,14 @@ function sendVerificationEmail(email, name, code) {
           <div style="width:48px;height:48px;background:linear-gradient(135deg,#4f7fff,#818cf8);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff">Bu</div>
           <h1 style="color:#eef0f8;font-size:20px;margin:12px 0 0">Welcome to BuSocial, ${name}!</h1>
         </div>
-        <p style="color:#d4dae8;font-size:14px;line-height:1.6">You're one step away from joining the Babcock campus community. Use the code below to verify your email:</p>
+        <p style="color:#d4dae8;font-size:14px;line-height:1.6">Use the code below to verify your email:</p>
         <div style="text-align:center;margin:24px 0;padding:16px;background:rgba(79,127,255,.15);border-radius:12px;border:1px solid rgba(79,127,255,.3)">
           <span style="font-size:36px;font-weight:800;color:#eef0f8;letter-spacing:8px">${code}</span>
         </div>
-        <p style="color:#7d88a8;font-size:12px;text-align:center">Enter this code in the app to activate your account.</p>
+        <div style="text-align:center;margin:20px 0">
+          <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#4f7fff,#818cf8);color:#fff;text-decoration:none;padding:12px 32px;border-radius:10px;font-weight:700;font-size:15px">Verify Email →</a>
+        </div>
+        <p style="color:#7d88a8;font-size:12px;text-align:center">Or copy this link: <span style="color:#4f7fff">${link}</span></p>
         <p style="color:#7d88a8;font-size:12px;margin-top:20px;border-top:1px solid rgba(100,130,200,.1);padding-top:12px">This code expires in 24 hours. If you didn't create this account, ignore this email.</p>
       </div>
     `,
