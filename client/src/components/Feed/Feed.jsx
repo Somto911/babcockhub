@@ -14,6 +14,7 @@ export default function Feed() {
   const [showStoryForm, setShowStoryForm] = useState(false);
   const [storyName, setStoryName] = useState('');
   const [storyImg, setStoryImg] = useState('');
+  const fileInputRef = useRef(null);
   const sentinelRef = useRef(null);
 
   const handleObserver = useCallback((entries) => {
@@ -56,9 +57,23 @@ export default function Feed() {
               <div className="modal-x" onClick={() => { setShowStoryForm(false); setStoryName(''); setStoryImg(''); }}>X</div>
             </div>
             <input className="inp" placeholder="Your name..." value={storyName} onChange={(e) => setStoryName(e.target.value)} />
-            <input className="inp" placeholder="Image URL..." value={storyImg} onChange={(e) => setStoryImg(e.target.value)} />
+            <div className="story-upload-area" onClick={() => fileInputRef.current?.click()}>
+              {storyImg ? (
+                <img src={storyImg} alt="Preview" className="story-upload-preview" />
+              ) : (
+                <div className="story-upload-placeholder">Upload from device</div>
+              )}
+            </div>
+            <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (ev) => setStoryImg(ev.target?.result || '');
+              reader.readAsDataURL(file);
+            }} />
+            <input className="inp" placeholder="Or paste image URL..." value={storyImg.startsWith('data:') ? '' : storyImg} onChange={(e) => setStoryImg(e.target.value)} />
             <button className="btn-main" onClick={() => {
-              if (!storyImg.trim()) return showToast('Enter an image URL!');
+              if (!storyImg.trim()) return showToast('Select an image or enter a URL!');
               submitStory(storyName.trim() || user?.name || 'Someone', storyImg.trim());
               setShowStoryForm(false);
               setStoryName('');
