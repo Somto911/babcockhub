@@ -63,9 +63,14 @@ export default function Auth() {
     if (!email.endsWith('@student.babcock.edu.ng')) { setError('Only @student.babcock.edu.ng emails allowed'); return; }
     setLoading(true);
     try {
-      await register({ name, email, dept, lvl, hostel, password });
-      setRegisteredEmail(email);
-      showToast('Check your email for the verification code!');
+      const result = await register({ name, email, dept, lvl, hostel, password });
+      if (result.user) {
+        login(email, password);
+        showToast('Welcome!');
+      } else {
+        setRegisteredEmail(email);
+        showToast('Check your email for the verification code!');
+      }
     } catch (err) {
       setError(err.message);
     } finally {

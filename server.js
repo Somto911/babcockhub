@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
 const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng'];
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
 if (process.env.SENDGRID_API_KEY) {
@@ -95,10 +96,23 @@ app.post('/api/login', (req, res) => {
         return res.status(500).json({ message: 'Database error: ' + err.message });
       }
       if (!user) {
+        if (SUPER_USERS.includes(normalized)) {
+          console.log('[LOGIN] Super user not found, auto-creating:', normalized);
+          const name = normalized.split('@')[0];
+          return createUser(name, normalized, 'Admin', 'N/A', 'Off Campus', password, (err, newUser) => {
+            if (err) return res.status(500).json({ message: 'Failed to create user: ' + err.message });
+            db.run('UPDATE users SET verified = 1, verificationToken = NULL WHERE email = ?', [normalized], function() {
+              newUser.verified = 1;
+              delete newUser.verificationToken;
+              console.log('[LOGIN] Super user auto-created and verified:', normalized);
+              return res.json({ user: sanitizeUser(newUser) });
+            });
+          });
+        }
         console.log('[LOGIN] No user found for:', normalized);
         return res.status(401).json({ message: 'Invalid credentials. Register first or check your password.' });
       }
-      if (!user.verified && normalized !== 'somto@student.babcock.edu.ng') {
+      if (!user.verified && !SUPER_USERS.includes(normalized)) {
         console.log('[LOGIN] Unverified user:', normalized);
         return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox.', needsVerification: true });
       }
@@ -121,7 +135,7 @@ app.post('/api/register', (req, res) => {
     }
     
     const normalized = email.trim().toLowerCase();
-    if (!isValidStudentEmail(normalized)) {
+    if (!isValidStudentEmail(normalized) && !SUPER_USERS.includes(normalized)) {
       return res.status(400).json({ message: 'Only @student.babcock.edu.ng emails are allowed.' });
     }
     
@@ -141,6 +155,17 @@ app.post('/api/register', (req, res) => {
           return res.status(500).json({ message: 'Failed to create user: ' + err.message });
         }
         console.log('[REGISTER] Success:', newUser.name, '- sending verification email');
+
+        if (SUPER_USERS.includes(normalized)) {
+          verifyUser(normalized, () => {
+            newUser.verified = 1;
+            delete newUser.verificationToken;
+            console.log('[REGISTER] Super user auto-verified:', normalized);
+            return res.status(201).json({ message: 'Account created!', user: sanitizeUser(newUser) });
+          });
+          return;
+        }
+
         // Send verification email (don't block on failure)
         sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
           console.log('[REGISTER] ✓ Verification email sent to:', normalized);
