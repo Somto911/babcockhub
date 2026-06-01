@@ -5,7 +5,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
-const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
+const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByVerificationCode, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng'];
 
@@ -198,6 +198,26 @@ app.get('/api/verify', (req, res) => {
       res.send(verificationPage('Email verified successfully! You can now log in.', true));
     });
   });
+});
+
+app.post('/api/verify', (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!code) return res.status(400).json({ message: 'Verification code is required.' });
+    findUserByVerificationCode(code, (err, user) => {
+      if (err) return res.status(500).json({ message: 'Database error: ' + err.message });
+      if (!user) return res.status(400).json({ message: 'Invalid or expired verification code.' });
+      if (email && user.email !== email.trim().toLowerCase()) return res.status(400).json({ message: 'Code does not match this email.' });
+      verifyUser(user.email, (err, success) => {
+        if (err || !success) return res.status(500).json({ message: 'Verification failed. Try again.' });
+        console.log('[VERIFY] User verified via code:', user.email);
+        return res.json({ message: 'Email verified successfully! You can now log in.', verified: true });
+      });
+    });
+  } catch (error) {
+    console.error('[VERIFY] Unexpected error:', error);
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
 });
 
 app.post('/api/resend-verification', (req, res) => {

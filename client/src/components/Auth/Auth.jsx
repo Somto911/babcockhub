@@ -11,6 +11,8 @@ export default function Auth() {
   const [error, setError] = useState('');
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [resending, setResending] = useState(false);
+  const [code, setCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   const hostelMap = {
     Male: ['Winslow', 'Neal Wilson', 'Samuel Akande', 'Gideon Troopers', 'Bethel Splendor', 'Nelson Mandela'],
@@ -93,6 +95,22 @@ export default function Auth() {
     }
   };
 
+  const handleVerifyCode = async () => {
+    if (!code || code.length !== 6) { setError('Enter the 6-digit code sent to your email.'); return; }
+    setVerifying(true);
+    setError('');
+    try {
+      const res = await api('/api/verify', { method: 'POST', body: JSON.stringify({ email: registeredEmail, code }) });
+      showToast(res.message);
+      setRegisteredEmail('');
+      setCode('');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   return (
     <div id="auth">
       <div className="auth-noise" />
@@ -118,11 +136,15 @@ export default function Auth() {
             <div className="verify-icon">✉️</div>
             <div className="verify-title">Verify your email</div>
             <div className="verify-desc">We sent a verification code to<br /><b>{registeredEmail}</b></div>
-            <div className="verify-desc2">Click the link in the email or enter the code on the verification page to activate your account.</div>
-            <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 16 }}>
-              <span className="btn-text">{resending ? 'Sending...' : 'Resend Verification Code'}</span>
+            <label className="lbl" style={{ marginTop: 16 }}>Enter 6-digit code</label>
+            <input className="inp" type="text" inputMode="numeric" maxLength={6} placeholder="000000" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={(e) => e.key === 'Enter' && handleVerifyCode()} autoFocus />
+            <button className="btn-main" onClick={handleVerifyCode} disabled={verifying || code.length !== 6} style={{ marginTop: 12 }}>
+              <span className="btn-text">{verifying ? 'Verifying...' : 'Verify Code'}</span>
             </button>
-            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setError(''); }}>Back to Sign In</div>
+            <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 8, background: 'transparent', border: '1px solid rgba(100,130,200,.2)' }}>
+              <span className="btn-text" style={{ color: '#7d88a8' }}>{resending ? 'Sending...' : 'Resend Verification Code'}</span>
+            </button>
+            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setCode(''); setError(''); }}>Back to Sign In</div>
             {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
           </div>
         ) : (<><div className="tab-row">
