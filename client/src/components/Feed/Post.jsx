@@ -25,13 +25,13 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
           {ini(post.author)}
         </div>
         <div className="post-meta">
-          <div className="post-nm" onClick={() => onProfile(post.author)}>{post.author}</div>
-          <div className="post-sub">
-            <span>{post.dept}</span>·<span>{post.t}</span>
-            {post.cat && post.cat !== 'general' && <span className={`cat-tag ${cats[post.cat] || ''}`}>{post.cat}</span>}
-          </div>
+          <span className="post-nm" onClick={() => onProfile(post.author)}>{post.author}</span>
+          <span className="post-sub">
+            <span>{post.dept}</span> · <span>{post.t}</span>
+          </span>
+          {post.cat && post.cat !== 'general' && <span className={`cat-tag ${cats[post.cat] || ''}`}>{post.cat}</span>}
         </div>
-        <div className="more-btn" onClick={() => showToast('Report/block options')}>...</div>
+        <div className="more-btn" onClick={() => showToast('Report/block options')}>···</div>
       </div>
       <div className="post-body">{post.txt}</div>
       {post.imageUrl && (
@@ -49,7 +49,7 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
         <div className={`pact${post.reposted ? ' reposted' : ''}`} onClick={() => onRepost(post.id)}>
           🔄<span>{post.reposts}</span>
         </div>
-        <div className="pact" onClick={() => showToast('Link copied!')}>Share</div>
+        <div className="pact" onClick={() => showToast('Link copied!')}>🔗</div>
       </div>
       {showComments && (
         <div className="comments-panel">
@@ -59,17 +59,17 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
               <div className="comment-av" style={{ background: grad(c.author) }}>{ini(c.author)}</div>
               <div className="comment-body">
                 <div className="comment-author">{c.author}</div>
-                <div className="comment-text">{c.text}</div>
+                <span className="comment-text">{c.text}</span>
                 <div className="comment-time">{c.time}</div>
               </div>
               {(currentUser?.id === c.userId || currentUser?.name === c.author) && (
-                <div className="comment-del" onClick={() => handleDeleteComment(c.id)} title="Delete">X</div>
+                <div className="comment-del" onClick={() => handleDeleteComment(c.id)} title="Delete">✕</div>
               )}
             </div>
           ))}
           <div className="comment-inp-row">
             <input className="comment-inp" type="text" placeholder="Write a comment…" value={commentText} onChange={(e) => setCommentText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddComment()} />
-            <button className="comment-sub" onClick={handleAddComment}>Post</button>
+            <button className="comment-sub" onClick={handleAddComment}>Reply</button>
           </div>
         </div>
       )}

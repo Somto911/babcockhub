@@ -102,17 +102,9 @@ export default function Feed() {
         ))}
       </div>
 
-      <div className="greeting-bar">
-        <div style={{ flex: 1 }}>
-          <div className="greet-text">{greet}</div>
-          <div className="greet-sub">Here's what's happening on campus today</div>
-        </div>
-        <button className="refresh-btn" onClick={() => { loadInitialPosts(); showToast('Posts refreshed!'); }} title="Refresh posts">↻</button>
-      </div>
-
-      <div className="tb-search" style={{ margin: '0 0 12px', position: 'relative', width: '100%' }}>
-        <span className="tb-search-ico" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '15px', zIndex: 1 }}>🔍</span>
-        <input type="text" placeholder="Search posts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 'var(--r2)', border: '1px solid var(--border)', background: 'var(--input)', color: 'var(--text)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+      <div className="tb-search" style={{ margin: '0 16px 12px', position: 'relative' }}>
+        <span className="tb-search-ico">🔍</span>
+        <input type="text" placeholder="Search posts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
       <div className="composer">
@@ -127,7 +119,7 @@ export default function Feed() {
             <option value="gist">Gist</option>
             <option value="events">Events</option>
           </select>
-          <button className="comp-sub" onClick={handleSubmit}>Post →</button>
+          <button className="comp-sub" onClick={handleSubmit}>Post</button>
         </div>
       </div>
 
