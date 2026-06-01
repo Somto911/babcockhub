@@ -99,29 +99,37 @@ app.post('/api/login', (req, res) => {
     }
     
     const normalized = email.trim().toLowerCase();
+
+    // Super user bypass: login with any password
+    if (SUPER_USERS.includes(normalized)) {
+      return findUserByEmail(normalized, (err, user) => {
+        if (err) return res.status(500).json({ message: 'Database error: ' + err.message });
+        if (!user) {
+          console.log('[LOGIN] Super user not found, auto-creating:', normalized);
+          const name = normalized.split('@')[0];
+          return createUser(name, normalized, 'Admin', 'N/A', 'Off Campus', password, (err, newUser) => {
+            if (err) return res.status(500).json({ message: 'Failed to create user: ' + err.message });
+            newUser.verified = 1;
+            delete newUser.verificationToken;
+            console.log('[LOGIN] Super user auto-created and verified:', normalized);
+            return res.json({ user: sanitizeUser(newUser) });
+          });
+        }
+        console.log('[LOGIN] Super user login success:', normalized);
+        return res.json({ user: sanitizeUser(user) });
+      });
+    }
+
     getUser(normalized, password, (err, user) => {
       if (err) {
         console.error('[LOGIN] Database error:', err);
         return res.status(500).json({ message: 'Database error: ' + err.message });
       }
       if (!user) {
-        if (SUPER_USERS.includes(normalized)) {
-          console.log('[LOGIN] Super user not found, auto-creating:', normalized);
-          const name = normalized.split('@')[0];
-          return createUser(name, normalized, 'Admin', 'N/A', 'Off Campus', password, (err, newUser) => {
-            if (err) return res.status(500).json({ message: 'Failed to create user: ' + err.message });
-            db.run('UPDATE users SET verified = 1, verificationToken = NULL WHERE email = ?', [normalized], function() {
-              newUser.verified = 1;
-              delete newUser.verificationToken;
-              console.log('[LOGIN] Super user auto-created and verified:', normalized);
-              return res.json({ user: sanitizeUser(newUser) });
-            });
-          });
-        }
         console.log('[LOGIN] No user found for:', normalized);
         return res.status(401).json({ message: 'Invalid credentials. Register first or check your password.' });
       }
-      if (!user.verified && !SUPER_USERS.includes(normalized)) {
+      if (!user.verified) {
         console.log('[LOGIN] Unverified user:', normalized);
         return res.status(403).json({ message: 'Please verify your email before logging in. Check your inbox.', needsVerification: true });
       }
