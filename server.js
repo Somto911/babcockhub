@@ -61,20 +61,12 @@ app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
 let dbReady = false;
 
-// Initialize database and wait for it to complete
-const initTimeout = setTimeout(() => {
-  console.warn('[DB] Init timed out — setting dbReady anyway. Tables may already exist.');
-  dbReady = true;
-}, 15000);
-
+// Initialize database
 initDatabase().then(() => {
-  clearTimeout(initTimeout);
   console.log('✓ Database initialized successfully');
   dbReady = true;
 }).catch(err => {
-  clearTimeout(initTimeout);
   console.error('✗ Failed to initialize database:', err.message);
-  console.warn('[DB] Setting dbReady = true — app may be partially functional.');
   dbReady = true;
 });
 
