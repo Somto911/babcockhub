@@ -8,6 +8,7 @@ db.run('PRAGMA foreign_keys = ON');
 
 function initDatabase() {
   return new Promise((resolve) => {
+    db.serialize(() => {
     // Users table
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
@@ -319,11 +320,203 @@ function initDatabase() {
         resolve();
       }
     });
+    });
   });
 }
 
 function seedDatabase() {
-  return Promise.resolve();
+  console.log('[SEED] Starting database seed...');
+  return new Promise((resolve) => {
+    const users = [
+      { name: 'Olawuyi Oluwaseun', email: 'seun@student.babcock.edu.ng', dept: 'IT', lvl: '300', hostel: 'Off Campus', password: 'seed123', verified: 1 },
+      { name: 'Fagboy', email: 'fagboy@student.babcock.edu.ng', dept: 'Mass Comm', lvl: '200', hostel: 'Queen Esther', password: 'seed123', verified: 1 },
+      { name: 'Ogunsola Dapo', email: 'dapo@student.babcock.edu.ng', dept: 'Engineering', lvl: '200', hostel: 'Winslow', password: 'seed123', verified: 1 },
+      { name: 'Osakioduwa Elisha', email: 'elisha@student.babcock.edu.ng', dept: 'Software Engineering', lvl: '400', hostel: 'Winslow', password: 'seed123', verified: 1 },
+      { name: 'Ememanka Chiemela', email: 'chiemela@student.babcock.edu.ng', dept: 'Unknown', lvl: '300', hostel: 'Off Campus', password: 'seed123', verified: 1 },
+      { name: 'Emmanuel Ewedu', email: 'ewedu@student.babcock.edu.ng', dept: 'Economics', lvl: '200', hostel: 'Off Campus', password: 'seed123', verified: 1 },
+      { name: 'Precious Ugo', email: 'ugo@student.babcock.edu.ng', dept: 'Business Admin', lvl: '400', hostel: 'Platinum Hall', password: 'seed123', verified: 1 },
+    ];
+    let done = 0;
+    const userIds = [];
+    users.forEach((u, i) => {
+      db.run('INSERT OR IGNORE INTO users (name, email, dept, lvl, hostel, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [u.name, u.email, u.dept, u.lvl, u.hostel, u.password, u.verified],
+        function (err) {
+          if (!err) userIds[i] = this.lastID;
+          done++;
+          if (done === users.length) {
+            seedPosts(userIds).then(resolve);
+          }
+        }
+      );
+    });
+  });
+}
+
+function seedPosts(userIds) {
+  return new Promise((resolve) => {
+    const posts = [
+      { author: 'Olawuyi Oluwaseun', dept: 'IT · 300L', cat: 'sports', txt: "PSG please \u{1F62D} the world is behind you right now\u2026 if you lose this UCL final I'm going to be sad fr fr \u{1F3C6}\u26BD", userId: userIds[0] },
+      { author: 'Fagboy', dept: 'Mass Comm · 200L', cat: 'sports', txt: "If Arsenal win the UCL just kill me \u{1F480} I cannot survive seeing it happen. I've suffered since 2020 and I'm not ready for this \u{1F62D}\u2764\uFE0F", userId: userIds[1] },
+      { author: 'Ogunsola Dapo', dept: 'Engineering · 200L', cat: 'gist', txt: "The BUSA elections are looking wild \u{1F602} UZOMA4SPORTS really came with the energy this year. What y'all think?", userId: userIds[2] },
+      { author: 'Osakioduwa Elisha', dept: 'Software Engineering · 400L', cat: 'hostel', txt: "\u26A1 Winslow HALL UPDATE: Power is BACK in Block C! It's been 3 days, the gen is finally fixed. Update your assignments fam \u2014 we move!", userId: userIds[3] },
+      { author: 'Ememanka Chiemela', dept: 'Unknown · 300L', cat: 'events', txt: "\u{1F3E5} Free medical outreach this sunday in front of Caf ! Blood pressure check, and health counselling. Bring your people! #BabcockMed", userId: userIds[4] },
+      { author: 'Emmanuel Ewedu', dept: 'Economics · 200L', cat: 'academics', txt: "Does anyone have the Linux tutorial notes from last semester? Lecturer just announced a test for next week \u{1F630} Please help a guy out \u{1F64F}", userId: userIds[5] },
+      { author: 'Precious Ugo', dept: 'Business Admin · 400L', cat: 'academics', txt: "\u{1F393} JUST FINISHED MY FINAL YEAR PROJECT! 4 years of stress, tears, and late nights. WE MADE IT! To every 400L student still grinding \u2014 you're almost there \u{1F4AA}", userId: userIds[6] },
+    ];
+    let done = 0;
+    const postIds = [];
+    posts.forEach((p, i) => {
+      db.run('INSERT INTO posts (author, dept, cat, txt, userId) VALUES (?, ?, ?, ?, ?)',
+        [p.author, p.dept, p.cat, p.txt, p.userId],
+        function (err) {
+          if (!err) postIds[i] = this.lastID;
+          done++;
+          if (done === posts.length) {
+            seedComments(postIds, userIds, resolve);
+          }
+        }
+      );
+    });
+  });
+}
+
+function seedComments(postIds, userIds, resolve) {
+  const comments = [
+    { postId: postIds[0], author: 'Fagboy', text: "PSG no get chance bro \u{1F602}", userId: userIds[1] },
+    { postId: postIds[0], author: 'Ogunsola Dapo', text: 'Mbappe on his way to Madrid already \u{1F480}', userId: userIds[2] },
+    { postId: postIds[1], author: 'Olawuyi Oluwaseun', text: 'Arsenal fans been suffering since 2004 \u{1F62D}', userId: userIds[0] },
+    { postId: postIds[3], author: 'Ememanka Chiemela', text: 'Finally! Block C residents can charge their phones again \u26A1', userId: userIds[4] },
+    { postId: postIds[3], author: 'Precious Ugo', text: 'What about Block A? Still in darkness? \u{1F624}', userId: userIds[6] },
+    { postId: postIds[5], author: 'Fagboy', text: 'I have them! DM me your WhatsApp number', userId: userIds[1] },
+    { postId: postIds[6], author: 'Ogunsola Dapo', text: 'Congratulations!! \u{1F389} Well done', userId: userIds[2] },
+    { postId: postIds[6], author: 'Olawuyi Oluwaseun', text: 'Proud of you! \u{1F393}', userId: userIds[0] },
+    { postId: postIds[6], author: 'Ememanka Chiemela', text: 'Almost there myself, this is motivation \u{1F64F}', userId: userIds[4] },
+  ];
+  let done = 0;
+  comments.forEach((c) => {
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    db.run('INSERT INTO comments (postId, author, text, time, userId) VALUES (?, ?, ?, ?, ?)',
+      [c.postId, c.author, c.text, time, c.userId],
+      () => { done++; if (done === comments.length) seedGroups(userIds, resolve); }
+    );
+  });
+  if (comments.length === 0) seedGroups(userIds, resolve);
+}
+
+function seedGroups(userIds, resolve) {
+  const groups = [
+    { nm: 'Computer Science Dept', type: 'Department', cat: 'academics', desc: 'Official dept group for all CS students.', ico: 'C', grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))', userId: userIds[0] },
+    { nm: 'winslow Hall', type: 'Hostel', cat: 'hostel', desc: 'Residents of winslow Hall. Power updates, lost & found.', ico: 'W', grad: 'linear-gradient(135deg,rgba(240,64,64,.5),rgba(245,149,0,.35))', userId: userIds[3] },
+    { nm: 'BUCC', type: 'Club', cat: 'general', desc: 'Building, shipping, learning together.', ico: 'B', grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))', userId: userIds[2] },
+    { nm: 'Law Students Forum', type: 'Department', cat: 'academics', desc: 'For all Law students. Moot court updates.', ico: 'L', grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.35))', userId: userIds[1] },
+    { nm: 'CS 300 Study Group', type: 'Course', cat: 'academics', desc: 'Notes, study sessions, and exam prep.', ico: 'S', grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.35))', userId: userIds[0] },
+    { nm: 'Babcock Chess Club', type: 'Club', cat: 'general', desc: 'Weekly chess sessions at the student centre.', ico: 'C', grad: 'linear-gradient(135deg,rgba(6,182,212,.5),rgba(139,92,246,.35))', userId: userIds[2] },
+  ];
+  let done = 0;
+  groups.forEach((g) => {
+    db.run('INSERT OR IGNORE INTO groups_t (nm, type, cat, desc, ico, grad, userId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [g.nm, g.type, g.cat, g.desc, g.ico, g.grad, g.userId],
+      () => { done++; if (done === groups.length) seedEvents(userIds, resolve); }
+    );
+  });
+  if (groups.length === 0) seedEvents(userIds, resolve);
+}
+
+function seedEvents(userIds, resolve) {
+  const events = [
+    { title: 'BU Hackathon', ico: 'H', day: '15', mon: 'JUN', time: '9:00 AM', loc: 'Tech Hub Building', desc: '24-hour coding marathon.', grad: 'linear-gradient(135deg,rgba(26,86,255,.5),rgba(0,194,122,.35))', userId: userIds[0] },
+    { title: 'Freshers Fair', ico: 'F', day: '20', mon: 'SEP', time: '4:00 PM', loc: 'University Stadium', desc: 'Welcome to Babcock!', grad: 'linear-gradient(135deg,rgba(245,149,0,.5),rgba(240,64,64,.3))', userId: userIds[1] },
+    { title: 'Graduation Day', ico: 'G', day: '12', mon: 'OCT', time: '10:00 AM', loc: 'The Amphitheatre', desc: 'Celebrating our graduating class.', grad: 'linear-gradient(135deg,rgba(139,92,246,.5),rgba(6,182,212,.35))', userId: userIds[2] },
+    { title: 'Best of 200L Final', ico: 'B', day: '28', mon: 'MAY', time: '3:00 PM', loc: 'University Stadium', desc: 'The ultimate intramural showdown!', grad: 'linear-gradient(135deg,rgba(0,194,122,.5),rgba(26,86,255,.3))', cat: 'sports', userId: userIds[3] },
+  ];
+  let done = 0;
+  events.forEach((e) => {
+    db.run('INSERT OR IGNORE INTO events_t (title, ico, day, mon, time, loc, desc, grad, cat, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [e.title, e.ico, e.day, e.mon, e.time, e.loc, e.desc, e.grad, e.cat || 'general', e.userId],
+      () => { done++; if (done === events.length) seedConfs(userIds, resolve); }
+    );
+  });
+  if (events.length === 0) seedConfs(userIds, resolve);
+}
+
+function seedConfs(userIds, resolve) {
+  const confs = [
+    { txt: 'I have been attending the wrong tutorial class for 3 weeks. I thought I was getting smarter \u2014 turns out I was studying a completely different course \u{1F480}', userId: userIds[0] },
+    { txt: "There is someone in my department whose voice I have been in love with for 2 entire years and we have never once spoken.", userId: userIds[1] },
+    { txt: "I've been hooking up with my lecturer's son for the past 4 months and he has no idea it's me.", userId: userIds[2] },
+    { txt: "I walked into my exam hall wearing nothing but boxers under my gown because I was late and didn't have time to put on trousers.", userId: userIds[3] },
+  ];
+  let done = 0;
+  confs.forEach((c) => {
+    db.run('INSERT OR IGNORE INTO confessions (txt, userId) VALUES (?, ?)',
+      [c.txt, c.userId],
+      () => { done++; if (done === confs.length) seedMemes(userIds, resolve); }
+    );
+  });
+  if (confs.length === 0) seedMemes(userIds, resolve);
+}
+
+function seedMemes(userIds, resolve) {
+  const memes = [
+    { ico: 'R', cap: 'This whole elections were rigged', url: 'https://media4.giphy.com/media/8rT2k19HNjhImz6bwP/giphy.gif', userId: userIds[0] },
+    { ico: 'M', cap: 'abeg so we no get social director??', url: 'https://media0.giphy.com/media/ouEIsl1nsBjUpMbfxm/giphy.gif', userId: userIds[1] },
+    { ico: 'V', cap: 'How do you lose an unopposed election', url: 'https://media1.giphy.com/media/DmCq5rJEk6phhv4WSz/giphy.gif', userId: userIds[2] },
+    { ico: 'C', cap: 'So after everything Angel no win Gensec', url: 'https://media4.giphy.com/media/4QA4DlNNe6NHMSNqrO/giphy.gif', userId: userIds[3] },
+    { ico: 'K', cap: 'Me at 11:59PM submitting a 3,000-word essay I started at 11:30PM', url: 'https://media4.giphy.com/media/gwhneLWxsHkaCyRj4n/giphy.gif', userId: userIds[4] },
+  ];
+  let done = 0;
+  memes.forEach((m) => {
+    db.run('INSERT OR IGNORE INTO memes_t (ico, cap, url, userId) VALUES (?, ?, ?, ?)',
+      [m.ico, m.cap, m.url, m.userId],
+      () => { done++; if (done === memes.length) seedPolls(resolve); }
+    );
+  });
+  if (memes.length === 0) seedPolls(resolve);
+}
+
+function seedPolls(resolve) {
+  const polls = [
+    { q: 'Best Busa shop?', opts: ['Big Meals', 'Flakky Ventures', 'Busa House', 'All busa food are ass'] },
+    { q: 'Best Babcock TikToker?', opts: ['Aliana', 'Mazi Abraham', 'Valentino', 'Caris'] },
+    { q: 'Favourite Kiss Spot?', opts: ['Amphitheater', 'SAT', 'Queen Esther', 'Busa Hut'] },
+  ];
+  let done = 0;
+  polls.forEach((p) => {
+    db.run('INSERT OR IGNORE INTO polls_t (q, userId) VALUES (?, ?)', [p.q, 1], function () {
+      const pollId = this.lastID;
+      let optDone = 0;
+      p.opts.forEach((l) => {
+        db.run('INSERT OR IGNORE INTO poll_options (pollId, l, v) VALUES (?, ?, ?)',
+          [pollId, l, Math.floor(Math.random() * 100 + 50)],
+          () => { optDone++; if (optDone === p.opts.length) { done++; if (done === polls.length) seedChats(resolve); } }
+        );
+      });
+    });
+  });
+  if (polls.length === 0) seedChats(resolve);
+}
+
+function seedChats(resolve) {
+  db.run('INSERT OR IGNORE INTO chats (nm, ico, grp, grad, online) VALUES (?, ?, ?, ?, ?)',
+    ['CS Dept Group', 'C', 1, 'linear-gradient(135deg,#4f7fff,#34d399)', '12 online'], function () {
+      seedMessages(1, resolve);
+    });
+}
+
+function seedMessages(chatId, resolve) {
+  const msgs = [
+    { senderId: 2, senderName: 'Seun', txt: 'Did anyone get the assignment?', t: '2:30 PM' },
+    { senderId: 3, senderName: 'Dapo', txt: 'Yeah check the portal', t: '2:31 PM' },
+  ];
+  let done = 0;
+  msgs.forEach((m) => {
+    db.run('INSERT OR IGNORE INTO messages (chatId, senderId, senderName, txt, t) VALUES (?, ?, ?, ?, ?)',
+      [chatId, m.senderId, m.senderName, m.txt, m.t],
+      () => { done++; if (done === msgs.length) resolve(); }
+    );
+  });
+  if (msgs.length === 0) resolve();
 }
 
 function getUser(email, password, callback) {
