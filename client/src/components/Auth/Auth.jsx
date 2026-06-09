@@ -33,7 +33,7 @@ export default function Auth() {
     const email = fd.get('email')?.trim();
     const password = fd.get('password');
     if (!email || !password) { setError('Fill in all fields'); return; }
-    const superUsers = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng'];
+    const superUsers = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 't@gmail.com'];
     if (!email.includes('@')) { setError('Enter a valid email address'); return; }
     if (!email.endsWith('@student.babcock.edu.ng') && !superUsers.includes(email.trim().toLowerCase())) { setError('Only @student.babcock.edu.ng emails are allowed'); return; }
     setLoading(true);
@@ -63,7 +63,7 @@ export default function Auth() {
     const password = fd.get('password');
     const hostel = fd.get('hostel') || 'Off Campus';
     if (!name || !email || !dept || !lvl || !password) { setError('Fill in all required fields'); return; }
-    const superUsers = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng'];
+    const superUsers = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 't@gmail.com'];
     if (!email.endsWith('@student.babcock.edu.ng') && !superUsers.includes(email.trim().toLowerCase())) { setError('Only @student.babcock.edu.ng emails allowed'); return; }
     setLoading(true);
     try {
