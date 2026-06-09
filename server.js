@@ -7,7 +7,7 @@ const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
 const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByVerificationCode, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
-const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng'];
+const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 't@gmail.com'];
 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
 if (process.env.SENDGRID_API_KEY) {
