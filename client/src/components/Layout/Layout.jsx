@@ -1,4 +1,5 @@
 import Sidebar from './Sidebar';
+import Topbar from './Topbar';
 import RightRail from './RightRail';
 import Feed from '../Feed/Feed';
 import Chat from '../Chat/Chat';
@@ -12,18 +13,17 @@ import Events from '../Events/Events';
 import Toast from '../Common/Toast';
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ini } from '../../utils/helpers';
 
 export default function Layout() {
-  const { activePage, user } = useApp();
+  const { activePage } = useApp();
   const [showNav, setShowNav] = useState(false);
 
   return (
     <div id="app">
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
+      <Topbar onMenu={() => setShowNav((s) => !s)} />
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
       <main className="main">
-        <div className="tb-mobile-menu" onClick={() => setShowNav((s) => !s)}>{user ? ini(user.name) : '?'}</div>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
         {activePage === 'profile' && <Profile />}

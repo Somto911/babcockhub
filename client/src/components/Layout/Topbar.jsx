@@ -19,7 +19,7 @@ export default function Topbar({ onMenu }) {
 
   return (
     <div className="topbar">
-      <div className="tb-mobile-menu" onClick={onMenu}>☰</div>
+      <div className="tb-menu-av" onClick={onMenu}>{user ? ini(user.name) : '?'}</div>
       <div className="tb-logo" onClick={() => setActivePage('feed')}>
         <div className="tb-icon">
           <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
