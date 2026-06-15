@@ -12,9 +12,10 @@ import Events from '../Events/Events';
 import Toast from '../Common/Toast';
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { ini } from '../../utils/helpers';
 
 export default function Layout() {
-  const { activePage } = useApp();
+  const { activePage, user } = useApp();
   const [showNav, setShowNav] = useState(false);
 
   return (
@@ -22,7 +23,7 @@ export default function Layout() {
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
       <main className={`main${showNav ? ' shifted' : ''}`}>
-        <div className="tb-mobile-menu" onClick={() => setShowNav(true)}>☰</div>
+        <div className="tb-mobile-menu" onClick={() => setShowNav((s) => !s)}>{user ? ini(user.name) : '?'}</div>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
         {activePage === 'profile' && <Profile />}
