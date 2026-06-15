@@ -575,30 +575,31 @@ select.inp{cursor:pointer;-webkit-appearance:none;background-image:url("data:ima
   .main{margin-left:0;margin-right:0;padding:0;max-width:100%;width:100%;border:none}
   .tb-menu-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4f7fff,#34d399);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;cursor:pointer;border:2px solid var(--border2);font-family:var(--head);flex-shrink:0}
   .tb-menu-av:hover{border-color:var(--brand)}
-  .composer{padding:8px}
-  .comp-top{gap:6px}
-  .comp-av{width:28px;height:28px;font-size:11px}
-  .comp-ta{font-size:13px;min-height:32px}
-  .comp-bar{padding-left:34px}
-  .post{padding:8px}
-  .post-hd{gap:6px}
-  .post-av{width:28px;height:28px;font-size:11px}
-  .post-nm{font-size:13px}
-  .post-sub{font-size:11px}
-  .post-body{padding:3px 0 0 0;font-size:13px;line-height:1.5}
-  .post-img-wrap{padding:4px 0 0 0}
-  .post-ft{padding:2px 0 0 0;gap:4px}
-  .pact{font-size:11px;padding:3px 5px}
-  .comments-panel{padding:4px 0 2px 0}
-  .comment-av{width:24px;height:24px;font-size:10px}
-  .comment-text{font-size:12px}
-  .comment-author{font-size:12px}
+  .composer{padding:12px 16px}
+  .comp-top{gap:10px}
+  .comp-av{width:36px;height:36px;font-size:13px}
+  .comp-ta{font-size:15px;min-height:40px}
+  .comp-bar{padding-left:46px}
+  .post{padding:10px 16px;border-bottom:1px solid var(--border)}
+  .post:hover{background:transparent}
+  .post-hd{gap:10px}
+  .post-av{width:36px;height:36px;font-size:13px}
+  .post-nm{font-size:15px}
+  .post-sub{font-size:13px}
+  .post-body{padding:4px 0 0 46px;font-size:15px;line-height:1.5}
+  .post-img-wrap{padding:8px 0 0 46px}
+  .post-ft{padding:6px 0 0 46px;gap:20px}
+  .pact{font-size:13px;padding:4px 6px}
+  .comments-panel{padding:6px 0 4px 46px}
+  .comment-av{width:28px;height:28px;font-size:10px}
+  .comment-text{font-size:13px}
+  .comment-author{font-size:13px}
   .comment-inp{padding:6px 10px;font-size:12px}
   .comment-sub{padding:6px 12px;font-size:12px}
-  .chips{padding:4px 8px;gap:3px}
-  .chip{font-size:11px;padding:3px 10px}
-  .stories{padding:8px;gap:5px}
-  .story{width:56px;height:90px}
+  .chips{padding:6px 16px;gap:6px}
+  .chip{font-size:13px;padding:5px 14px}
+  .stories{padding:10px 16px;gap:8px}
+  .story{width:68px;height:100px}
   .story-label{font-size:10px}
   .prof-card{margin:0}
   .prof-av{width:56px;height:56px;font-size:20px;margin-top:-28px}
