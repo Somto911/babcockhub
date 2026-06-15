@@ -13,8 +13,6 @@
     "cap:open": "npx cap open android"
   },
   "dependencies": {
-    "@capacitor/android": "^8.4.0",
-    "@capacitor/core": "^8.4.0",
     "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.6",
     "express": "^4.22.1",
@@ -24,7 +22,9 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
     "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
     "nodemon": "^2.0.22"
   }
 }
