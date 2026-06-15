@@ -8,9 +8,13 @@
     "dev": "nodemon server.js",
     "client": "cd client && npm run dev",
     "build": "cd client && npm run build",
-    "prod": "npm run build && npm start"
+    "prod": "npm run build && npm start",
+    "cap:sync": "npm run build && npx cap copy android",
+    "cap:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
     "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.6",
     "express": "^4.22.1",
@@ -20,6 +24,7 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.0",
     "nodemon": "^2.0.22"
   }
 }

@@ -1,0 +1,8 @@
+{
+  "appId": "com.babcockhub.busocial",
+  "appName": "BuSocial",
+  "webDir": "client/dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

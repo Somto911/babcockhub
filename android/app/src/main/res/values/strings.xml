@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BuSocial</string>
+    <string name="title_activity_main">BuSocial</string>
+    <string name="package_name">com.babcockhub.busocial</string>
+    <string name="custom_url_scheme">com.babcockhub.busocial</string>
+</resources>
