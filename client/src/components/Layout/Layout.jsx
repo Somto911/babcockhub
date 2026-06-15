@@ -22,7 +22,7 @@ export default function Layout() {
     <div id="app">
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
-      <main className={`main${showNav ? ' shifted' : ''}`}>
+      <main className="main">
         <div className="tb-mobile-menu" onClick={() => setShowNav((s) => !s)}>{user ? ini(user.name) : '?'}</div>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
