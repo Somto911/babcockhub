@@ -1,0 +1,17 @@
+{
+  "name": "BuSocial — Campus Social Network",
+  "short_name": "BuSocial",
+  "description": "Babcock University campus social network",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1a30",
+  "theme_color": "#4f7fff",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
