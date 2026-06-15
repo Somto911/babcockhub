@@ -23,7 +23,7 @@ export default function Layout() {
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
       <div className="sidebar-trigger" onClick={() => setShowNav((s) => !s)}>{user ? ini(user.name) : '?'}</div>
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
-      <main className="main">
+      <main className={`main${showNav ? ' shifted' : ''}`}>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
         {activePage === 'profile' && <Profile />}
