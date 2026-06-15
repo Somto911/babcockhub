@@ -21,7 +21,7 @@ export default function Layout() {
     <div id="app">
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
-      <main className="main">
+      <main className={`main${showNav ? ' shifted' : ''}`}>
         <div className="tb-mobile-menu" onClick={() => setShowNav(true)}>☰</div>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
