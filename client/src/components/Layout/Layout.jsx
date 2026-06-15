@@ -12,17 +12,18 @@ import Events from '../Events/Events';
 import Toast from '../Common/Toast';
 import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { ini } from '../../utils/helpers';
 
 export default function Layout() {
-  const { activePage } = useApp();
+  const { activePage, user } = useApp();
   const [showNav, setShowNav] = useState(false);
 
   return (
     <div id="app">
       <div className={`nav-backdrop${showNav ? ' show' : ''}`} onClick={() => setShowNav(false)} />
+      <div className="sidebar-trigger" onClick={() => setShowNav((s) => !s)}>{user ? ini(user.name) : '?'}</div>
       <Sidebar showNav={showNav} onClose={() => setShowNav(false)} />
       <main className="main">
-        <div className="tb-mobile-menu" onClick={() => setShowNav(true)}>☰</div>
         {activePage === 'feed' && <Feed />}
         {activePage === 'chat' && <Chat />}
         {activePage === 'profile' && <Profile />}
