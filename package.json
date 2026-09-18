@@ -13,7 +13,6 @@
     "cap:open": "npx cap open android"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.6",
     "cors": "^2.8.6",
     "express": "^4.22.1",
     "nodemailer": "^8.0.7",

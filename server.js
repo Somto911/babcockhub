@@ -4,65 +4,58 @@ const path = require('path');
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
-const sgMail = require('@sendgrid/mail');
-const sgClient = require('@sendgrid/client');
+// Email via Resend REST API (no extra dependency; Node 18+ global fetch)
+const RESEND_API = 'https://api.resend.com';
 const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByVerificationCode, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 't@gmail.com'];
-
-// Email transporter (SendGrid API via HTTPS - always works on Render)
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  sgClient.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('[EMAIL] SendGrid configured');
-}
-
 const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 app.use(cors());
 
-// Check whether the configured FROM_EMAIL is verified as a SendGrid sender
-async function checkSenderVerified() {
-  const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
-  if (!process.env.SENDGRID_API_KEY) return { configured: false, verified: false, reason: 'SENDGRID_API_KEY not set' };
+// Check whether Resend is properly configured
+async function checkEmailConfig() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { configured: false, verified: false, reason: 'RESEND_API_KEY not set' };
   try {
-    const [res] = await sgClient.request({ method: 'GET', url: '/v3/verified_senders' });
-    const verified = (res.body?.results || [])
-      .map((s) => String(s.verified_email || s.email || '').toLowerCase())
-      .filter((e) => e);
-    return { configured: true, verified: verified.includes(fromEmail.trim().toLowerCase()), reason: 'FROM_EMAIL must be verified as a single sender in SendGrid', verifiedSenders: verified };
+    const r = await fetch(`${RESEND_API}/domains`, { headers: { Authorization: `Bearer ${apiKey}` } });
+    if (!r.ok) return { configured: true, verified: false, reason: `Resend rejected API key (HTTP ${r.status}) — check RESEND_API_KEY` };
+    const data = await r.json();
+    const verifiedDomains = (data.data || []).filter((d) => d.status === 'verified');
+    return { configured: true, verified: verifiedDomains.length > 0, reason: 'FROM_EMAIL should use a verified domain, else use the sandbox sender onboarding@resend.dev', verifiedDomains: verifiedDomains.map((d) => d.name) };
   } catch (err) {
-    return { configured: true, verified: false, reason: 'SendGrid API check failed: ' + (err.message || err) };
+    return { configured: true, verified: false, reason: 'Resend API check failed: ' + (err.message || err) };
   }
 }
 
 // Log email status once at boot so the issue is visible in Render logs
-checkSenderVerified().then((status) => {
-  if (status.configured && status.verified) console.log('[EMAIL] ✓ Sender verified:', process.env.FROM_EMAIL || 'noreply@babcockhub.com');
-  else if (status.configured) console.log('[EMAIL] ✗ Sender NOT verified — emails will be rejected. ' + status.reason);
-  else console.log('[EMAIL] ✗ ' + status.reason);
+checkEmailConfig().then((status) => {
+  if (status.configured && status.verified) console.log('[EMAIL] ✓ Resend configured, verified domains:', (status.verifiedDomains || []).join(', '));
+  else if (status.configured) console.log('[EMAIL] ⚠ ' + status.reason + ' — verification codes shown in-app for now');
+  else console.log('[EMAIL] ⚠ ' + status.reason + ' — verification codes shown in-app');
 });
 
 app.get('/api/email-status', async (req, res) => {
-  const status = await checkSenderVerified();
-  res.json({ fromEmail: process.env.FROM_EMAIL || 'noreply@babcockhub.com', ...status });
+  const status = await checkEmailConfig();
+  res.json({ fromEmail: process.env.FROM_EMAIL || 'onboarding@resend.dev', ...status });
 });
 
 const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
 });
 
-function sendVerificationEmail(email, name, code) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.log('[EMAIL] SENDGRID_API_KEY not set. Verification code:', code);
-    return Promise.reject(new Error('SendGrid not configured'));
+async function sendVerificationEmail(email, name, code) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log('[EMAIL] RESEND_API_KEY not set. Verification code:', code);
+    throw new Error('Resend not configured');
   }
   const link = `${BASE_URL}/api/verify?token=${code}`;
-  const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
+  const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
   const msg = {
-    from: `"BuSocial" <${fromEmail}>`,
-    to: email,
+    from: `BuSocial <${fromEmail}>`,
+    to: [email],
     subject: 'Your BuSocial verification code',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0f1629;color:#d4dae8;border-radius:12px;padding:32px">
@@ -82,7 +75,19 @@ function sendVerificationEmail(email, name, code) {
       </div>
     `,
   };
-  return sgMail.send(msg);
+  const r = await fetch(`${RESEND_API}/emails`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(msg),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const err = new Error(data.message || `Resend error ${r.status}`);
+    err.status = r.status;
+    err.details = data;
+    throw err;
+  }
+  return data;
 }
 
 app.use(express.json());
@@ -204,24 +209,20 @@ app.post('/api/register', (req, res) => {
           return;
         }
 
-        if (process.env.SENDGRID_API_KEY) {
+        if (process.env.RESEND_API_KEY) {
           // Real email delivery (best-effort; never blocks signup on email failure)
           sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
             console.log('[REGISTER] ✓ Verification email sent to:', normalized);
           }).catch((emailErr) => {
-            if (emailErr.response && emailErr.response.body) {
-              console.log('[REGISTER] ✗ SendGrid error:', JSON.stringify(emailErr.response.body.errors));
-            } else {
-              console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
-            }
-            console.log('[REGISTER]   To fix: set SENDGRID_API_KEY + FROM_EMAIL (verified sender) env vars on Render');
+            console.log('[REGISTER] ✗ Resend error:', emailErr.message);
+            console.log('[REGISTER]   To fix: verify a domain in Resend, or set RESEND_API_KEY + FROM_EMAIL env vars on Render');
           });
           console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
           return res.status(201).json({ message: 'Account created! Check your email for the verification code.', needsVerification: true });
         }
 
         // Dev mode: no email configured, surface the code in-app so signup works
-        console.log('[REGISTER] SENDGRID_API_KEY not set — dev mode, showing code in-app. Code for', normalized, ':', newUser.verificationToken);
+        console.log('[REGISTER] RESEND_API_KEY not set — dev mode, showing code in-app. Code for', normalized, ':', newUser.verificationToken);
         return res.status(201).json({ message: 'Account created! Email is off — use the code below to verify.', needsVerification: true, devCode: newUser.verificationToken, devMode: true });
       });
     });
@@ -273,7 +274,7 @@ app.post('/api/resend-verification', (req, res) => {
     if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
     const code = user.verificationToken;
     if (!code) return res.status(500).json({ message: 'No verification code found. Re-register.' });
-    if (!process.env.SENDGRID_API_KEY) {
+    if (!process.env.RESEND_API_KEY) {
       console.log('[RESEND] Dev mode, showing code in-app for:', normalized, ':', code);
       return res.json({ message: 'Verification code resent! Use the code below.', devCode: code, devMode: true });
     }
