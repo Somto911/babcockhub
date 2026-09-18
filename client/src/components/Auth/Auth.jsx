@@ -10,6 +10,7 @@ export default function Auth() {
   const [gender, setGender] = useState('');
   const [error, setError] = useState('');
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [devCode, setDevCode] = useState('');
   const [resending, setResending] = useState(false);
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -73,7 +74,8 @@ export default function Auth() {
         showToast('Welcome!');
       } else {
         setRegisteredEmail(email);
-        showToast('Check your email for the verification code!');
+        setDevCode(result.devCode || devCode);
+        showToast(result.devMode ? 'Email is off on this server — use the code shown below.' : 'Check your email for the verification code!');
       }
     } catch (err) {
       setError(err.message);
@@ -87,7 +89,8 @@ export default function Auth() {
     setResending(true);
     try {
       const res = await api('/api/resend-verification', { method: 'POST', body: JSON.stringify({ email: registeredEmail }) });
-      showToast(res.message);
+      if (res.devCode) setDevCode(res.devCode);
+      showToast(res.devMode ? 'Code resent — use the code shown below.' : res.message);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,6 +107,7 @@ export default function Auth() {
       showToast(res.message);
       setRegisteredEmail('');
       setCode('');
+      setDevCode('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -144,8 +148,14 @@ export default function Auth() {
             <button className="btn-main" onClick={handleResend} disabled={resending} style={{ marginTop: 8, background: 'transparent', border: '1px solid rgba(100,130,200,.2)' }}>
               <span className="btn-text" style={{ color: '#7d88a8' }}>{resending ? 'Sending...' : 'Resend Verification Code'}</span>
             </button>
-            <div className="verify-back" onClick={() => { setRegisteredEmail(''); setCode(''); setError(''); }}>Back to Sign In</div>
-            {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
+<div className="verify-back" onClick={() => { setRegisteredEmail(''); setCode(''); setDevCode(''); setError(''); }}>Back to Sign In</div>
+              {devCode && (
+                <div className="verify-devcode">
+                  <div className="verify-devcode-lbl">Email isn't configured on this server, so here's your code:</div>
+                  <div className="verify-devcode-num">{devCode}</div>
+                </div>
+              )}
+              {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
           </div>
         ) : (<><div className="tab-row">
           <div className={`tab${tab === 'login' ? ' on' : ''}`} onClick={() => setTab('login')}>

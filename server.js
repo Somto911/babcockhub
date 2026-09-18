@@ -175,19 +175,25 @@ app.post('/api/register', (req, res) => {
           return;
         }
 
-        // Send verification email (don't block on failure)
-        sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
-          console.log('[REGISTER] ✓ Verification email sent to:', normalized);
-        }).catch((emailErr) => {
-          if (emailErr.response && emailErr.response.body) {
-            console.log('[REGISTER] ✗ SendGrid error:', JSON.stringify(emailErr.response.body.errors));
-          } else {
-            console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
-          }
-          console.log('[REGISTER]   To fix: add SENDGRID_API_KEY env var on Render');
-        });
-        console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
-        return res.status(201).json({ message: 'Account created! Check your email for the verification code.', needsVerification: true });
+        if (process.env.SENDGRID_API_KEY) {
+          // Real email delivery (best-effort; never blocks signup on email failure)
+          sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
+            console.log('[REGISTER] ✓ Verification email sent to:', normalized);
+          }).catch((emailErr) => {
+            if (emailErr.response && emailErr.response.body) {
+              console.log('[REGISTER] ✗ SendGrid error:', JSON.stringify(emailErr.response.body.errors));
+            } else {
+              console.log('[REGISTER] ✗ Email send failed:', emailErr.message);
+            }
+            console.log('[REGISTER]   To fix: set SENDGRID_API_KEY + FROM_EMAIL (verified sender) env vars on Render');
+          });
+          console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
+          return res.status(201).json({ message: 'Account created! Check your email for the verification code.', needsVerification: true });
+        }
+
+        // Dev mode: no email configured, surface the code in-app so signup works
+        console.log('[REGISTER] SENDGRID_API_KEY not set — dev mode, showing code in-app. Code for', normalized, ':', newUser.verificationToken);
+        return res.status(201).json({ message: 'Account created! Email is off — use the code below to verify.', needsVerification: true, devCode: newUser.verificationToken, devMode: true });
       });
     });
   } catch (error) {
@@ -238,6 +244,10 @@ app.post('/api/resend-verification', (req, res) => {
     if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
     const code = user.verificationToken;
     if (!code) return res.status(500).json({ message: 'No verification code found. Re-register.' });
+    if (!process.env.SENDGRID_API_KEY) {
+      console.log('[RESEND] Dev mode, showing code in-app for:', normalized, ':', code);
+      return res.json({ message: 'Verification code resent! Use the code below.', devCode: code, devMode: true });
+    }
     sendVerificationEmail(normalized, user.name, code).then(() => {
       console.log('[RESEND] ✓ Verification email sent to:', normalized);
       res.json({ message: 'Verification code resent!' });
