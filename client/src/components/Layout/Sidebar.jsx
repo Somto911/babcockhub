@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ini } from '../../utils/helpers';
+import Icon from '../Common/Icon';
 
 export default function Sidebar({ showNav, onClose }) {
   const { user, setActivePage, activePage, logout, showToast, theme, toggleTheme, activeUsers, notifications, markNotifRead, markAllNotifRead } = useApp();
@@ -18,14 +19,14 @@ export default function Sidebar({ showNav, onClose }) {
   const go = (page) => { setActivePage(page); setNotifOpen(false); onClose && onClose(); };
 
   const items = [
-    { id: 'feed', label: 'Home', icon: '🏠' },
-    { id: 'groups', label: 'Groups', icon: '👥' },
-    { id: 'events', label: 'Events', icon: '📅' },
-    { id: 'chat', label: 'Messages', icon: '💬' },
-    { id: 'profile', label: 'Profile', icon: '👤' },
-    { id: 'conf', label: 'Anonymous', icon: 'A' },
-    { id: 'memes', label: 'Memes', icon: '😂' },
-    { id: 'polls', label: 'Polls', icon: '📊' },
+    { id: 'feed', label: 'Home', icon: 'home' },
+    { id: 'groups', label: 'Groups', icon: 'groups' },
+    { id: 'events', label: 'Events', icon: 'calendar' },
+    { id: 'chat', label: 'Messages', icon: 'message' },
+    { id: 'profile', label: 'Profile', icon: 'user' },
+    { id: 'conf', label: 'Anonymous', icon: 'ghost' },
+    { id: 'memes', label: 'Memes', icon: 'smile' },
+    { id: 'polls', label: 'Polls', icon: 'chart' },
   ];
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -52,13 +53,15 @@ export default function Sidebar({ showNav, onClose }) {
             className={`nav${activePage === i.id ? ' on' : ''}`}
             onClick={() => go(i.id)}
           >
-            <span className="nav-ico">{i.icon}</span>
+            <span className="nav-ico">
+              <Icon name={i.icon} />
+            </span>
             <span className="nav-text">{i.label}</span>
           </div>
         ))}
 
         <div className="nav" ref={notifRef} onClick={() => setNotifOpen(!notifOpen)} style={{ position: 'relative' }}>
-          <span className="nav-ico">🔔</span>
+          <span className="nav-ico"><Icon name="bell" /></span>
           <span className="nav-text">Notifications</span>
           {unreadCount > 0 && <span className="nbadge">{unreadCount}</span>}
           {notifOpen && (
@@ -86,7 +89,7 @@ export default function Sidebar({ showNav, onClose }) {
 
         {user?.email === 'admin.babcock.edu.ng' && (
           <div className={`nav${activePage === 'admin' ? ' on' : ''}`} onClick={() => go('admin')}>
-            <span className="nav-ico">🛡️</span>
+            <span className="nav-ico"><Icon name="shield" /></span>
             <span className="nav-text">Admin</span>
           </div>
         )}
@@ -98,11 +101,11 @@ export default function Sidebar({ showNav, onClose }) {
 
         <div className="sidebar-bottom">
           <div className="nav" onClick={toggleTheme}>
-            <span className="nav-ico">{theme === 'dark' ? '☀️' : '🌙'}</span>
+            <span className="nav-ico"><Icon name={theme === 'dark' ? 'sun' : 'moon'} /></span>
             <span className="nav-text">{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
           </div>
           <div className="nav" onClick={logout}>
-            <span className="nav-ico">🚪</span>
+            <span className="nav-ico"><Icon name="logout" /></span>
             <span className="nav-text">Sign out</span>
           </div>
         </div>

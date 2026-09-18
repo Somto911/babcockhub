@@ -3,7 +3,7 @@ import Post from '../Feed/Post';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Groups() {
-  const { groups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, repostPost, showToast, addComment, deleteComment, user, toggleGroupJoin } = useApp();
+  const { groups, posts, activeGroup, setActiveGroup, setActivePage, setProfileTarget, likePost, reactToPost, repostPost, showToast, addComment, deleteComment, user, toggleGroupJoin } = useApp();
 
   const userDept = user?.dept?.split(' ')[0] || '';
   const visibleGroups = groups.filter((g) => !g.depts || g.depts.some((d) => userDept.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(userDept.toLowerCase())));
@@ -43,7 +43,7 @@ export default function Groups() {
         <div className="grp-feed-desc">{activeGroup.desc}</div>
         {groupPosts.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No posts in this group yet</div>}
         {groupPosts.map((p) => (
-          <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
+          <Post key={p.id} post={p} onLike={likePost} onReact={reactToPost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
         ))}
       </div>
     );

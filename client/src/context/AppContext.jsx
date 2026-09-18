@@ -255,12 +255,36 @@ export function AppProvider({ children }) {
     setPosts((prev) => prev.map((p) => {
       if (p.id !== id) return p;
       const curLikes = Array.isArray(p.likes) ? p.likes : [];
-      return { ...p, liked: !p.liked, likes: p.liked ? curLikes.filter((u) => u !== user?.id) : [...curLikes, user?.id] };
+      const willLike = !p.liked;
+      return {
+        ...p,
+        liked: willLike,
+        likes: willLike ? (curLikes.includes(user?.id) ? curLikes : [...curLikes, user?.id]) : curLikes.filter((u) => u !== user?.id),
+        myReaction: willLike ? (p.myReaction || undefined) : undefined,
+      };
     }));
     api('/api/posts/' + id + '/like', {
       method: 'POST',
       body: JSON.stringify({ userId: user?.id || 0 }),
     }).catch(() => {});
+  }, [user?.id]);
+
+  const reactToPost = useCallback((id, emoji) => {
+    setPosts((prev) => prev.map((p) => {
+      if (p.id !== id) return p;
+      const curLikes = Array.isArray(p.likes) ? p.likes : [];
+      if (p.myReaction === emoji) {
+        return { ...p, liked: false, likes: curLikes.filter((u) => u !== user?.id), myReaction: undefined };
+      }
+      const hasLiked = curLikes.includes(user?.id);
+      if (!hasLiked) {
+        api('/api/posts/' + id + '/like', {
+          method: 'POST',
+          body: JSON.stringify({ userId: user?.id || 0 }),
+        }).catch(() => {});
+      }
+      return { ...p, liked: true, likes: hasLiked ? curLikes : [...curLikes, user?.id], myReaction: emoji };
+    }));
   }, [user?.id]);
 
   const repostPost = useCallback((id) => {
@@ -553,7 +577,7 @@ export function AppProvider({ children }) {
   const value = {
     user, setUser, toast, showToast, updateProfile, theme, toggleTheme,
     activePage, setActivePage, profileTarget, setProfileTarget,
-    posts, setPosts, likePost, repostPost, submitPost,
+    posts, setPosts, likePost, reactToPost, repostPost, submitPost,
     groups, events, activeGroup, setActiveGroup,
     confs, memes, polls,
     stories, viewStory, submitStory,

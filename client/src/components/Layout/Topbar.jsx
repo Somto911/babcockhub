@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ini } from '../../utils/helpers';
+import Icon from '../Common/Icon';
 
 export default function Topbar({ onMenu }) {
   const { user, setActivePage, showToast, notifications, markNotifRead, markAllNotifRead } = useApp();
@@ -36,9 +37,9 @@ export default function Topbar({ onMenu }) {
         <span className="tb-name">BuSocial</span>
       </div>
       <div className="tb-right">
-        <div className="tb-btn" onClick={() => setActivePage('chat')} title="Messages">💬</div>
+        <div className="tb-btn" onClick={() => setActivePage('chat')} title="Messages"><Icon name="message" /></div>
         <div className="tb-btn notif-btn" ref={notifRef} onClick={() => setNotifOpen(!notifOpen)} title="Notifications">
-          🔔{unreadCount > 0 && <div className="notif-dot" />}
+          <Icon name="bell" />{unreadCount > 0 && <div className="notif-dot" />}
         </div>
         {notifOpen && (
           <div className="tb-notif-dropdown">

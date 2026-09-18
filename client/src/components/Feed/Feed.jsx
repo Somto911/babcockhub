@@ -5,7 +5,7 @@ import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, setSearchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, reactToPost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, setSearchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory, activeUsers } = useApp();
   const [text, setText] = useState('');
   const [cat, setCat] = useState('academics');
   const [filter, setFilter] = useState('all');
@@ -38,6 +38,7 @@ export default function Feed() {
 
   const hour = new Date().getHours();
   const greet = hour < 12 ? `Good morning, ${user?.name?.split(' ')[0] || ''}` : hour < 17 ? `Good afternoon, ${user?.name?.split(' ')[0] || ''}` : `Good evening, ${user?.name?.split(' ')[0] || ''}`;
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   const handleSubmit = () => {
     if (!text.trim()) return showToast('Write something!');
@@ -83,6 +84,17 @@ export default function Feed() {
           </div>
         </div>
       )}
+      <div className="greeting-bar">
+        <div className="greet-inner">
+          <div className="greet-icon">{hour < 12 ? '🌅' : hour < 17 ? '☀️' : '🌙'}</div>
+          <div className="greet-txt">
+            <div className="greet-title">{greet} 👋</div>
+            <div className="greet-sub">{today} · {activeUsers} students online right now</div>
+          </div>
+        </div>
+        <div className="greet-bg-img" />
+      </div>
+
       <div className="stories">
         <div className="story" onClick={() => setShowStoryForm(true)}>
           <div className="story-add">
@@ -132,7 +144,7 @@ export default function Feed() {
       <div id="feed-posts">
         {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>No posts found</div>}
         {filtered.map((p) => (
-          <Post key={p.id} post={p} onLike={likePost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
+          <Post key={p.id} post={p} onLike={likePost} onReact={reactToPost} onRepost={repostPost} onProfile={(name) => { setProfileTarget(name); setActivePage('profile'); }} showToast={showToast} addComment={addComment} deleteComment={deleteComment} currentUser={user} />
         ))}
         {loadingPosts && <div className="feed-loader"><div className="spinner" /></div>}
         {hasMorePosts && !loadingPosts && <div ref={sentinelRef} className="feed-sentinel" />}

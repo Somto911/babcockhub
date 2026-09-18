@@ -1,18 +1,28 @@
 import { useMemo } from 'react';
 import { useCountdown } from '../../hooks/useCountdown';
 
+function nextTarget() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun ... 5=Fri
+  let daysAhead = (5 - day + 7) % 7;
+  if (daysAhead === 0 && now.getHours() >= 18) daysAhead = 7;
+  const t = new Date(now);
+  t.setDate(now.getDate() + daysAhead);
+  t.setHours(18, 0, 0, 0);
+  return t;
+}
+
 export default function Countdown() {
-  const target = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 49);
-    return d;
-  }, []);
+  const target = useMemo(() => nextTarget(), []);
   const { d, h, m, s } = useCountdown(target);
+  const today = target.toDateString() === new Date().toDateString();
 
   return (
-    <div className="widget">
-      <div className="w-title">Post Siwes Countdown</div>
-      <div style={{ fontSize: '11px', color: 'var(--text2)', textAlign: 'center', marginBottom: '8px' }}>Back to hell</div>
+    <div className="widget cd-widget">
+      <div className="w-title">✨ Friday Vespers</div>
+      <div style={{ fontSize: '11.5px', color: 'var(--text2)', textAlign: 'center', marginBottom: '8px' }}>
+        {today ? 'Sabbath is today — church at the Adventist Chapel!' : 'Sabbath worship · Adventist Chapel'}
+      </div>
       <div className="cd-grid">
         {[['DAYS', d], ['HRS', h], ['MIN', m], ['SEC', s]].map(([l, n]) => (
           <div className="cd-box" key={l}>
@@ -21,7 +31,9 @@ export default function Countdown() {
           </div>
         ))}
       </div>
-      <div style={{ fontSize: '11px', color: 'var(--text2)', textAlign: 'center', marginTop: '6px' }}>You are doomed</div>
+      <div style={{ fontSize: '11px', color: 'var(--brand)', textAlign: 'center', marginTop: '6px', fontWeight: 600 }}>
+        See you there 🙏
+      </div>
     </div>
   );
 }

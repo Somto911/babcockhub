@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ini, grad } from '../../utils/helpers';
 
-export default function Post({ post, onLike, onRepost, onProfile, showToast, addComment, deleteComment, currentUser }) {
+const REACTIONS = ['❤️', '😂', '😮', '😢', '🔥', '👏'];
+
+export default function Post({ post, onLike, onReact, onRepost, onProfile, showToast, addComment, deleteComment, currentUser }) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const cats = { general: '', academics: 'academics', hostel: 'hostel', gist: 'gist', events: 'events', confession: 'confession', meme: 'meme', sports: 'sports' };
@@ -17,6 +19,8 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
   const handleDeleteComment = (commentId) => {
     deleteComment(post.id, commentId);
   };
+
+  const likeCount = Array.isArray(post.likes) ? post.likes.length : post.likes;
 
   return (
     <div className="post" id={`post-${post.id}`}>
@@ -40,8 +44,17 @@ export default function Post({ post, onLike, onRepost, onProfile, showToast, add
         </div>
       )}
       <div className="post-ft">
-        <div className={`pact${post.liked ? ' liked' : ''}`} onClick={() => onLike(post.id)}>
-          {post.liked ? '♥' : '♡'}<span>{Array.isArray(post.likes) ? post.likes.length : post.likes}</span>
+        <div className="react-wrap">
+          <div className={`pact${post.liked ? ' liked' : ''}${post.myReaction ? ' reacted' : ''}`} onClick={() => onLike(post.id)}>
+            {post.myReaction || (post.liked ? '♥' : '♡')}<span>{likeCount}</span>
+          </div>
+          <div className="react-bar">
+            {REACTIONS.map((r) => (
+              <div key={r} className={`react-opt${post.myReaction === r ? ' on' : ''}`} onClick={() => onReact(post.id, r)}>
+                {r}
+              </div>
+            ))}
+          </div>
         </div>
         <div className="pact" onClick={() => setShowComments(!showComments)}>
           💬<span>{commentCount}</span>
