@@ -5,6 +5,7 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 const { Server } = require('socket.io');
 const sgMail = require('@sendgrid/mail');
+const sgClient = require('@sendgrid/client');
 const { db, initDatabase, getUser, findUserByEmail, findUserByToken, findUserByVerificationCode, findUserByName, verifyUser, createUser, getChats, addMessage, getPosts, createPost, toggleLike, getActivePostCount, getComments, addComment, deleteComment, sanitizeUser, toggleFollow, getFollowCounts, isFollowing, getMutualFollowers, createChat, addChatParticipant, findDmChat, getStories, createStory, getGroups, createGroup, toggleGroupJoin, getEvents, createEvent, toggleEventAttend, getConfessions, createConfession, toggleConfessionLike, getMemes, createMeme, toggleMemeLike, getPolls, createPoll, votePoll, getNotifications, createNotification, markNotifRead, markAllNotifRead } = require('./database');
 const BASE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 't@gmail.com'];
@@ -12,6 +13,7 @@ const SUPER_USERS = ['ndubuizusomto@gmail.com', 'somto@student.babcock.edu.ng', 
 // Email transporter (SendGrid API via HTTPS - always works on Render)
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  sgClient.setApiKey(process.env.SENDGRID_API_KEY);
   console.log('[EMAIL] SendGrid configured');
 }
 
@@ -19,6 +21,33 @@ const app = express();
 const server = http.createServer(app);
 const cors = require('cors');
 app.use(cors());
+
+// Check whether the configured FROM_EMAIL is verified as a SendGrid sender
+async function checkSenderVerified() {
+  const fromEmail = process.env.FROM_EMAIL || 'noreply@babcockhub.com';
+  if (!process.env.SENDGRID_API_KEY) return { configured: false, verified: false, reason: 'SENDGRID_API_KEY not set' };
+  try {
+    const [res] = await sgClient.request({ method: 'GET', url: '/v3/verified_senders' });
+    const verified = (res.body?.results || [])
+      .map((s) => String(s.verified_email || s.email || '').toLowerCase())
+      .filter((e) => e);
+    return { configured: true, verified: verified.includes(fromEmail.trim().toLowerCase()), reason: 'FROM_EMAIL must be verified as a single sender in SendGrid', verifiedSenders: verified };
+  } catch (err) {
+    return { configured: true, verified: false, reason: 'SendGrid API check failed: ' + (err.message || err) };
+  }
+}
+
+// Log email status once at boot so the issue is visible in Render logs
+checkSenderVerified().then((status) => {
+  if (status.configured && status.verified) console.log('[EMAIL] ✓ Sender verified:', process.env.FROM_EMAIL || 'noreply@babcockhub.com');
+  else if (status.configured) console.log('[EMAIL] ✗ Sender NOT verified — emails will be rejected. ' + status.reason);
+  else console.log('[EMAIL] ✗ ' + status.reason);
+});
+
+app.get('/api/email-status', async (req, res) => {
+  const status = await checkSenderVerified();
+  res.json({ fromEmail: process.env.FROM_EMAIL || 'noreply@babcockhub.com', ...status });
+});
 
 const io = new Server(server, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true },
