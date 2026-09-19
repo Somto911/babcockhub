@@ -209,21 +209,23 @@ app.post('/api/register', (req, res) => {
           return;
         }
 
+        // Always surface the code in-app so signup never dead-ends.
+        // Email is attempted as a bonus when Resend is configured.
         if (process.env.RESEND_API_KEY) {
-          // Real email delivery (best-effort; never blocks signup on email failure)
           sendVerificationEmail(normalized, newUser.name, newUser.verificationToken).then(() => {
             console.log('[REGISTER] ✓ Verification email sent to:', normalized);
           }).catch((emailErr) => {
             console.log('[REGISTER] ✗ Resend error:', emailErr.message);
-            console.log('[REGISTER]   To fix: verify a domain in Resend, or set RESEND_API_KEY + FROM_EMAIL env vars on Render');
+            console.log('[REGISTER]   In-app code still works');
           });
-          console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
-          return res.status(201).json({ message: 'Account created! Check your email for the verification code.', needsVerification: true });
         }
-
-        // Dev mode: no email configured, surface the code in-app so signup works
-        console.log('[REGISTER] RESEND_API_KEY not set — dev mode, showing code in-app. Code for', normalized, ':', newUser.verificationToken);
-        return res.status(201).json({ message: 'Account created! Email is off — use the code below to verify.', needsVerification: true, devCode: newUser.verificationToken, devMode: true });
+        console.log('[VERIFY] Code for', normalized, ':', newUser.verificationToken);
+        return res.status(201).json({
+          message: 'Account created! Check your email — or use the code below to verify.',
+          needsVerification: true,
+          devCode: newUser.verificationToken,
+          devMode: true,
+        });
       });
     });
   } catch (error) {
@@ -274,18 +276,17 @@ app.post('/api/resend-verification', (req, res) => {
     if (user.verified) return res.status(400).json({ message: 'This email is already verified.' });
     const code = user.verificationToken;
     if (!code) return res.status(500).json({ message: 'No verification code found. Re-register.' });
-    if (!process.env.RESEND_API_KEY) {
-      console.log('[RESEND] Dev mode, showing code in-app for:', normalized, ':', code);
-      return res.json({ message: 'Verification code resent! Use the code below.', devCode: code, devMode: true });
+    // Always return the code in-app; email is a bonus when Resend is configured.
+    if (process.env.RESEND_API_KEY) {
+      sendVerificationEmail(normalized, user.name, code).then(() => {
+        console.log('[RESEND] ✓ Verification email sent to:', normalized);
+      }).catch((emailErr) => {
+        console.log('[RESEND] ✗ Email send failed:', emailErr.message);
+        console.log('[RESEND]   Code for', normalized, ':', code);
+      });
     }
-    sendVerificationEmail(normalized, user.name, code).then(() => {
-      console.log('[RESEND] ✓ Verification email sent to:', normalized);
-      res.json({ message: 'Verification code resent!' });
-    }).catch((emailErr) => {
-      console.log('[RESEND] ✗ Email send failed:', emailErr.message);
-      console.log('[RESEND]   Code for', normalized, ':', code);
-      res.json({ message: 'Verification code resent! Check your inbox.' });
-    });
+    console.log('[RESEND] Code for', normalized, ':', code);
+    return res.json({ message: 'Verification code resent! Use the code below.', devCode: code, devMode: true });
   });
 });
 
