@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ini, grad } from '../../utils/helpers';
+import Icon from '../Common/Icon';
 
 const REACTIONS = ['❤️', '😂', '😮', '😢', '🔥', '👏'];
 
@@ -29,10 +30,11 @@ export default function Post({ post, onLike, onReact, onRepost, onProfile, showT
           {ini(post.author)}
         </div>
         <div className="post-meta">
-          <span className="post-nm" onClick={() => onProfile(post.author)}>{post.author}</span>
-          <span className="post-sub">
-            <span>{post.dept}</span> · <span>{post.t}</span>
+          <span className="post-nm" onClick={() => onProfile(post.author)}>
+            {post.author}
+            {post.verified && <span className="post-check" title="Verified">✓</span>}
           </span>
+          <span className="post-sub">@{post.author.replace(/\s+/g, '').toLowerCase()} · {post.t}</span>
           {post.cat && post.cat !== 'general' && <span className={`cat-tag ${cats[post.cat] || ''}`}>{post.cat}</span>}
         </div>
         <div className="more-btn" onClick={() => showToast('Report/block options')}>···</div>
@@ -44,9 +46,15 @@ export default function Post({ post, onLike, onReact, onRepost, onProfile, showT
         </div>
       )}
       <div className="post-ft">
+        <div className="pact" onClick={() => setShowComments(!showComments)}>
+          <Icon name="message" size={17} /><span>{commentCount}</span>
+        </div>
+        <div className={`pact${post.reposted ? ' reposted' : ''}`} onClick={() => onRepost(post.id)}>
+          <Icon name="repost" size={16} /><span>{post.reposts}</span>
+        </div>
         <div className="react-wrap">
           <div className={`pact${post.liked ? ' liked' : ''}${post.myReaction ? ' reacted' : ''}`} onClick={() => onLike(post.id)}>
-            {post.myReaction || (post.liked ? '♥' : '♡')}<span>{likeCount}</span>
+            {post.myReaction ? <span className="react-emoji">{post.myReaction}</span> : <Icon name={post.liked ? 'heartFilled' : 'heart'} size={17} />}<span>{likeCount}</span>
           </div>
           <div className="react-bar">
             {REACTIONS.map((r) => (
@@ -56,13 +64,7 @@ export default function Post({ post, onLike, onReact, onRepost, onProfile, showT
             ))}
           </div>
         </div>
-        <div className="pact" onClick={() => setShowComments(!showComments)}>
-          💬<span>{commentCount}</span>
-        </div>
-        <div className={`pact${post.reposted ? ' reposted' : ''}`} onClick={() => onRepost(post.id)}>
-          🔄<span>{post.reposts}</span>
-        </div>
-        <div className="pact" onClick={() => showToast('Link copied!')}>🔗</div>
+        <div className="pact" onClick={() => showToast('Link copied!')}><Icon name="share" size={16} /></div>
       </div>
       {showComments && (
         <div className="comments-panel">
