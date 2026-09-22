@@ -644,6 +644,7 @@ function getPosts(page = 1, limit = 10, callback) {
               cat: post.cat,
               txt: post.txt,
               imageUrl: post.imageUrl || '',
+              userId: post.userId,
               likes: likes ? likes.map((l) => l.userId) : [],
               liked: false,
               reposts: 0,
@@ -669,7 +670,7 @@ function createPost(author, dept, cat, txt, imageUrl, userId, callback) {
       if (err) { callback(err, null); return; }
       callback(null, {
         id: this.lastID, author, dept, cat, txt, imageUrl: imageUrl || '', userId,
-        likes: [], liked: false, reposts: 0, reposted: false, repostedBy: [], comments: [], t: 'Just now',
+        likes: [], liked: false, reposts: 0, reposted: false, repostedBy: [], comments: [], t: 'now',
       });
     }
   );
@@ -698,14 +699,15 @@ function getActivePostCount(callback) {
 }
 
 function formatTimeAgo(dateStr) {
-  if (!dateStr) return 'Just now';
+  if (!dateStr) return 'now';
   const now = new Date();
   const date = new Date(dateStr);
   const diff = Math.floor((now - date) / 1000);
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 10) return 'now';
+  if (diff < 60) return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+  return `${Math.floor(diff / 86400)}d`;
 }
 
 function getComments(callback) {

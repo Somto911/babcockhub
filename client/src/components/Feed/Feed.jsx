@@ -5,10 +5,11 @@ import StoryViewer from '../Common/StoryViewer';
 import { ini, grad } from '../../utils/helpers';
 
 export default function Feed() {
-  const { user, posts, stories, setActivePage, setProfileTarget, likePost, reactToPost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, setSearchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory, activeUsers } = useApp();
+  const { user, posts, stories, setActivePage, setProfileTarget, likePost, reactToPost, repostPost, submitPost, viewStory, showToast, addComment, deleteComment, searchQuery, setSearchQuery, hasMorePosts, loadingPosts, loadMorePosts, loadInitialPosts, submitStory, activeUsers, followingMap } = useApp();
   const [text, setText] = useState('');
   const [cat, setCat] = useState('academics');
   const [filter, setFilter] = useState('all');
+  const [feedTab, setFeedTab] = useState('foryou');
   const [storyIdx, setStoryIdx] = useState(null);
   const [viewerStories, setViewerStories] = useState([]);
   const [showStoryForm, setShowStoryForm] = useState(false);
@@ -16,6 +17,7 @@ export default function Feed() {
   const [storyImg, setStoryImg] = useState('');
   const fileInputRef = useRef(null);
   const sentinelRef = useRef(null);
+  const compRef = useRef(null);
 
   const handleObserver = useCallback((entries) => {
     const target = entries[0];
@@ -34,6 +36,7 @@ export default function Feed() {
 
   const filtered = posts
     .filter((p) => filter === 'all' || p.cat === filter)
+    .filter((p) => feedTab === 'foryou' || p.author === user?.name || (p.userId && followingMap[p.userId]))
     .filter((p) => !searchQuery || p.txt.toLowerCase().includes(searchQuery.toLowerCase()) || p.author.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const hour = new Date().getHours();
@@ -45,6 +48,11 @@ export default function Feed() {
     submitPost(text.trim(), cat, '');
     setText('');
     showToast('Posted!');
+  };
+
+  const composeScroll = () => {
+    compRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => compRef.current?.querySelector('textarea')?.focus(), 350);
   };
 
   return (
@@ -84,6 +92,13 @@ export default function Feed() {
           </div>
         </div>
       )}
+      <div className="feed-hd">
+        <div className="feed-hd-title">Home</div>
+        <div className="feed-tabs">
+          <div className={`feed-tab${feedTab === 'foryou' ? ' on' : ''}`} onClick={() => setFeedTab('foryou')}>For you</div>
+          <div className={`feed-tab${feedTab === 'following' ? ' on' : ''}`} onClick={() => setFeedTab('following')}>Following</div>
+        </div>
+      </div>
       <div className="greeting-bar">
         <div className="greet-inner">
           <div className="greet-icon">{hour < 12 ? '🌅' : hour < 17 ? '☀️' : '🌙'}</div>
@@ -119,7 +134,7 @@ export default function Feed() {
         <input type="text" placeholder="Search posts..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
-      <div className="composer">
+      <div className="composer" ref={compRef}>
         <div className="comp-top">
           <div className="comp-av">{user ? ini(user.name) : '?'}</div>
           <textarea className="comp-ta" placeholder="What's happening on campus?" rows={2} value={text} onChange={(e) => setText(e.target.value)} />
@@ -148,6 +163,10 @@ export default function Feed() {
         ))}
         {loadingPosts && <div className="feed-loader"><div className="spinner" /></div>}
         {hasMorePosts && !loadingPosts && <div ref={sentinelRef} className="feed-sentinel" />}
+      </div>
+
+      <div className="fab-plus" onClick={composeScroll} title="Compose">
+        +
       </div>
     </div>
     {storyIdx != null && (

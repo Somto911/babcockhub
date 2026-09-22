@@ -38,7 +38,7 @@ export default function Topbar({ onMenu }) {
       </div>
       <div className="tb-right">
         <div className="tb-btn" onClick={() => setActivePage('chat')} title="Messages"><Icon name="message" /></div>
-        <div className="tb-btn notif-btn" ref={notifRef} onClick={() => setNotifOpen(!notifOpen)} title="Notifications">
+        <div className="tb-btn notif-btn tb-notif-toggle" ref={notifRef} onClick={() => setNotifOpen(!notifOpen)} title="Notifications">
           <Icon name="bell" />{unreadCount > 0 && <div className="notif-dot" />}
         </div>
         {notifOpen && (

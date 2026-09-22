@@ -377,7 +377,7 @@ export function AppProvider({ children }) {
       id: Date.now(),
       author: user?.name || 'You',
       dept: (user?.dept?.split(' ')[0] || 'Student') + ' · ' + (user?.lvl || '300') + 'L',
-      t: 'Just now',
+      t: 'now',
       cat: cat || 'general',
       txt,
       imageUrl: imageUrl || '',

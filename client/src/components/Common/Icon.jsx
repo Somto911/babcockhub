@@ -97,6 +97,27 @@ const paths = {
       <path d="M12 2v13" />
     </>
   ),
+  bookmark: (
+    <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.5-4.5" />
+    </>
+  ),
+  explore: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M16.2 7.8l-2 6.4-6.4 2 2-6.4z" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 20, className = '' }) {

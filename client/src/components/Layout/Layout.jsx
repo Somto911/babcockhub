@@ -1,6 +1,7 @@
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import RightRail from './RightRail';
+import BottomNav from './BottomNav';
 import Feed from '../Feed/Feed';
 import Chat from '../Chat/Chat';
 import Profile from '../Profile/Profile';
@@ -36,6 +37,7 @@ export default function Layout() {
         {!['feed', 'chat', 'profile', 'conf', 'memes', 'polls', 'admin', 'groups', 'events'].includes(activePage) && <Feed />}
       </main>
       <RightRail />
+      <BottomNav />
       <Toast />
     </div>
   );
